@@ -1,0 +1,98 @@
+table: stg.mention_text
+owner: mentions
+version: 1
+grain: 'One row per match: the text, the title and the link of the post. The table expires at the
+  client''s mention text days. Only a report that says expiring: true reads it, and it is
+  rebuilt each day so the text clears with this table''s.'
+key:
+- match_id
+expiring: true
+unknown: 'The client brand, the country or the location is unknown where the mapping of the match''s
+  tag in ref.mention_filters does not give it: all three when the tag has no mapping, the location
+  when the country has no location of kind country in the load.'
+columns:
+- name: client_brand_id
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: The client brand the row was measured for, by its brand ID in the YAML configuration. unknown
+    where the mapping gives none.
+  holds: client brand
+- name: country_code
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: The country, as a two-letter code. unknown where the source could not place the row.
+  holds: country
+- name: location_id
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: The location the request was for, by its ID in ref.locations.
+  holds: location
+- name: benchmark_version
+  type: INT64
+  kind: attribute
+  nullable: true
+  meaning: The version of the client brand's benchmark set in the row's country, at the load the request
+    was planned from.
+  null_means: 'The client brand has no benchmark set in the row''s country, or the row belongs to
+    none: a mention, or a pull of every country.'
+- name: snapshot_id
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The snapshot of the YAML configuration the request was planned from.
+- name: period
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The period of the run that pulled the match.
+- name: period_start
+  type: DATE
+  kind: attribute
+  nullable: false
+  meaning: The first day of the row's period, in the client's time zone.
+- name: request_key
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The vendor request the row came from.
+- name: run_id
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The run that wrote the row.
+- name: pulled_at
+  type: TIMESTAMP
+  kind: attribute
+  nullable: false
+  meaning: When the answer the row came from was received.
+- name: match_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The match, by the vendor's ID.
+- name: match_date
+  type: DATE
+  kind: dimension
+  nullable: false
+  meaning: The day the vendor matched the post.
+- name: text
+  type: STRING
+  kind: attribute
+  nullable: true
+  meaning: The post's text.
+  null_means: The vendor gave none.
+- name: title
+  type: STRING
+  kind: attribute
+  nullable: true
+  meaning: The post's title.
+  null_means: The vendor gave none.
+- name: link
+  type: STRING
+  kind: attribute
+  nullable: true
+  meaning: The post's address.
+  null_means: The vendor gave none.

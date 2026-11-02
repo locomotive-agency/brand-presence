@@ -1,0 +1,49 @@
+table: ref.peec_projects
+owner: setup-loader
+version: 1
+grain: One row per load_number, mapping. Replaced atomically with the complete request; reference rows
+  are only added.
+key:
+  - load_number
+  - mapping
+columns:
+  - name: load_number
+    type: INT64
+    kind: key
+    nullable: false
+    meaning: Load number.
+  - name: mapping
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The immutable local project mapping from the captured setup load.
+  - name: project_id
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: Protected vendor project reference. Never printed or used as a log key.
+    shared: false
+  - name: client_brand_id
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: The client brand the row was measured for, by its brand ID in the YAML configuration.
+    holds: client brand
+  - name: country_code
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: The country, as a two-letter code. A pull of every country carries all.
+    holds: country
+  - name: engines
+    type: ARRAY<STRING>
+    kind: attribute
+    nullable: true
+    meaning: Explicit selected report engines. Unverified channels stop collection.
+    null_means: Unknown or not supplied. An array is empty when no members are held; citation_known states
+      completeness.
+  - name: first_date
+    type: DATE
+    kind: attribute
+    nullable: false
+    meaning: First verified eligible observation date. Earlier history is not planned.

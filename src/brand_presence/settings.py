@@ -1,8 +1,10 @@
 """Local configuration. Credentials are read only from the environment."""
+
 from __future__ import annotations
 
 import os
 import re
+from datetime import date
 from pathlib import Path
 from typing import Annotated, Literal
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -22,6 +24,7 @@ class Model(BaseModel):
 
 
 class Datasets(Model):
+    ref: Dataset = "bp_ref"
     ops: Dataset = "bp_ops"
     raw: Dataset = "bp_raw"
     stg: Dataset = "bp_stg"
@@ -38,6 +41,10 @@ class Datasets(Model):
 class Brand(Model):
     brand_id: Id
     name: Text
+    aliases: list[Text] = Field(default_factory=list)
+    domains: list[Annotated[str, Field(pattern=(
+        r"^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$"
+    ))]] = Field(default_factory=list)
 
 
 class Country(Model):
@@ -53,10 +60,83 @@ class Keyword(Model):
     search_volume: bool = True
 
 
+Engine = Literal["chatgpt", "perplexity", "gemini", "ai-overview"]
+
+
+class Prompt(Model):
+    prompt_id: Id
+    prompt: Annotated[str, Field(min_length=1, max_length=10000)]
+    engines: list[Engine] = Field(min_length=1)
+    location_ids: list[Id] = Field(default_factory=list)
+    keyword: Text | None = None
+    keyword_group: Text | None = None
+    intent: Text | None = None
+
+    @model_validator(mode="after")
+    def labels(self):
+        if len(set(self.engines)) != len(self.engines):
+            raise ValueError("prompt engines must be unique")
+        if len(set(self.location_ids)) != len(self.location_ids):
+            raise ValueError("prompt locations must be unique")
+        if any((self.keyword, self.keyword_group, self.intent)) and not all(
+            (self.keyword, self.keyword_group, self.intent)
+        ):
+            raise ValueError("prompt keyword, keyword_group and intent need all three values")
+        return self
+
+
+class Location(Model):
+    location_id: Id
+    country_code: Annotated[str, Field(pattern=r"^[A-Z]{2}$")]
+    kind: Literal["region"] = "region"
+    name: Text
+    canonical_name: Text
+    region_code: Annotated[str, Field(pattern=r"^[A-Z]{2}-[A-Z0-9]{1,3}$")]
+
+
 class BenchmarkSet(Model):
     client_brand_id: Id
     country_code: Annotated[str, Field(pattern=r"^[A-Z]{2}$")]
-    keywords: list[Keyword] = Field(min_length=1)
+    keywords: list[Keyword] = Field(default_factory=list)
+    competitors: list[Id] = Field(default_factory=list)
+    prompts: list[Prompt] = Field(default_factory=list)
+
+
+class MentionFilter(Model):
+    tag: Annotated[str, Field(pattern=r"^[A-Za-z0-9_-]+$")]
+    mention_class: Literal["brand", "competitor", "category", "other"]
+    client_brand_id: Id | None = None
+    subject_brand_id: Id | None = None
+    country_code: Annotated[str, Field(pattern=r"^[A-Z]{2}$")] | None = None
+    keyword_group: Text | None = None
+
+
+class Subreddit(Model):
+    subreddit: Annotated[str, Field(pattern=r"^[A-Za-z0-9_]+$")]
+    community_group: Text
+    subscribers: Annotated[int, Field(ge=0)] | None = None
+    subscribers_as_of: date | None = None
+
+    @model_validator(mode="after")
+    def dated_count(self):
+        if (self.subscribers is None) != (self.subscribers_as_of is None):
+            raise ValueError("subscribers and subscribers_as_of need both values")
+        return self
+
+
+class PeecProject(Model):
+    mapping: Id
+    project_id: Text = Field(repr=False)
+    client_brand_id: Id
+    country_code: Annotated[str, Field(pattern=r"^[A-Z]{2}$")]
+    engines: list[Engine] = Field(min_length=1)
+    first_date: date
+
+
+class PeecBrand(Model):
+    mapping: Id
+    brand_id: Id
+    vendor_brand_id: Text = Field(repr=False)
 
 
 class Settings(Model):
@@ -69,6 +149,12 @@ class Settings(Model):
     brands: list[Brand] = Field(min_length=1)
     countries: list[Country] = Field(min_length=1)
     benchmark_sets: list[BenchmarkSet] = Field(min_length=1)
+    locations: list[Location] = Field(default_factory=list)
+    mention_filters: list[MentionFilter] = Field(default_factory=list)
+    subreddits: list[Subreddit] = Field(default_factory=list)
+    mention_text_days: Annotated[int, Field(ge=1, le=366)] = 366
+    peec_projects: list[PeecProject] = Field(default_factory=list)
+    peec_brands: list[PeecBrand] = Field(default_factory=list)
 
     @field_validator("client_id")
     @classmethod
@@ -95,7 +181,64 @@ class Settings(Model):
             raise ValueError("brand IDs and country codes must be unique")
         if len(sets) != len(self.benchmark_sets):
             raise ValueError("one benchmark set is allowed per brand and country")
+        if len({f.tag for f in self.mention_filters}) != len(self.mention_filters):
+            raise ValueError("mention filter tags must be unique")
+        if len({r.subreddit.casefold() for r in self.subreddits}) != len(self.subreddits):
+            raise ValueError("subreddits must be unique ignoring case")
+        for item in self.mention_filters:
+            if any(b is not None and b not in brands
+                   for b in (item.client_brand_id, item.subject_brand_id)):
+                raise ValueError("mention filters must name listed brands")
+            if item.country_code is not None and item.country_code not in countries:
+                raise ValueError("mention filters must name a listed country")
+            if item.mention_class in ("brand", "competitor"):
+                if not item.client_brand_id or not item.subject_brand_id:
+                    raise ValueError("brand and competitor filters need both brand IDs")
+                if (item.mention_class == "brand") != (
+                        item.client_brand_id == item.subject_brand_id):
+                    raise ValueError("mention class must match the filter's brands")
+        mappings = {p.mapping: p for p in self.peec_projects}
+        if len(mappings) != len(self.peec_projects):
+            raise ValueError("Peec mappings must be unique")
+        if len({p.project_id for p in self.peec_projects}) != len(self.peec_projects):
+            raise ValueError("each Peec project may have only one mapping")
+        if len({(p.client_brand_id, p.country_code) for p in self.peec_projects}) != len(
+            self.peec_projects
+        ):
+            raise ValueError("each benchmark set may have only one Peec mapping")
+        if any(b.mapping not in mappings for b in self.peec_brands):
+            raise ValueError("Peec brands must name a listed mapping")
+        for project in self.peec_projects:
+            benchmark = next((s for s in self.benchmark_sets if
+                              (s.client_brand_id, s.country_code) ==
+                              (project.client_brand_id, project.country_code)), None)
+            if benchmark is None:
+                raise ValueError("Peec project needs a matching benchmark set")
+            if len(set(project.engines)) != len(project.engines):
+                raise ValueError("Peec project engines must be unique")
+            mapped = [b for b in self.peec_brands if b.mapping == project.mapping]
+            expected = {benchmark.client_brand_id, *benchmark.competitors}
+            if {b.brand_id for b in mapped} != expected or len(mapped) != len(expected):
+                raise ValueError("Peec brands must map every benchmark brand exactly once")
+            if len({b.vendor_brand_id for b in mapped}) != len(mapped):
+                raise ValueError("Peec vendor brand references must be unique within a mapping")
+        locations = {c.country_code.lower(): c.country_code for c in self.countries}
+        for place in self.locations:
+            if place.location_id in locations or place.country_code not in countries:
+                raise ValueError("locations need unique IDs and a listed country")
+            if not place.region_code.startswith(place.country_code + "-"):
+                raise ValueError("region_code must belong to the location country")
+            locations[place.location_id] = place.country_code
         for group in self.benchmark_sets:
+            if len(set(group.competitors)) != len(group.competitors):
+                raise ValueError("competitors must be unique")
+            if any(b not in brands or b == group.client_brand_id for b in group.competitors):
+                raise ValueError("competitors must name other listed brands")
+            if len({p.prompt_id for p in group.prompts}) != len(group.prompts):
+                raise ValueError("prompt IDs must be unique within a benchmark set")
+            for prompt in group.prompts:
+                if any(locations.get(p) != group.country_code for p in prompt.location_ids):
+                    raise ValueError("prompt locations must belong to the benchmark country")
             if group.client_brand_id not in brands or group.country_code not in countries:
                 raise ValueError("a benchmark set names an unlisted brand or country")
             keywords = [k.keyword.casefold() for k in group.keywords]
@@ -107,11 +250,12 @@ class Settings(Model):
                         raise ValueError("a generic keyword has no brand_id")
                 elif keyword.brand_id not in brands:
                     raise ValueError("a brand or competitor keyword needs a listed brand_id")
-                elif (keyword.term_type == "brand") != (
-                        keyword.brand_id == group.client_brand_id):
+                elif (keyword.term_type == "brand") != (keyword.brand_id == group.client_brand_id):
                     raise ValueError("a keyword's term type must match its brand")
-        if not any(k.search_volume for s in self.benchmark_sets for k in s.keywords):
-            raise ValueError("at least one keyword must enable search_volume")
+        if not self.mention_filters and not self.peec_projects and not any(
+            s.prompts or any(k.search_volume for k in s.keywords) for s in self.benchmark_sets
+        ):
+            raise ValueError("at least one benchmark set must have prompts or enabled keywords")
         return self
 
     def table(self, logical: str) -> str:
@@ -138,7 +282,15 @@ def load(path: Path) -> Settings:
     return settings
 
 
-def credentials() -> dict[str, str]:
+def credentials(source: str = "search-volume") -> dict[str, str]:
+    if source != "search-volume":
+        env, key = {"ai-answers": ("CLORO_API_KEY", "cloro-api-key"),
+                    "mentions": ("SYFTEN_API_KEY", "syften-api-token"),
+                    "peec": ("PEEC_API_KEY", "peec-api-key")}[source]
+        value = os.environ.get(env, "")
+        if not value.strip():
+            raise UserError(f"set {env}")
+        return {key: value}
     found = {}
     for name in ("LOGIN", "PASSWORD"):
         value = os.environ.get(f"DATAFORSEO_{name}")

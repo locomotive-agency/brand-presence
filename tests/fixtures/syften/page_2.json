@@ -1,0 +1,53 @@
+[
+  {
+    "id": "match-0006",
+    "matched_on": "2026-02-26T19:44:02.330000000Z",
+    "filter": "\"sample capybara\" $tag:sample-capybara",
+    "item": {
+      "timestamp": "2026-02-26T19:40:00.000000000Z",
+      "backend": "sample-forum",
+      "backend_sub": "theepotten",
+      "type": "comment",
+      "item_url": "https://forum.example/theepotten/reactie-6",
+      "title": "Re: een theepot als voorbeeld",
+      "text": "De theepot van Sample Rival Capybara lekt bij mij niet.",
+      "lang": "nl",
+      "author": "sample-writer-four",
+      "analysis": {"accept": true}
+    }
+  },
+  {
+    "id": "match-0005",
+    "matched_on": "2026-02-25T07:02:55.010203040Z",
+    "filter": "\"voorbeeld theepot\" $tag:sample-teapots-nl",
+    "item": {
+      "timestamp": "2026-02-25T06:59:00.000000000Z",
+      "backend": "sample-answers",
+      "backend_sub": null,
+      "type": "post",
+      "item_url": "https://answers.example/vraag-5",
+      "title": "Een voorbeeld van een goede theepot",
+      "text": "Wie heeft een voorbeeld van een theepot die lang warm blijft?",
+      "lang": "nl",
+      "author": "sample-writer-five",
+      "analysis": {"accept": true}
+    }
+  },
+  {
+    "id": "match-0004",
+    "matched_on": "2026-02-24T16:20:00.500000000Z",
+    "filter": "\"sample badger\" $tag:sample-badger-pt",
+    "item": {
+      "timestamp": "2026-02-24T16:12:00.000000000Z",
+      "backend": "sample-forum",
+      "backend_sub": "bules",
+      "type": "post",
+      "item_url": "https://forum.example/bules/topico-4",
+      "title": "Sample Brand Badger, um exemplo",
+      "text": "O bule da Sample Brand Badger chegou hoje. Um bom exemplo.",
+      "lang": "pt",
+      "author": "sample-writer-six",
+      "analysis": {"accept": true}
+    }
+  }
+]

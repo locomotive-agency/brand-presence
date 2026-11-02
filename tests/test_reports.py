@@ -9,6 +9,18 @@ from project import Project
 from reporting import evaluate, install
 
 
+def test_empty_search_volume_rolls_back_without_deleting_history(tmp_path, respx_mock):
+    project = Project(tmp_path, respx_mock)
+    install(project.fake)
+    with pytest.raises(ValueError, match='no rows; run search-volume first'):
+        runner.run(project.bq, project.settings, clock=lambda: project.now, out=lambda _: None)
+    calls = project.fake.journal.calls
+    assert any(call.subject == 'ROLLBACK TRANSACTION' for call in calls)
+    assert not any('DELETE FROM' in call.subject and 'search_volume_history_v1' in call.subject
+                   for call in calls)
+    assert project.rows('ops.runs')[-1]['status'] == 'error'
+
+
 def test_production_sql_selects_the_latest_pull_and_keeps_null(tmp_path, respx_mock):
     project = Project(tmp_path, respx_mock)
     assert project.run().status == "success"

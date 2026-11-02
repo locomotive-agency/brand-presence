@@ -1,0 +1,137 @@
+table: stg.peec_answers
+owner: peec
+version: 1
+grain: One row per mapping, answer_key, period. Replaced atomically with the complete request; reference
+  rows are only added.
+key:
+  - mapping
+  - answer_key
+  - period
+columns:
+  - name: client_brand_id
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: The client brand the row was measured for, by its brand ID in the YAML configuration.
+    holds: client brand
+  - name: country_code
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: The country, as a two-letter code. A pull of every country carries all.
+    holds: country
+  - name: location_id
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: The location the request was for, by its ID in ref.locations. A pull of every country carries
+      all.
+    holds: location
+  - name: benchmark_version
+    type: INT64
+    kind: attribute
+    nullable: true
+    meaning: The version of the client brand's benchmark set in the row's country, at the load the request
+      was planned from.
+    null_means: Unknown or not supplied. An array is empty when no members are held; citation_known states
+      completeness.
+  - name: snapshot_id
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: The snapshot of the YAML configuration the request was planned from.
+  - name: period
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The period of the pull that wrote the row, as the run names it. It tells apart the rows of
+      two pulls of the same dates.
+  - name: period_start
+    type: DATE
+    kind: attribute
+    nullable: false
+    meaning: The first day of the row's period, in the client's time zone.
+  - name: request_key
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: The vendor request the row came from.
+  - name: run_id
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: The run that wrote the row.
+  - name: pulled_at
+    type: TIMESTAMP
+    kind: attribute
+    nullable: false
+    meaning: When the answer the row came from was received.
+  - name: mapping
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The immutable local project mapping from the captured setup load.
+  - name: answer_key
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: Opaque hash of local project mapping and vendor chat reference. Distinct chats remain distinct.
+  - name: prompt_id
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: Opaque Peec prompt key derived from the project mapping and vendor prompt reference.
+  - name: engine
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: The engine asked.
+  - name: observation_date
+    type: DATE
+    kind: attribute
+    nullable: false
+    meaning: Vendor calendar date from the listing, not ingestion date. The vendor time zone still needs verification.
+  - name: answer_text
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: Single non-empty assistant message. Retained under the existing AI answer text policy.
+  - name: state
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: Answered. No negative observation is inferred from unusable content.
+  - name: model
+    type: STRING
+    kind: attribute
+    nullable: true
+    meaning: Model reference as supplied by the vendor. Not an engine or surface mapping.
+    null_means: Unknown or not supplied. An array is empty when no members are held; citation_known states
+      completeness.
+  - name: citation_known
+    type: BOOL
+    kind: attribute
+    nullable: false
+    meaning: Whether every source entry was readable. False withholds the whole request from citation
+      totals.
+  - name: cited_links
+    type: ARRAY<STRING>
+    kind: attribute
+    nullable: true
+    meaning: Distinct cited original URLs in first-seen order. Partial when citation_known is false.
+    null_means: Unknown or not supplied. An array is empty when no members are held; citation_known states
+      completeness.
+  - name: cited_domains
+    type: ARRAY<STRING>
+    kind: attribute
+    nullable: true
+    meaning: Distinct domains of readable cited links. Unknown completeness is explicit.
+    null_means: Unknown or not supplied. An array is empty when no members are held; citation_known states
+      completeness.
+  - name: prompt_version
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: The captured Peec prompt content version, independent of configuration benchmark versions.
+unknown: No inferred brand or country. Missing optional values remain null.
+days: Vendor observation dates, not ingestion dates. Verify the vendor time zone before activation.

@@ -1,0 +1,92 @@
+chart_group: ai answers
+grain: One row per week_start, source, engine, keyword_group, brand. Only observed weeks are present;
+  countries and locations are combined within the client project.
+key:
+- week_start
+- source
+- engine
+- keyword_group
+- brand
+reads:
+- core.fct_ai_answers_v1
+- core.fct_peec_answers_v1
+- stg.peec_pulls
+inputs:
+- ai_prompt_results_v2
+- peec_prompt_results_v1
+checks:
+- weekly_values
+columns:
+- name: week_start
+  type: DATE
+  kind: key
+  nullable: false
+  meaning: Monday of the ISO week of run_date. Cloro uses the client time zone; Peec uses the verified
+    vendor observation date, as the existing prompt reports do.
+- name: source
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: cloro for ai-answers, or peec. Sources are never combined.
+- name: engine
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The engine held by the facts. Peec already maps to chatgpt, perplexity, gemini and ai-overview;
+    Cloro names are preserved.
+- name: keyword_group
+  type: STRING
+  kind: key
+  nullable: true
+  meaning: The prompt's keyword group from the YAML configuration; unknown where the prompt has none,
+    which today is every Peec prompt (Peec owns its prompts).
+- name: brand
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The client brand or a competitor in the benchmark at each run, as the existing prompt report
+    derives it.
+- name: prompts_total
+  type: INT64
+  kind: denominator
+  nullable: false
+  meaning: Prompt runs (answers), not distinct prompts, whose benchmark set includes the brand. Includes
+    runs with unknown mention marks and no answer text.
+  unit: answers
+  sums:
+    over: []
+    dates: any
+- name: prompts_mentioned
+  type: INT64
+  kind: numerator
+  nullable: false
+  meaning: Prompt runs (answers), not distinct prompts, with brand_mentioned TRUE. Unknown marks are not
+    positive observations; this count does not assert that those answers do not mention the brand.
+  unit: answers
+  sums:
+    over: []
+    dates: any
+  denominator: prompts_total
+- name: mention_rate
+  type: FLOAT64
+  kind: ratio
+  nullable: true
+  meaning: Observed prompts_mentioned divided by prompts_total, including unknown runs in the denominator.
+    Never sum or average across rows; recompute from the counts.
+  unit: mentioned answers per answer
+  numerator: prompts_mentioned
+  denominator: prompts_total
+- name: cited_rate
+  type: FLOAT64
+  kind: attribute
+  nullable: true
+  meaning: Answers with a TRUE cited mark for this brand divided by prompts_total. Uses each brand own
+    fact mark, matched to its latest answer, not the client mark repeated on competitors. Null if any
+    mark is unknown. Fixed grain only; never sum or average across rows.
+- name: avg_mention_position
+  type: FLOAT64
+  kind: attribute
+  nullable: true
+  meaning: Average mention_rank over answers with brand_mentioned TRUE, 1 first among the benchmark brands
+    mentioned. Null when none mentions it or any mentioned answer lacks a rank. Fixed grain only; never
+    sum or average across rows.

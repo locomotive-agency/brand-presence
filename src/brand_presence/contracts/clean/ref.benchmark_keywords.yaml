@@ -1,0 +1,76 @@
+table: ref.benchmark_keywords
+owner: setup-loader
+version: 1
+grain: One row per client brand, country, version of the set and keyword, written once, when the version
+  is made.
+key:
+- client_brand_id
+- country_code
+- benchmark_version
+- keyword
+columns:
+- name: load_number
+  type: INT64
+  kind: attribute
+  nullable: false
+  meaning: The number of the load that made the version the row belongs to.
+- name: client_brand_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The client brand the set is for, by its brand ID.
+  holds: client brand
+- name: country_code
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The country the set is for, as a two-letter code.
+  holds: country
+- name: benchmark_version
+  type: INT64
+  kind: key
+  nullable: false
+  meaning: The version of the set the row belongs to.
+- name: keyword
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The keyword, as the configuration gives it.
+- name: term_type
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: brand, competitor or generic.
+- name: brand_id
+  type: STRING
+  kind: dimension
+  nullable: true
+  meaning: The brand the keyword is about.
+  null_means: The keyword is generic.
+- name: search_volume
+  type: BOOL
+  kind: attribute
+  nullable: false
+  meaning: Whether search volume is asked for the keyword.
+- name: search_trends
+  type: BOOL
+  kind: attribute
+  nullable: false
+  meaning: Whether search trends are asked for the keyword.
+- name: search_results
+  type: BOOL
+  kind: attribute
+  nullable: false
+  meaning: Whether results pages are asked for the keyword.
+- name: trends_anchor
+  type: BOOL
+  kind: attribute
+  nullable: false
+  meaning: Whether the keyword is the set's trends anchor.
+- name: canonical_term
+  type: STRING
+  kind: attribute
+  nullable: true
+  meaning: The keyword of the same benchmark set this one rolls up to, as a misspelling rolls up to the
+    right spelling.
+  null_means: The keyword is its own canonical term.

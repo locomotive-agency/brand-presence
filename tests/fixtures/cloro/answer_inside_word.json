@@ -1,0 +1,24 @@
+{
+  "task": {
+    "id": "task-sample-2",
+    "taskType": "CHATGPT",
+    "status": "COMPLETED",
+    "idempotencyKey": "sample/ai-answers/2026-W10/samplehash02"
+  },
+  "credits": {
+    "creditsToCharge": 5,
+    "creditsCharged": 5
+  },
+  "response": {
+    "model": "sample-model-1",
+    "text": "De Sample Brand Aardvarkachtige theepotten zijn overal te koop, maar in tests komt Sample Rival Dormouse er het beste uit. Let bij het kopen op het deksel.",
+    "sources": [
+      {
+        "position": 1,
+        "url": "https://voorbeeld-gids.example/theepot-test",
+        "label": "Voorbeeldgids"
+      }
+    ],
+    "citationPills": []
+  }
+}

@@ -1,0 +1,33 @@
+table: ref.countries
+owner: setup-loader
+version: 1
+grain: 'One row per load and country: every country of the country table, the reserved unknown and
+  all among them, with whether the configuration lists it.'
+key:
+- load_number
+- country_code
+columns:
+- name: load_number
+  type: INT64
+  kind: key
+  nullable: false
+  meaning: The number of the load that wrote the row.
+- name: country_code
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: ISO 3166-1, two letters, or the reserved unknown or all.
+  holds: country
+- name: language
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The country's language, ISO 639-1.
+- name: listed
+  type: BOOL
+  kind: attribute
+  nullable: true
+  meaning: True for a country the YAML configuration lists. False for one the loader adds and for the reserved
+    unknown and all. Null on a row written before the column, read as listed. The countries of the
+    client, for every source and every rule, are the listed ones.
+  null_means: Null on a row written before the column, read as listed.

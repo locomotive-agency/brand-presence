@@ -271,9 +271,10 @@ class Warehouse:
             for row in rows:
                 transaction.run(
                     f"DELETE FROM {model.table} WHERE run_id = @run_id "
-                    "AND request_key = @request_key",
+                    "AND request_key = @request_key AND request = @request",
                     [text_parameter("run_id", row.run_id),
-                     text_parameter("request_key", row.request_key)],
+                     text_parameter("request_key", row.request_key),
+                     text_parameter("request", row.request)],
                 )
                 transaction.run(
                     f"INSERT INTO {model.table} ({columns}) "
@@ -335,7 +336,7 @@ class Warehouse:
                     measure = tuple(getattr(row, column) for column in key_columns)
                     if any(value is None for value in measure):
                         raise ValueError(f"{model.__name__}: a natural key holds no null")
-                    newest[(row.period, *measure)] = row
+                    newest[(None if model.item_key else row.period, *measure)] = row
             plans.append((model, key_columns, newest))
         # A table of parts follows its parent. A part is written only with the answer that
         # gives its parent row: where two answers being written hold the same parent row,
@@ -366,11 +367,12 @@ class Warehouse:
                                         [text_parameter("period", period)])
                         continue
                     for batch in row_batches(model, of_period, key_columns):
+                        where = "" if model.item_key else "period = @period AND "
+                        parameters = [] if model.item_key else [text_parameter("period", period)]
                         transaction.run(
-                            f"DELETE FROM {model.table} WHERE period = @period "
-                            f"AND STRUCT({', '.join(key_columns)}) IN UNNEST(@measures)",
-                            [text_parameter("period", period),
-                             rows_parameter("measures", model, batch, key_columns)],
+                            f"DELETE FROM {model.table} WHERE {where}"
+                            f"STRUCT({', '.join(key_columns)}) IN UNNEST(@measures)",
+                            [*parameters, rows_parameter("measures", model, batch, key_columns)],
                         )
                 if model.parent is not None:
                     # Every part of each parent row being written, by the parent's key:

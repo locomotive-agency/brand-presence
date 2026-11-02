@@ -1,0 +1,53 @@
+[
+  {
+    "id": "match-0003",
+    "matched_on": "2026-02-23T11:11:11.111111111Z",
+    "filter": "\"sample aardvark\" $tag:sample-aardvark-nl",
+    "item": {
+      "timestamp": "2026-02-23T11:05:00.000000000Z",
+      "backend": "sample-forum",
+      "backend_sub": "theepotten",
+      "type": "post",
+      "item_url": "https://forum.example/theepotten/onderwerp-3",
+      "title": "Sample Brand Aardvark als voorbeeld",
+      "text": "Mijn theepot van Sample Brand Aardvark is een mooi voorbeeld.",
+      "lang": "nl",
+      "author": "sample-writer-seven",
+      "analysis": {"accept": true}
+    }
+  },
+  {
+    "id": "match-0002",
+    "matched_on": "2026-02-22T09:00:45.000000000Z",
+    "filter": "\"sample echidna\" $tag:sample-echidna-pt",
+    "item": {
+      "timestamp": "2026-02-22T08:51:00.000000000Z",
+      "backend": "sample-answers",
+      "backend_sub": null,
+      "type": "comment",
+      "item_url": "https://answers.example/resposta-2",
+      "title": "Resposta de exemplo",
+      "text": "A Sample Rival Echidna tem uma chávena de exemplo parecida.",
+      "lang": "pt",
+      "author": "sample-writer-eight",
+      "analysis": {"accept": true}
+    }
+  },
+  {
+    "id": "match-0001",
+    "matched_on": "2026-02-21T22:35:09.700000000Z",
+    "filter": "\"sample aardvark\" $tag:sample-aardvark-nl",
+    "item": {
+      "timestamp": "2026-02-21T22:30:00.000000000Z",
+      "backend": "sample-forum",
+      "backend_sub": "theepotten",
+      "type": "comment",
+      "item_url": "https://forum.example/theepotten/reactie-1",
+      "title": "Re: welke theepot als voorbeeld",
+      "text": "Ik zou die van Sample Brand Aardvark als voorbeeld nemen.",
+      "lang": "nl",
+      "author": "sample-writer-nine",
+      "analysis": {"accept": true}
+    }
+  }
+]

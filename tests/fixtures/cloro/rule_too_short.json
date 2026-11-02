@@ -1,0 +1,18 @@
+{
+  "task": {
+    "id": "task-sample-10",
+    "taskType": "CHATGPT",
+    "status": "COMPLETED",
+    "idempotencyKey": "sample/ai-answers/2026-W10/samplehash10"
+  },
+  "credits": {
+    "creditsToCharge": 5,
+    "creditsCharged": 5
+  },
+  "response": {
+    "model": "sample-model-1",
+    "text": "Geen idee.",
+    "sources": [],
+    "citationPills": []
+  }
+}

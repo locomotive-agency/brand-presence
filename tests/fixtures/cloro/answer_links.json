@@ -1,0 +1,39 @@
+{
+  "task": {
+    "id": "task-sample-4",
+    "taskType": "CHATGPT",
+    "status": "COMPLETED",
+    "idempotencyKey": "sample/ai-answers/2026-W10/samplehash04"
+  },
+  "credits": {
+    "creditsToCharge": 5,
+    "creditsCharged": 5
+  },
+  "response": {
+    "model": "sample-model-1",
+    "text": "\n  In tests van een voorbeeld theepot staat Sample Rival Dormouse bovenaan, met capybara sample op de tweede plaats. Sample Brand Aardvark volgt, en daarna noemt de gids Sample Rival Capybara nog een keer.",
+    "sources": [
+      {
+        "position": 1,
+        "url": "https://www.capybara.example/theepotten?bron=voorbeeld#prijs",
+        "label": "Capybara Sample"
+      },
+      {
+        "position": 2,
+        "url": "https://capybara.example/andere-theepot",
+        "label": "Capybara Sample"
+      },
+      {
+        "position": 3,
+        "url": "https://www.capybara.example/theepotten?bron=voorbeeld#prijs",
+        "label": "Capybara Sample"
+      },
+      {
+        "position": 4,
+        "url": "https://voorbeeld-gids.example/theepot-test",
+        "label": "Voorbeeldgids"
+      }
+    ],
+    "citationPills": []
+  }
+}

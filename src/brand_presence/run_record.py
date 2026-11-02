@@ -56,6 +56,7 @@ ERROR = "error"
 
 
 _END_COLUMNS = {
+    "matches_unlisted": "INT64", "rate_limit_waits": "INT64",
     "load_number": "INT64", "snapshot_id": "STRING",
     "requests_planned": "INT64", "requests_sent": "INT64", "requests_failed": "INT64",
     "requests_pending": "INT64", "requests_unknown": "INT64", "answers_usable": "INT64",

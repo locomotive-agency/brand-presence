@@ -1,0 +1,38 @@
+table: ref.benchmark_competitors
+owner: setup-loader
+version: 1
+grain: One row per client brand, country, version of the set and competitor, written once, when the
+  version is made.
+key:
+- client_brand_id
+- country_code
+- benchmark_version
+- brand_id
+columns:
+- name: load_number
+  type: INT64
+  kind: attribute
+  nullable: false
+  meaning: The number of the load that made the version the row belongs to.
+- name: client_brand_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The client brand the set is for, by its brand ID.
+  holds: client brand
+- name: country_code
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The country the set is for, as a two-letter code.
+  holds: country
+- name: benchmark_version
+  type: INT64
+  kind: key
+  nullable: false
+  meaning: The version of the set the row belongs to.
+- name: brand_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The competitor, by its brand ID.

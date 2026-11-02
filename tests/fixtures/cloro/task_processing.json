@@ -1,0 +1,12 @@
+{
+  "task": {
+    "id": "task-sample-5",
+    "taskType": "CHATGPT",
+    "status": "PROCESSING",
+    "idempotencyKey": "sample/ai-answers/2026-W10/samplehash05"
+  },
+  "credits": {
+    "creditsToCharge": 5,
+    "creditsCharged": null
+  }
+}

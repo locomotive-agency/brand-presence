@@ -7,6 +7,28 @@ from brand_presence.bigquery import Warehouse
 from project import Killed, Project
 
 
+def test_old_snapshot_keeps_unchanged_benchmark_version(tmp_path, respx_mock):
+    import json
+
+    from brand_presence import client_ref
+
+    project = Project(tmp_path, respx_mock)
+    first = client_ref.apply(project.bq, project.settings, project.now)
+    snapshot = project.rows('ops.config_snapshots')[0]
+    payload = first.model_dump(mode='json', include={
+        'load_number', 'snapshot_id', 'benchmark_sets', 'locations',
+    })
+    snapshot.update(snapshot_id='old-shape', payload=json.dumps(payload))
+    project.fake.tables['bp_ops.config_snapshots'].rows = [snapshot]
+
+    current = client_ref.apply(project.bq, project.settings, project.now)
+
+    assert current.load_number == 2
+    assert current.benchmark_sets[0].version == first.benchmark_sets[0].version == 1
+    assert project.run().status == 'success'
+    assert {row['benchmark_version'] for row in project.rows('stg.search_volume')} == {1}
+
+
 def test_full_run_and_rerun(tmp_path, respx_mock):
     project = Project(tmp_path, respx_mock)
     result = project.run()

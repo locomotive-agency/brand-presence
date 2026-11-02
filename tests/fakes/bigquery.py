@@ -326,13 +326,11 @@ class FakeBigQuery(StandIn):
              "list_tables")
 
     def __init__(self, journal: Journal | None = None, *, project: str = "stand-in-project",
-                 location: str = "EU", storage=None,
+                 location: str = "EU",
                  clock: Callable[[], datetime] | None = None):
         super().__init__(journal)
         self.project = project
         self.location = location
-        # The bucket stand-in a load from `gs://` reads. None means no such load.
-        self.storage = storage
         self.clock = clock or (lambda: datetime.now(UTC))
         self.tables: dict[str, FakeTable] = {}
         self._engine = Engine(self.tables, lambda: self.clock())
@@ -767,30 +765,6 @@ class FakeBigQuery(StandIn):
                         "source_format": bigquery.SourceFormat.NEWLINE_DELIMITED_JSON}
             self._enter("load", name, rows=len(json_rows), source="json", **settings)
             return self._started(self._load(name, list(json_rows), settings))
-
-    def load_table_from_uri(self, source_uris, destination, job_config=None, **_) -> FakeJob:
-        """Load newline-delimited JSON objects from the bucket stand-in. A `*` at the end of
-        an address takes every object that starts with what comes before it. The format
-        must be set: left unset, BigQuery reads the objects as CSV."""
-        name = table_name(str(destination))
-        uris = [source_uris] if isinstance(source_uris, str) else list(source_uris)
-        self._waited_for_the_last()
-        self._gate(name)
-        with self._lock:
-            settings = _load_settings(job_config)
-            self._enter("load", name, source=", ".join(uris), **settings)
-            if self.storage is None:
-                raise NotUnderstood("this stand-in was given no bucket to load from")
-            found = settings["source_format"]
-            if found != bigquery.SourceFormat.NEWLINE_DELIMITED_JSON:
-                return self._started(FakeJob(subject=f"load into {name}", error=BadRequest(
-                    f"stand-in: the objects are JSON and the load reads them as {found or 'CSV'}"
-                )))
-            rows = []
-            for uri in uris:
-                for data in self.storage.read_for_load(uri):
-                    rows += [json.loads(line) for line in data.decode().splitlines() if line]
-            return self._started(self._load(name, rows, settings))
 
     def _load(self, name: str, rows: list[dict], settings: dict) -> FakeJob:
         # A load job could make the table, replace it or add columns to it. No code

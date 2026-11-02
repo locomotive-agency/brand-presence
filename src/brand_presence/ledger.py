@@ -191,6 +191,17 @@ class Ledger:
 
 
 
+    def did_not_finish(self, run_id: str) -> int:
+        """A window source's rows that an earlier run left as `sending`: that run died
+        with the attempt open. They are `failed` now, with the class `did not finish`;
+        the attempt counts, and the request is asked again whole. Called once the run
+        holds the lock, so no other run of the source is sending."""
+        left = [row for row in self.in_state(SENDING) if row.run_id != run_id]
+        self.rewrite([row.model_copy(update={"state": FAILED, "error_class": DID_NOT_FINISH})
+                      for row in left])
+        return len(left)
+
+
 def changed(row: LedgerRow, **values: object) -> LedgerRow:
     return row.model_copy(update=values)
 
@@ -290,3 +301,37 @@ def superseded(row: LedgerRow, rows: Sequence[LedgerRow]) -> bool:
         and other.attempt > row.attempt and other.written_at is not None
         for other in rows
     )
+
+
+def counted(rows: Sequence[LedgerRow], refusals: Sequence[str] = ()) -> int:
+    """How many of one request's attempts count towards the three: all but those that
+    failed with a class the source names as a refusal."""
+    return sum(1 for row in rows
+               if not (row.state == FAILED and row.error_class in refusals))
+
+def to_send(planned: Sequence[str], rows: Sequence[LedgerRow], *, again: bool = False,
+            refusals: Sequence[str] = ()) -> dict[str, int]:
+    """Which planned requests of a period a window run sends, each with its attempt's
+    number. `rows` are the period's.
+
+    A request with a usable answer stored is not sent unless its latest attempt is
+    unusable. One whose last attempt was `failed`
+    or `unusable` is, up to three attempts; a refused attempt keeps its number and is not
+    one of the three. With `again`, every request is sent, as a new attempt."""
+    attempts = _by_request(rows)
+    found: dict[str, int] = {}
+    for key in planned:
+        made = attempts.get(key, [])
+        number = (made[-1].attempt + 1) if made else 1
+        if again:
+            found[key] = number
+            continue
+        states = {row.state for row in made}
+        if SENDING in states or (COLLECTED in states and made[-1].state != UNUSABLE):
+            continue
+        if counted(made, refusals) >= ATTEMPTS:
+            continue
+        found[key] = number
+    return found
+
+DID_NOT_FINISH = "did not finish"

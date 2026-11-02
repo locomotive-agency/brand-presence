@@ -1,0 +1,16 @@
+{
+  "task": {
+    "id": "task-sample-11",
+    "taskType": "GOOGLE",
+    "status": "COMPLETED",
+    "idempotencyKey": "sample/ai-answers/2026-W10/samplehash11"
+  },
+  "credits": {
+    "creditsToCharge": 5,
+    "creditsCharged": 3
+  },
+  "response": {
+    "html": "<html><body>Sample page with no result on it.</body></html>",
+    "organicResults": []
+  }
+}

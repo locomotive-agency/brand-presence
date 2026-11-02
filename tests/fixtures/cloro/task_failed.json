@@ -1,0 +1,16 @@
+{
+  "task": {
+    "id": "task-sample-6",
+    "taskType": "CHATGPT",
+    "status": "FAILED",
+    "idempotencyKey": "sample/ai-answers/2026-W10/samplehash06",
+    "error": {
+      "code": "SAMPLE_FAILURE",
+      "message": "Sample failure text."
+    }
+  },
+  "credits": {
+    "creditsToCharge": 5,
+    "creditsCharged": null
+  }
+}

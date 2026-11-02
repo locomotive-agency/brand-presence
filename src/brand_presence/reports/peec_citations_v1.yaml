@@ -1,0 +1,103 @@
+chart_group: ai answers
+grain: One row per month, client brand, country, level and item the month's AI answers cite, a domain
+  or a page, from the verified Peec tracking start. Peec chats count independently.
+key:
+- month
+- client_brand_id
+- country_code
+- level
+- domain
+- url
+reads:
+- ref.brands
+- ref.benchmark_sets
+- ref.benchmark_competitors
+inputs:
+- peec_prompt_results_v1
+checks: []
+columns:
+- name: month
+  type: DATE
+  kind: key
+  nullable: false
+  meaning: The first day of the month the answers were received in, in the client's time zone.
+- name: client_brand_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The client brand the prompts were asked for.
+  holds: client brand
+- name: country_code
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The country, as a two-letter code.
+  holds: country
+- name: level
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: domain for a row of a cited domain, page for a row of one cited page. A reader never adds page
+    rows to domain rows.
+- name: domain
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The cited domain, the host of the link, lower case, without a leading www and its dot. On a
+    page row, the page's domain.
+- name: url
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The cited page, the link as the vendor gave it. (all) on a domain row.
+- name: citations
+  type: INT64
+  kind: measure
+  nullable: false
+  meaning: Distinct Peec chats of the observation month citing the item, each chat once. Requests with
+    unknown citation lists are withheld.
+  unit: answers
+  sums:
+    over: []
+    dates: any
+- name: rank
+  type: INT64
+  kind: attribute
+  nullable: false
+  meaning: The item's place by citations among the items of its level, month, client brand and country,
+    1 the most cited. One more than the items with more citations, so items with as many share a rank.
+- name: is_client_domain
+  type: BOOL
+  kind: attribute
+  nullable: false
+  meaning: True where the domain is one of the client brand's domains, or is under one, in the brand set
+    at the benchmark version of an answer of the month that cites the item.
+- name: is_competitor_domain
+  type: BOOL
+  kind: attribute
+  nullable: false
+  meaning: True where the domain is one of a competitor's domains, or is under one, in the brand set at
+    the benchmark version of an answer of the month that cites the item.
+- name: engine_count
+  type: INT64
+  kind: measure
+  nullable: false
+  meaning: The engines whose answers of the month cite the item, each once.
+  unit: engines
+  sums:
+    over: []
+    dates: none
+- name: prompt_count
+  type: INT64
+  kind: measure
+  nullable: false
+  meaning: The prompts whose answers of the month cite the item, each once.
+  unit: prompts
+  sums:
+    over: []
+    dates: none
+- name: pulled_at
+  type: TIMESTAMP
+  kind: attribute
+  nullable: false
+  meaning: The latest pulled_at of the rows of ai_prompt_results_v2 the row was made from.

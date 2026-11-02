@@ -1,0 +1,37 @@
+table: ref.subreddits
+owner: setup-loader
+version: 1
+grain: One row per load and subreddit, as the YAML configuration's subreddits tab gave it. Rows are only added.
+key:
+- load_number
+- subreddit
+columns:
+- name: load_number
+  type: INT64
+  kind: key
+  nullable: false
+  meaning: The number of the load that wrote the row.
+- name: subreddit
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The subreddit, without r/, as typed. No two rows of one load differ only in case. Match
+    a mention's subreddit to it without regard to case.
+- name: community_group
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: The community group the subreddit is reported under.
+- name: subscribers
+  type: INT64
+  kind: attribute
+  nullable: true
+  meaning: The subreddit's subscribers, typed by hand on the day subscribers_as_of. Never summed
+    over months.
+  null_means: None were typed.
+- name: subscribers_as_of
+  type: DATE
+  kind: attribute
+  nullable: true
+  meaning: The day the subscribers were read.
+  null_means: None were typed. Null exactly where subscribers is null.

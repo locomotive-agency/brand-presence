@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from collections.abc import Mapping
 
 _HASH_LENGTH = 20
@@ -49,3 +50,23 @@ def object_name(key: str, attempt: int = 1) -> str:
     """The name of the raw object of one attempt at a request, under the run's own path."""
     return f"{hash_of(key)}-a{attempt}.json"
 
+
+
+_PART = re.compile(r"[a-z][a-z0-9_]*")
+
+def window_key(client_id: str, source: str, period: str,
+               identity: Mapping[str, object]) -> str:
+    """The key of a window request: the period, and a hash of its identity fields alone."""
+    if not identity:
+        raise ValueError("a window request's key is made from its identity fields; none was "
+                         "given")
+    return request_key(client_id, source, period, identity)
+
+def page_object_name(key: str, attempt: int, part: str, page: int) -> str:
+    """The name of the raw object of one page of one part of an attempt at a window
+    request. Pages are numbered from 1."""
+    if not _PART.fullmatch(part):
+        raise ValueError("a part's name is lower-case letters, digits and underscores")
+    if page < 1 or attempt < 1:
+        raise ValueError("pages and attempts are numbered from 1")
+    return f"{hash_of(key)}-a{attempt}-{part}-p{page:04d}.json"

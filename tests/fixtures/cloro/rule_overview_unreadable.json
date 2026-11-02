@@ -1,0 +1,22 @@
+{
+  "task": {
+    "id": "task-sample-12",
+    "taskType": "GOOGLE",
+    "status": "COMPLETED",
+    "idempotencyKey": "sample/ai-answers/2026-W10/samplehash12"
+  },
+  "credits": {
+    "creditsToCharge": 5,
+    "creditsCharged": 3
+  },
+  "response": {
+    "aioverview": null,
+    "organicResults": [
+      {
+        "position": 1,
+        "url": "https://voorbeeld-gids.example/theepot-test",
+        "title": "Voorbeeld theepot test"
+      }
+    ]
+  }
+}

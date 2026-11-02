@@ -1,0 +1,167 @@
+chart_group: ai answers
+grain: One row per month, client brand, country, engine, place, keyword and brand of the answers' sets, from January 2024.
+key: [month, client_brand_id, country_code, engine, geo_id, keyword, brand]
+reads: []
+inputs: [ai_prompt_results_v2]
+checks: [labels_empty]
+columns:
+  - name: month
+    type: DATE
+    kind: key
+    nullable: false
+    meaning: The first day of the month the answers were received in, in the client's time zone.
+  - name: client_brand_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The client brand the prompts were asked for.
+    holds: client brand
+  - name: country_code
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The country, as a two-letter code.
+    holds: country
+  - name: engine
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The engine asked, as the pipeline names it.
+  - name: geo_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The place the prompts were asked from, by its location ID. On a national row, the country's own location.
+  - name: keyword
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The keyword the prompts stand for, from today's prompts tab; (none) for the prompts that name no keyword or that today's set no longer holds.
+  - name: brand
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: 'A brand of the answers'' sets, by its brand ID: the client brand or a competitor of the benchmark version each request was planned from.'
+  - name: keyword_group
+    type: STRING
+    kind: dimension
+    nullable: true
+    meaning: The keyword's group, from today's prompts tab. Null on the keyword (none).
+  - name: intent
+    type: STRING
+    kind: dimension
+    nullable: true
+    meaning: 'The keyword''s intent, from today''s prompts tab: informational, comparison or transactional. Null on the keyword (none).'
+  - name: prompts_run
+    type: INT64
+    kind: denominator
+    nullable: false
+    meaning: The answers to the keyword's prompts in the month at the place, on the engine, whose set held the brand and whose mark for the brand is known, each once. An answer with no text is not one of them; it is in prompts_no_text. A brand added to or dropped from the set within the month has fewer than a brand held all month.
+    unit: answers
+    sums:
+      over: [engine, geo_id, keyword]
+      dates: any
+  - name: prompts_no_text
+    type: INT64
+    kind: measure
+    nullable: false
+    meaning: The answers to the keyword's prompts in the month at the place, on the engine, whose set held the brand and whose mark for the brand is not known, each once, as an answer with no text, where the engine showed no answer. Counted apart from prompts_run, never as an answer that does not name the brand.
+    unit: answers
+    sums:
+      over: [engine, geo_id, keyword]
+      dates: any
+  - name: prompts_mentioned
+    type: INT64
+    kind: numerator
+    nullable: false
+    meaning: Of those answers, the ones that name the brand.
+    unit: answers
+    sums:
+      over: [engine, geo_id, keyword]
+      dates: any
+    denominator: prompts_run
+  - name: share_of_voice
+    type: FLOAT64
+    kind: ratio
+    nullable: true
+    meaning: The share of the answers that name the brand, prompts_mentioned over prompts_run. Over engines, places, keywords or months it is summed prompts_mentioned over summed prompts_run.
+    unit: answers naming the brand per answer
+    numerator: prompts_mentioned
+    denominator: prompts_run
+  - name: first_mention_count
+    type: INT64
+    kind: measure
+    nullable: true
+    meaning: The answers that name the brand first among the brands of their set, its mention rank 1. Brands first named at the same place share the rank. Null where an answer of the row names the brand and has no rank, as the source stored answers before it kept where a brand is first named.
+    unit: answers
+    sums:
+      over: [engine, geo_id, keyword]
+      dates: any
+  - name: mention_rank_total
+    type: INT64
+    kind: measure
+    nullable: true
+    meaning: The sum of the brand's mention ranks over the answers that name it, 0 where none does. Over prompts_mentioned it is the brand's mean rank where mentioned. It is summed over one brand's answers alone, never over brands. Null where an answer of the row names the brand and has no rank, as the source stored answers before it kept where a brand is first named.
+    unit: mention ranks
+    sums:
+      over: [engine, geo_id, keyword]
+      dates: any
+  - name: recommended_count
+    type: INT64
+    kind: measure
+    nullable: true
+    meaning: The answers that recommend the brand. Null on every row until the stage 2 classification fills it.
+    unit: answers
+    sums:
+      over: [engine, geo_id, keyword]
+      dates: any
+  - name: positive_count
+    type: INT64
+    kind: measure
+    nullable: true
+    meaning: The answers whose sentiment towards the brand is positive. Null on every row until the stage 2 classification fills it.
+    unit: answers
+    sums:
+      over: [engine, geo_id, keyword]
+      dates: any
+  - name: neutral_count
+    type: INT64
+    kind: measure
+    nullable: true
+    meaning: The answers whose sentiment towards the brand is neutral. Null on every row until the stage 2 classification fills it.
+    unit: answers
+    sums:
+      over: [engine, geo_id, keyword]
+      dates: any
+  - name: negative_count
+    type: INT64
+    kind: measure
+    nullable: true
+    meaning: The answers whose sentiment towards the brand is negative. Null on every row until the stage 2 classification fills it.
+    unit: answers
+    sums:
+      over: [engine, geo_id, keyword]
+      dates: any
+  - name: client_cited_count
+    type: INT64
+    kind: measure
+    nullable: false
+    meaning: Of the answers in prompts_run, those that cite a page of one of the client brand's domains. The client brand's own mark, counted on each brand's row over that brand's answers.
+    unit: answers
+    sums:
+      over: [engine, geo_id, keyword]
+      dates: any
+  - name: gap_count
+    type: INT64
+    kind: measure
+    nullable: true
+    meaning: On the client brand's row, the answers that name a competitor of their set and not the client brand. Null on a competitor's row.
+    unit: answers
+    sums:
+      over: [engine, geo_id, keyword]
+      dates: any
+  - name: prompt_set_version
+    type: INT64
+    kind: attribute
+    nullable: true
+    meaning: The latest benchmark version the month's prompts were asked at. Null where the client brand had no set in the country.

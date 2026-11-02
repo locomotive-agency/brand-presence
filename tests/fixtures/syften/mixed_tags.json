@@ -1,0 +1,53 @@
+[
+  {
+    "id": "match-unlisted-1",
+    "matched_on": "2026-03-01T23:40:00.000000000Z",
+    "filter": "\"voorbeeld walrus\" $tag:sample-walrus-unlisted",
+    "item": {
+      "timestamp": "2026-03-01T23:31:00.000000000Z",
+      "backend": "sample-forum",
+      "backend_sub": "walrussen",
+      "type": "post",
+      "item_url": "https://forum.example/marker-link-of-another-filter",
+      "title": "marker-title-of-another-filter",
+      "text": "marker-text-of-another-filter",
+      "lang": "nl",
+      "author": "sample-writer-four",
+      "analysis": {"accept": true}
+    }
+  },
+  {
+    "id": "match-untagged-1",
+    "matched_on": "2026-03-01T22:15:00.000000000Z",
+    "filter": "\"voorbeeld zeehond\"",
+    "item": {
+      "timestamp": "2026-03-01T22:09:00.000000000Z",
+      "backend": "sample-answers",
+      "backend_sub": null,
+      "type": "comment",
+      "item_url": "https://answers.example/marker-link-of-no-tag",
+      "title": "marker-title-of-no-tag",
+      "text": "marker-text-of-no-tag",
+      "lang": "nl",
+      "author": "sample-writer-five",
+      "analysis": {"accept": false}
+    }
+  },
+  {
+    "id": "match-listed-1",
+    "matched_on": "2026-03-01T21:50:00.000000000Z",
+    "filter": "\"sample aardvark\" $tag:sample-aardvark-nl",
+    "item": {
+      "timestamp": "2026-03-01T21:44:00.000000000Z",
+      "backend": "sample-forum",
+      "backend_sub": "theepotten",
+      "type": "post",
+      "item_url": "https://forum.example/een-listed-post",
+      "title": "Een theepot van Sample Aardvark",
+      "text": "De theepot van Sample Aardvark is een goed voorbeeld.",
+      "lang": "nl",
+      "author": "sample-writer-six",
+      "analysis": {"accept": true}
+    }
+  }
+]

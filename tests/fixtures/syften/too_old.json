@@ -1,0 +1,19 @@
+[
+  {
+    "id": "match-old-1",
+    "matched_on": "2026-01-16T10:00:00.000000000Z",
+    "filter": "\"sample aardvark\" $tag:sample-aardvark-nl",
+    "item": {
+      "timestamp": "2026-01-16T09:55:00.000000000Z",
+      "backend": "sample-forum",
+      "backend_sub": "theepotten",
+      "type": "post",
+      "item_url": "https://forum.example/marker-link-of-an-old-post",
+      "title": "marker-title-of-an-old-post",
+      "text": "marker-text-of-an-old-post",
+      "lang": "nl",
+      "author": "marker-author-of-an-old-post",
+      "analysis": {"accept": true}
+    }
+  }
+]

@@ -1,0 +1,49 @@
+table: ref.mention_filters
+owner: setup-loader
+version: 1
+grain: One row per load and tag of a mentions filter, with what a match the tag catches is about.
+key:
+- load_number
+- tag
+columns:
+- name: load_number
+  type: INT64
+  kind: key
+  nullable: false
+  meaning: The number of the load that wrote the row.
+- name: tag
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The tag the filter carries.
+- name: mention_class
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: brand, competitor, category or another class the template allows.
+- name: client_brand_id
+  type: STRING
+  kind: dimension
+  nullable: true
+  meaning: The client brand a match the tag catches is for.
+  null_means: 'The mapping gives none: a match is put under unknown.'
+  holds: client brand
+- name: subject_brand_id
+  type: STRING
+  kind: dimension
+  nullable: true
+  meaning: The brand a match the tag catches is about.
+  null_means: The tag is about no one brand.
+- name: country_code
+  type: STRING
+  kind: dimension
+  nullable: true
+  meaning: The country a match the tag catches is put in.
+  null_means: 'The mapping gives none: a match is put under unknown.'
+  holds: country
+- name: keyword_group
+  type: STRING
+  kind: dimension
+  nullable: true
+  meaning: The keyword group a match the tag catches is reported under, one of the prompts' groups.
+  null_means: The filter names none, or the value was not captured.

@@ -1,0 +1,74 @@
+table: ref.benchmark_prompts
+owner: setup-loader
+version: 1
+grain: One row per client brand, country, version of the set and AI prompt, written once, when the
+  version is made.
+key:
+- client_brand_id
+- country_code
+- benchmark_version
+- prompt_id
+columns:
+- name: load_number
+  type: INT64
+  kind: attribute
+  nullable: false
+  meaning: The number of the load that made the version the row belongs to.
+- name: client_brand_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The client brand the set is for, by its brand ID.
+  holds: client brand
+- name: country_code
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The country the set is for, as a two-letter code.
+  holds: country
+- name: benchmark_version
+  type: INT64
+  kind: key
+  nullable: false
+  meaning: The version of the set the row belongs to.
+- name: prompt_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The prompt's ID in the configuration.
+- name: prompt
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The prompt's text.
+- name: engines
+  type: ARRAY<STRING>
+  kind: attribute
+  nullable: true
+  meaning: The engines the prompt is asked of.
+  null_means: 'Never null in the table: where there is none, the list is empty.'
+- name: location_ids
+  type: ARRAY<STRING>
+  kind: attribute
+  nullable: true
+  meaning: The locations the prompt is asked in. Empty means the country's own location.
+  null_means: 'Never null in the table: where there is none, the list is empty.'
+- name: keyword
+  type: STRING
+  kind: dimension
+  nullable: true
+  meaning: The keyword the prompt stands for in reports, as the prompts tab gives it.
+  null_means: The prompt names no keyword, or the value was not captured.
+- name: keyword_group
+  type: STRING
+  kind: dimension
+  nullable: true
+  meaning: The group of keywords the prompt is reported under. One keyword of a set has one group.
+  null_means: The prompt names no keyword, or the value was not captured.
+- name: intent
+  type: STRING
+  kind: dimension
+  nullable: true
+  meaning: 'What the prompt asks for: informational, comparison or transactional. One keyword of
+    a set has one intent.'
+  null_means: The prompt names no keyword, or the value was not captured.

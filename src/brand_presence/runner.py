@@ -15,7 +15,7 @@ from brand_presence.bigquery import Warehouse, Write, raw_prefix, repeated
 from brand_presence.errors import UserError
 from brand_presence.http import NothingTaken, OutcomeUnknown, VendorError, classify
 from brand_presence.rows import LedgerRow, RawRow
-from brand_presence.runs import Period, new_run_id, period_for
+from brand_presence.runs import Period, new_run_id, source_period
 from brand_presence.settings import Settings
 from brand_presence.sources.base import (
     ERROR,
@@ -71,10 +71,12 @@ class _Run:
         self.bq = world.bq
         self.clock = world.clock
         self.started_at = self.clock()
-        self.period = period or period_for(self.started_at, settings.time_zone)
+        self.period = period or source_period(source.name, self.started_at, settings.time_zone)
         self.run_id = new_run_id()
         self.row = run_record.Row(self.run_id, settings.client_id, source.name,
-                                  self.started_at, period=self.period.name)
+                                  self.started_at, period=self.period.name, frequency=(
+                                      "monthly" if source.name == "search-volume" else
+                                      "daily" if source.name == "mentions" else "weekly"))
         self.status_lines = run_record.Lines(world.status_out)
         self.warehouse = Warehouse(self.bq, settings.state_path)
         self.ledger = ledger.Ledger(self.bq, source.ledger_model, self.clock)
@@ -112,8 +114,14 @@ class _Run:
             raise UserError("another run is in flight; wait for it to end or expire")
         self.ref = client_ref.apply(self.bq, self.settings, self.started_at)
         self._refs[self.ref.load_number] = self.ref
+        if hasattr(self.source, "checks"):
+            failed = self.source.checks(self.bq, self.settings)
+            if failed:
+                raise UserError(failed[1])
         self.sender = self.source.send(SendContext(
             self.world.keys, self.world.http, self.bq, self.started_at, self.world.sleep,
+            settings=self.settings, ref=self.ref, run_id=self.run_id, clock=self.clock,
+            deadline=self.started_at + timedelta(seconds=self.world.wait_seconds),
         ))
 
     def go(self):
@@ -139,7 +147,8 @@ class _Run:
                        load_number=self.ref.load_number if self.ref else None,
                        snapshot_id=self.ref.snapshot_id if self.ref else None,
                        error_class=result.error_class, error_count=result.error_count,
-                       **result.counts)
+                       **result.counts, **{name: self.source_counts[name] for name in
+                                          getattr(self.source, "recorded_counts", ())})
         return result
 
     def tasks(self):
@@ -164,6 +173,10 @@ class _Run:
         attempts = ledger.to_submit(self.planned, self.ledger.of_period(self.period.name),
                                     unavailable=self.source.unavailable)
         wanted = [(key, attempt, requests[key]) for key, attempt in attempts.items()]
+        if self.sender.look_submits and self.period != source_period(
+                self.source.name, self.started_at, self.settings.time_zone):
+            wanted = []
+            self.lines.append("Past-period tasks are collected only; no new paid work is sent.")
         size = max(1, self.sender.batch_size)
         deadline = self.started_at + timedelta(seconds=self.world.wait_seconds)
         for at in range(0, len(wanted), size):
@@ -266,7 +279,16 @@ class _Run:
     def look_for_unknown(self) -> None:
         """A ready-list miss leaves the request unknown; it is not retried in its period."""
         rows = self.ledger.in_state(ledger.UNKNOWN)
-        if rows:
+        if self.sender.look_submits:
+            current = source_period(self.source.name, self.started_at, self.settings.time_zone)
+            if self.period != current:
+                return
+            rows = [row for row in rows if row.period == current.name
+                    and row.error_class not in (status.TASK_REFUSED, status.ENGINE_UNAVAILABLE)]
+            for at in range(0, len(rows), self.sender.batch_size):
+                if not self.look(rows[at:at + self.sender.batch_size]):
+                    break
+        elif rows:
             self.look(rows)
 
     def look(self, rows: list[LedgerRow]) -> bool:
@@ -275,7 +297,7 @@ class _Run:
         sent = {request_keys.sent_key(row.request_key, row.attempt): row for row in rows}
         try:
             # Each as it was sent: the key, and the body its ledger row holds.
-            found = self.sender.find([
+            outcomes = self.sender.find([
                 Outgoing(key, request_of(row.request).body) for key, row in sent.items()
             ])
         except VendorError as error:
@@ -286,16 +308,21 @@ class _Run:
             self.lines.append(f"the look for lost submissions raised: {type(error).__name__}")
             return False
         now = self.clock()
-        self.ledger.rewrite([
-            ledger.changed(row, state=ledger.SUBMITTED, vendor_task_id=found[key],
-                           submitted_at=row.submitted_at or now, error_class=None)
-            if found.get(key) else
-            row
-            for key, row in sent.items()
-        ])
-        lost = sum(1 for key in sent if not found.get(key))
-        if lost:
-            self.error(ledger.LOST, lost)
+        found = {item.key: item for item in outcomes}
+        updates = []
+        for key, row in sent.items():
+            outcome = found.get(key)
+            if outcome and outcome.task_id:
+                updates.append(ledger.changed(
+                    row, state=ledger.SUBMITTED, vendor_task_id=outcome.task_id,
+                    submitted_at=row.submitted_at or now, error_class=None))
+            elif outcome and outcome.error_class:
+                updates.append(ledger.changed(row, error_class=outcome.error_class,
+                                              vendor_status=outcome.status_code))
+                self.error(outcome.error_class, status=outcome.status_code)
+            else:
+                self.error(ledger.LOST)
+        self.ledger.rewrite(updates)
         return True
 
 
@@ -559,4 +586,12 @@ class _Run:
 
 def run(source: Source, settings: Settings, world: World, *, period: Period | None = None):
     with locked(settings.state_path):
+        if source.name == "mentions":
+            from brand_presence.cursor_runner import CursorRun
+
+            return CursorRun(source, settings, world, period).go()
+        if source.name == "peec":
+            from brand_presence.window_runner import WindowRun
+
+            return WindowRun(source, settings, world, period).go()
         return _Run(source, settings, world, period).go()

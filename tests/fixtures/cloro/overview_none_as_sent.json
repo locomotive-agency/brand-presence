@@ -1,0 +1,31 @@
+{
+  "task": {
+    "id": "task-sample-13",
+    "taskType": "GOOGLE",
+    "status": "COMPLETED",
+    "idempotencyKey": "sample/ai-answers/2026-W10/samplehash13"
+  },
+  "credits": {
+    "creditsToCharge": 5,
+    "creditsCharged": 3
+  },
+  "response": {
+    "organicResults": [
+      {
+        "position": 1,
+        "url": "https://voorbeeld-gids.example/theepot-test",
+        "title": "Voorbeeld theepot test"
+      }
+    ],
+    "peopleAlsoAsk": [
+      {
+        "question": "Welke voorbeeld theepot is de beste?"
+      }
+    ],
+    "relatedSearches": [
+      {
+        "query": "voorbeeld theepot"
+      }
+    ]
+  }
+}

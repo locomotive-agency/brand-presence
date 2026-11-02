@@ -1,0 +1,74 @@
+table: ref.locations
+owner: setup-loader
+version: 1
+grain: 'One row per load and location: the configuration''s locations, one of kind country for every country
+  of the load, and the reserved unknown and all.'
+key:
+- load_number
+- location_id
+columns:
+- name: load_number
+  type: INT64
+  kind: key
+  nullable: false
+  meaning: The number of the load that wrote the row.
+- name: location_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The location's ID, or unknown or all.
+  holds: location
+- name: country_code
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: The country the location is in.
+  holds: country
+- name: kind
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: country, region or city.
+- name: name
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The location's name, as the configuration gives it.
+- name: canonical_name
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The name vendors take.
+- name: region_code
+  type: STRING
+  kind: attribute
+  nullable: true
+  meaning: ISO 3166-2, for a region.
+  null_means: The location is not a region, or the configuration gives no code.
+- name: sources
+  type: ARRAY<STRING>
+  kind: attribute
+  nullable: true
+  meaning: The sources the location is used for.
+  null_means: 'Never null in the table: where there is none, the list is empty.'
+- name: google_criterion_id
+  type: STRING
+  kind: attribute
+  nullable: true
+  meaning: Google's criterion ID for a city or a region, as digits alone. A constant Google publishes
+    for the place, the same for every advertiser, not an identifier of the client or an account.
+  null_means: The location is not a city or a region, or the configuration gives no ID.
+- name: latitude
+  type: FLOAT64
+  kind: attribute
+  nullable: true
+  meaning: The location's latitude in decimal degrees, for a map. No source reads it.
+  unit: decimal degrees
+  null_means: The configuration gives no coordinates for the location.
+- name: longitude
+  type: FLOAT64
+  kind: attribute
+  nullable: true
+  meaning: The location's longitude in decimal degrees, for a map. No source reads it.
+  unit: decimal degrees
+  null_means: The configuration gives no coordinates for the location.

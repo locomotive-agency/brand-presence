@@ -1,0 +1,130 @@
+table: stg.peec_answer_brands
+owner: peec
+version: 1
+grain: One row per mapping, answer_key, subject_brand_id, period. Replaced atomically with the complete
+  request; reference rows are only added.
+key:
+  - mapping
+  - answer_key
+  - subject_brand_id
+  - period
+columns:
+  - name: client_brand_id
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: The client brand the row was measured for, by its brand ID in the YAML configuration.
+    holds: client brand
+  - name: country_code
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: The country, as a two-letter code. A pull of every country carries all.
+    holds: country
+  - name: location_id
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: The location the request was for, by its ID in ref.locations. A pull of every country carries
+      all.
+    holds: location
+  - name: benchmark_version
+    type: INT64
+    kind: attribute
+    nullable: true
+    meaning: The version of the client brand's benchmark set in the row's country, at the load the request
+      was planned from.
+    null_means: Unknown or not supplied. An array is empty when no members are held; citation_known states
+      completeness.
+  - name: snapshot_id
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: The snapshot of the YAML configuration the request was planned from.
+  - name: period
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The period of the pull that wrote the row, as the run names it. It tells apart the rows of
+      two pulls of the same dates.
+  - name: period_start
+    type: DATE
+    kind: attribute
+    nullable: false
+    meaning: The first day of the row's period, in the client's time zone.
+  - name: request_key
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: The vendor request the row came from.
+  - name: run_id
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: The run that wrote the row.
+  - name: pulled_at
+    type: TIMESTAMP
+    kind: attribute
+    nullable: false
+    meaning: When the answer the row came from was received.
+  - name: mapping
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The immutable local project mapping from the captured setup load.
+  - name: answer_key
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: Opaque hash of local project mapping and vendor chat reference. Distinct chats remain distinct.
+  - name: subject_brand_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The brand of the benchmark set the row is about.
+  - name: named
+    type: BOOL
+    kind: attribute
+    nullable: false
+    meaning: Whether the answer names the brand.
+  - name: cited
+    type: BOOL
+    kind: attribute
+    nullable: true
+    meaning: Whether the answer cites a page of one of the brand's domains.
+    null_means: Unknown or not supplied. An array is empty when no members are held; citation_known states
+      completeness.
+  - name: first_mention_at
+    type: INT64
+    kind: attribute
+    nullable: true
+    meaning: Where the brand is first named in the answer, as the number of characters of the answer's
+      answer_text in stg.ai_answers before the earliest whole-word match of its name or an alias. 0 is
+      the start of the text.
+    null_means: Unknown or not supplied. An array is empty when no members are held; citation_known states
+      completeness.
+  - name: mention_rank
+    type: INT64
+    kind: attribute
+    nullable: true
+    meaning: 'The brand''s rank among the brands of the answer''s set by first_mention_at: 1 for the brand
+      named first. Brands first named at the same place share a rank, and the next rank counts every brand
+      before it. It is not summed: it is compared within one answer.'
+    null_means: Unknown or not supplied. An array is empty when no members are held; citation_known states
+      completeness.
+  - name: vendor_mentioned
+    type: BOOL
+    kind: attribute
+    nullable: true
+    meaning: Vendor mention mark, independently stored from whole-word matching.
+    null_means: Unknown or not supplied. An array is empty when no members are held; citation_known states
+      completeness.
+  - name: vendor_position
+    type: INT64
+    kind: attribute
+    nullable: true
+    meaning: Vendor supplied position, separate from deterministic benchmark rank. Its interpretation still needs verification.
+    null_means: Unknown or not supplied. An array is empty when no members are held; citation_known states
+      completeness.
+unknown: No inferred brand or country. Missing optional values remain null.
+days: Vendor observation dates, not ingestion dates. Verify the vendor time zone before activation.

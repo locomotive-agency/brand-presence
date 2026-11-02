@@ -1,0 +1,85 @@
+kind: fact
+chart_group: mentions
+grain: One row per month, client brand and match of one of the client's filters, each time a build saw it change. It holds nothing of the post itself.
+key: [month, client_brand_id, match_id, pulled_at]
+reads: [stg.mention_facts]
+inputs: []
+checks: [first_of_month]
+columns:
+  - name: month
+    type: DATE
+    kind: key
+    nullable: false
+    meaning: The first day of the calendar month the match was made in, in universal time.
+  - name: client_brand_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The client brand the match was measured for, from the mapping of the filter's tag. unknown where the mapping gives none.
+    holds: client brand
+  - name: match_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The match, by the vendor's ID. One post caught by two filters is two matches.
+  - name: country_code
+    type: STRING
+    kind: dimension
+    nullable: false
+    meaning: The country, as a two-letter code, from the mapping of the filter's tag. unknown where the mapping gives none.
+    holds: country
+  - name: location_id
+    type: STRING
+    kind: dimension
+    nullable: false
+    meaning: The country's own location, by its ID in ref.locations. unknown where the country is.
+  - name: match_date
+    type: DATE
+    kind: attribute
+    nullable: false
+    meaning: The day, in universal time, the vendor matched the post, which is not the day it was posted.
+  - name: community
+    type: STRING
+    kind: dimension
+    nullable: true
+    meaning: Where the post was made, as the vendor names it, such as Reddit. Null where the vendor did not say.
+  - name: sub_community
+    type: STRING
+    kind: dimension
+    nullable: true
+    meaning: The part of the community the post was made in, as the vendor names it. On Reddit, r/ and the subreddit, or u/ and a profile. Null where the vendor did not say.
+  - name: item_type
+    type: STRING
+    kind: dimension
+    nullable: true
+    meaning: The kind of post, as the vendor names it, such as post or comment. Null where the vendor did not say.
+  - name: mention_class
+    type: STRING
+    kind: dimension
+    nullable: false
+    meaning: 'The class of the filter that caught the match: brand, competitor, category or other.'
+  - name: subject_brand_id
+    type: STRING
+    kind: dimension
+    nullable: true
+    meaning: The brand the match's filter is about, by its brand ID. Null where the filter names no brand, as on a category filter.
+  - name: keyword_group
+    type: STRING
+    kind: dimension
+    nullable: true
+    meaning: The keyword group of the match's filter in the YAML configuration, as it stood when the match was written. Null where the filter named none, or the match was written before the configuration held groups.
+  - name: source_pulled_at
+    type: TIMESTAMP
+    kind: attribute
+    nullable: false
+    meaning: When the source received the answer the match came from.
+  - name: pulled_at
+    type: TIMESTAMP
+    kind: key
+    nullable: false
+    meaning: When the fact's build saw the row. The runner gives it; a reader takes the latest row per match, as a tag mapped again gives a match a row under another client brand.
+  - name: accepted
+    type: BOOL
+    kind: attribute
+    nullable: true
+    meaning: "Whether the post passes the AI check of the match's filter: true where it passes, false where it does not. Syften's answer on a daily match, and Gemini's answer to the same rule on a match the mentions backfill wrote from the archive. Null where the filter has no check, and on a row a build saw before this column."

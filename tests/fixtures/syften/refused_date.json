@@ -1,0 +1,19 @@
+[
+  {
+    "id": "match-refused-1",
+    "matched_on": 20260301,
+    "filter": "\"sample aardvark\" $tag:sample-aardvark-nl",
+    "item": {
+      "timestamp": 20260301,
+      "backend": "sample-forum",
+      "backend_sub": "theepotten",
+      "type": "post",
+      "item_url": "https://forum.example/marker-link-refused",
+      "title": "marker-title-refused",
+      "text": "marker-text-refused",
+      "lang": "nl",
+      "author": "marker-author-refused",
+      "analysis": {"accept": true}
+    }
+  }
+]

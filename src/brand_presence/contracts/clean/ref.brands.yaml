@@ -1,0 +1,41 @@
+table: ref.brands
+owner: setup-loader
+version: 1
+grain: 'One row per load and brand: the client''s brands, their competitors, and the reserved brand
+  unknown.'
+key:
+- load_number
+- brand_id
+columns:
+- name: load_number
+  type: INT64
+  kind: key
+  nullable: false
+  meaning: The number of the load that wrote the row.
+- name: brand_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The brand's ID in the YAML configuration, or unknown.
+- name: name
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The brand's name, as the configuration gives it.
+- name: kind
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: client, competitor or reserved.
+- name: domains
+  type: ARRAY<STRING>
+  kind: attribute
+  nullable: true
+  meaning: The brand's domains.
+  null_means: 'Never null in the table: where there is none, the list is empty.'
+- name: aliases
+  type: ARRAY<STRING>
+  kind: attribute
+  nullable: true
+  meaning: Other names the brand goes by.
+  null_means: 'Never null in the table: where there is none, the list is empty.'

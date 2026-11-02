@@ -1,0 +1,206 @@
+chart_group: ai answers
+grain: One row per Peec chat, pull period and captured benchmark brand. Every chat remains distinct.
+key:
+- run_id
+- client_brand_id
+- country_code
+- prompt_id
+- engine
+- geo_id
+- brand
+- answer_key
+reads:
+- ref.benchmark_competitors
+- ref.current_brands
+- ref.current_locations
+- core.fct_peec_answers_v1
+- core.fct_peec_cited_links_v1
+- stg.peec_pulls
+- stg.peec_prompts
+inputs: []
+checks:
+- labels_empty
+columns:
+- name: run_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The pull period the answer was collected in, as the run names it. One for each scheduled collection.
+- name: run_date
+  type: DATE
+  kind: attribute
+  nullable: false
+  meaning: The vendor observation day. Unlike Cloro received day, this is the day Peec observed the chat.
+    The vendor time zone still needs verification.
+- name: month
+  type: DATE
+  kind: attribute
+  nullable: false
+  meaning: The first day of the month of run_date.
+- name: client_brand_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The client brand the prompt was asked for.
+  holds: client brand
+- name: country_code
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The country, as a two-letter code.
+  holds: country
+- name: prompt_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: Opaque Peec prompt key derived from the project mapping and vendor prompt reference.
+- name: keyword
+  type: STRING
+  kind: dimension
+  nullable: true
+  meaning: Always null because Peec prompts have no configuration keyword mapping.
+
+- name: keyword_group
+  type: STRING
+  kind: dimension
+  nullable: true
+  meaning: Always null because no keyword group is supplied by the Peec prompt record.
+
+- name: intent
+  type: STRING
+  kind: dimension
+  nullable: true
+  meaning: Always null because no intent is supplied by the Peec prompt record.
+
+- name: engine
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The engine asked, as the pipeline names it.
+- name: geo_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The place the prompt was asked from, by its location ID. On a national row, the country's own
+    location.
+- name: geo_level
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: National. Peec supports country locations only, listed for peec in the locations tab.
+- name: brand
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: A brand of the answer's set, by its brand ID. The set is that of the benchmark version the
+    request was planned from, the client brand and that version's competitors.
+- name: brand_name
+  type: STRING
+  kind: attribute
+  nullable: true
+  meaning: The brand's name, from today's brands tab. Null where today's tab no longer lists the brand.
+- name: brand_set_version
+  type: INT64
+  kind: attribute
+  nullable: true
+  meaning: The benchmark version the answer's set was read with, the one the request was planned from.
+    Null where the client brand had no set in the country.
+- name: answer_state
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: 'What came back: answered, or none shown where the engine showed no answer.'
+- name: brand_mentioned
+  type: BOOL
+  kind: attribute
+  nullable: true
+  meaning: Whether the answer names the brand, by its name or an alias as whole words, as the source matched
+    it. Null where the answer has no text, as where the engine showed no answer, and where the source
+    holds no mark for the brand. Never false for an answer with no text.
+- name: mention_rank
+  type: INT64
+  kind: attribute
+  nullable: true
+  meaning: The brand's rank among the brands of the answer's set by where each is first named, 1 for the
+    brand named first. Brands first named at the same place share a rank, and the next rank counts every
+    brand before it. Null where the brand is not named, and on an answer the source collected before it
+    stored where a brand is first named.
+- name: is_recommended
+  type: BOOL
+  kind: attribute
+  nullable: true
+  meaning: Whether the answer recommends the brand. Null on every row until the stage 2 classification
+    fills it.
+- name: sentiment
+  type: STRING
+  kind: dimension
+  nullable: true
+  meaning: The answer's sentiment towards the brand. Null on every row until the stage 2 classification
+    fills it.
+- name: client_domain_cited
+  type: BOOL
+  kind: attribute
+  nullable: true
+  meaning: Whether the answer cites the client brand domains. Null when the citation list is unknown.
+    The same on every brand row of a chat.
+- name: cited_urls
+  type: ARRAY<STRING>
+  kind: attribute
+  nullable: true
+  meaning: Readable cited URLs, sorted. Empty can mean none or unknown; citation_known distinguishes these
+    cases.
+- name: answer_snippet
+  type: STRING
+  kind: attribute
+  nullable: true
+  meaning: At most 300 characters of the answer around the brand's first mention, from 100 characters
+    before it, each run of white space made one space. Null where mention_rank is null.
+- name: prompt_set_version
+  type: INT64
+  kind: attribute
+  nullable: true
+  meaning: Captured benchmark version used for brand membership. This is not a Peec prompt content version.
+
+- name: pulled_at
+  type: TIMESTAMP
+  kind: attribute
+  nullable: false
+  meaning: The latest pulled_at of the fact rows the row was made from, the answer's and its links'.
+- name: answer_key
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: Opaque Peec chat key. No Cloro report counterpart; keeps distinct same-day chats apart.
+- name: vendor_mentioned
+  type: BOOL
+  kind: attribute
+  nullable: true
+  meaning: Peec own mention mark. No Cloro counterpart; separate from deterministic brand_mentioned. Null
+    when unknown.
+- name: vendor_position
+  type: INT64
+  kind: attribute
+  nullable: true
+  meaning: Peec own position. No Cloro counterpart; separate from mention_rank among benchmark brands.
+    Null when unknown.
+- name: citation_known
+  type: BOOL
+  kind: attribute
+  nullable: true
+  meaning: Whether every source entry of this request was readable. No Cloro counterpart. False withholds
+    the request from citation totals.
+- name: prompt_text
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: Peec prompt text at the version captured by the answer pull.
+- name: topic_id
+  type: STRING
+  kind: attribute
+  nullable: true
+  meaning: Peec topic reference at the captured prompt version; null means no topic.
+- name: is_archived
+  type: BOOL
+  kind: attribute
+  nullable: false
+  meaning: Archive state at the latest observed Peec prompt version. Historical answers remain visible.

@@ -235,6 +235,8 @@ class RunRow(Row):
     image_version: str
     load_number: int | None = None
     snapshot_id: str | None = None
+    matches_unlisted: int | None = None
+    rate_limit_waits: int | None = None
     requests_planned: int | None = None
     requests_sent: int | None = None
     requests_failed: int | None = None
@@ -244,7 +246,7 @@ class RunRow(Row):
     answers_unusable: int | None = None
     raw_rows: int | None = None
     clean_rows: int | None = None
-    # Always null: the vendor's cost is tracked at the vendor, per API key (D16).
+    # Always null: the vendor's cost is tracked at the vendor, per API key.
     vendor_cost: Decimal | None = None
     vendor_cost_unit: str | None = None
     error_class: str | None = None
@@ -256,3 +258,55 @@ class RunRow(Row):
         if value not in RUN_STATUSES:
             raise ValueError("not a status of a run")
         return value
+
+
+UNKNOWN = "unknown"
+
+class CursorRow(Row):
+    """A row of a cursor source's own table: where its next pull starts. A row is added
+    each time the cursor moves, and the newest one is the cursor."""
+
+    cursor_value: str
+    moved_at: datetime
+    # The run that moved it.
+    run_id: str
+
+class ResumingCursorRow(CursorRow):
+    """A cursor row of a source whose pull, when cut short, goes on from where it stopped.
+    A row is added too when such a pull is cut short with its pages written: its
+    `resume_value` is where the next pull goes on from, in the source's own terms, and its
+    `cursor_value` is the cursor still in force. The newest row says both. A row with no
+    `resume_value` is a move of the cursor, and leaves no pull to go on with."""
+
+    resume_value: str | None = None
+
+
+class PullRow(CleanRow):
+    """The base of a row of `stg.<source>_pulls`: one pull of a window source, which is one
+    request in one period (source-framework "Every window source records each pull"). It is
+    a clean row: it carries the standard columns, has a natural key that holds the period,
+    and is written in the transaction of the request's other clean rows. An answer with no
+    rows still gives one. A source's own model adds what its vendor says of a pull.
+
+    The pull of a request for every country carries the reserved `all` as its country and
+    its location, and a null benchmark version; its key then holds no country (data-model
+    "Rows of every country join ref")."""
+
+    may_span_every_country: ClassVar[bool] = True
+
+    # The first and the last date asked for, as calendar dates.
+    window_start: date
+    window_end: date
+    # The clean rows the request gave, this one not counted. Zero for an empty answer.
+    rows_written: int
+    pages: int
+    # True when the pipeline saw a row limit. False says only that none was seen, never
+    # that the vendor returned every row.
+    row_limit_hit: bool
+    # The time zone the vendor counted its days in, where the answer or the vendor says.
+    source_time_zone: str | None
+
+    def is_sampled(self) -> bool:
+        """Whether the vendor sampled this pull. A source whose vendor samples answers from
+        its own columns; the run counts it on its operational line."""
+        return False

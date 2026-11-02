@@ -1,0 +1,54 @@
+[
+  {
+    "id": "match-0009",
+    "matched_on": "2026-03-01T21:10:04.120340560Z",
+    "filter": "\"sample aardvark\" $tag:sample-aardvark-nl",
+    "item": {
+      "timestamp": "2026-03-01T21:02:40.000000000Z",
+      "backend": "sample-forum",
+      "backend_sub": "theepotten",
+      "type": "post",
+      "item_url": "https://forum.example/marker-link-of-a-post",
+      "title": "marker-title-of-a-post",
+      "text": "marker-text-of-a-post",
+      "lang": "nl",
+      "author": "marker-author-name",
+      "author_url": "https://forum.example/u/marker-author-name",
+      "analysis": {"accept": true}
+    }
+  },
+  {
+    "id": "match-0008",
+    "matched_on": "2026-02-28T14:05:31.004410200Z",
+    "filter": "\"sample echidna\" $tag:sample-echidna-pt",
+    "item": {
+      "timestamp": "2026-02-28T13:58:00.000000000Z",
+      "backend": "sample-forum",
+      "backend_sub": "bules",
+      "type": "comment",
+      "item_url": "https://forum.example/bules/comentario-8",
+      "title": "Um bule de exemplo",
+      "text": "Alguém já experimentou o bule da Sample Rival Echidna?",
+      "lang": "pt",
+      "author": "sample-writer-two",
+      "analysis": {"accept": true}
+    }
+  },
+  {
+    "id": "match-0007",
+    "matched_on": "2026-02-27T08:30:12.900000001Z",
+    "filter": "\"voorbeeld waterkoker\" $tag:sample-teapots-nl",
+    "item": {
+      "timestamp": "2026-02-27T08:11:00.000000000Z",
+      "backend": "sample-answers",
+      "backend_sub": null,
+      "type": "post",
+      "item_url": "https://answers.example/vraag-7",
+      "title": "Welke waterkoker is een goed voorbeeld?",
+      "text": "Ik zoek een voorbeeld van een stille waterkoker.",
+      "lang": "nl",
+      "author": "sample-writer-three",
+      "analysis": {"accept": false}
+    }
+  }
+]

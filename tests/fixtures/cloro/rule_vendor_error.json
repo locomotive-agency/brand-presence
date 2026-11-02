@@ -1,0 +1,19 @@
+{
+  "task": {
+    "id": "task-sample-7",
+    "taskType": "CHATGPT",
+    "status": "COMPLETED",
+    "idempotencyKey": "sample/ai-answers/2026-W10/samplehash07"
+  },
+  "credits": {
+    "creditsToCharge": 5,
+    "creditsCharged": 5
+  },
+  "response": {
+    "error": {
+      "code": "SAMPLE_ENGINE_ERROR",
+      "message": "Sample engine error text."
+    },
+    "text": "Sample Brand Aardvark is een goede keuze voor wie een voorbeeld theepot zoekt."
+  }
+}

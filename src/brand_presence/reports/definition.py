@@ -1,4 +1,5 @@
-"""Load the two production definitions in dependency order."""
+"""Load the ported production definitions in dependency order."""
+
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -32,10 +33,42 @@ class Report:
 
     @property
     def checks(self):
-        return [(name, (DIRECTORY / f"{self.name}.checks" / f"{name}.sql").read_text())
-                for name in self.definition["checks"]]
+        return [
+            (name, (DIRECTORY / f"{self.name}.checks" / f"{name}.sql").read_text())
+            for name in self.definition["checks"]
+        ]
 
 
-def load():
-    return [Report(name, yaml.safe_load((DIRECTORY / f"{name}.yaml").read_text()),
-                   (DIRECTORY / f"{name}.sql").read_text()) for name in NAMES]
+GROUPS = {
+
+    "search-volume": NAMES,
+    "ai-answers": (
+        "fct_ai_answers_v1",
+        "fct_ai_cited_links_v1",
+        "ai_prompt_results_v2",
+        "ai_keyword_monthly_v2",
+        "ai_citations_v1",
+    ),
+}
+
+GROUPS["mentions"] = ("fct_mentions_v1",)
+
+
+GROUPS["peec"] = ("fct_peec_answers_v1", "fct_peec_cited_links_v1", "peec_prompt_results_v1",
+                  "peec_keyword_monthly_v1", "peec_citations_v1")
+
+
+WEEKLY = ("ai_brand_mentions_weekly_v1", "ai_domain_citations_weekly_v1",
+          "ai_overview_presence_weekly_v1")
+GROUPS["ai-weekly"] = GROUPS["ai-answers"] + GROUPS["peec"] + WEEKLY
+
+
+def load(source=None):
+    return [
+        Report(
+            name,
+            yaml.safe_load((DIRECTORY / f"{name}.yaml").read_text()),
+            (DIRECTORY / f"{name}.sql").read_text(),
+        )
+        for name in (GROUPS[source] if source else tuple(dict.fromkeys(sum(GROUPS.values(), ()))))
+    ]

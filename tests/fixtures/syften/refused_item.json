@@ -1,0 +1,13 @@
+[
+  {
+    "id": "match-refused-2",
+    "matched_on": "2026-03-01T09:00:00.000000000Z",
+    "filter": "\"sample aardvark\" $tag:sample-aardvark-nl",
+    "item": [
+      "marker-text-refused",
+      "marker-title-refused",
+      "https://forum.example/marker-link-refused",
+      {"author": "marker-author-refused"}
+    ]
+  }
+]

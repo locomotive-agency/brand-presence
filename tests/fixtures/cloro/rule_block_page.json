@@ -1,0 +1,18 @@
+{
+  "task": {
+    "id": "task-sample-9",
+    "taskType": "CHATGPT",
+    "status": "COMPLETED",
+    "idempotencyKey": "sample/ai-answers/2026-W10/samplehash09"
+  },
+  "credits": {
+    "creditsToCharge": 5,
+    "creditsCharged": 5
+  },
+  "response": {
+    "model": null,
+    "text": "Verify you are human\n\nComplete the CAPTCHA below to continue to the sample page.",
+    "sources": [],
+    "citationPills": []
+  }
+}

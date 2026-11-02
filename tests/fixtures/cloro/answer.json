@@ -1,0 +1,29 @@
+{
+  "task": {
+    "id": "task-sample-1",
+    "taskType": "CHATGPT",
+    "status": "COMPLETED",
+    "idempotencyKey": "sample/ai-answers/2026-W10/samplehash01"
+  },
+  "credits": {
+    "creditsToCharge": 5,
+    "creditsCharged": 5
+  },
+  "response": {
+    "model": "sample-model-1",
+    "text": "Voor een voorbeeld theepot wordt Sample Brand Aardvark vaak genoemd, omdat de potten lang warm blijven. Wie minder wil uitgeven kijkt naar capybara sample, dat een eenvoudiger model verkoopt. Vergelijk altijd de inhoud en de garantie.",
+    "sources": [
+      {
+        "position": 1,
+        "url": "https://www.capybara.example/theepotten",
+        "label": "Capybara Sample"
+      },
+      {
+        "position": 2,
+        "url": "https://voorbeeld-gids.example/theepot-test",
+        "label": "Voorbeeldgids"
+      }
+    ],
+    "citationPills": []
+  }
+}

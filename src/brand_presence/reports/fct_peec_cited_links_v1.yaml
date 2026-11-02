@@ -1,0 +1,102 @@
+kind: fact
+chart_group: ai answers
+grain: One row per answer and cited URL, per complete request snapshot and build. The month is the vendor
+  observation month.
+key:
+  - month
+  - client_brand_id
+  - country_code
+  - location_id
+  - prompt_id
+  - engine
+  - period
+  - link
+  - mapping
+  - answer_key
+  - pulled_at
+reads:
+  - stg.peec_answers
+  - stg.peec_pulls
+inputs: []
+checks:
+  - first_of_month
+columns:
+  - name: month
+    type: DATE
+    kind: key
+    nullable: false
+    meaning: First day of the vendor observation month.
+  - name: client_brand_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The client brand the prompt was asked for.
+    holds: client brand
+  - name: country_code
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The country, as a two-letter code.
+    holds: country
+  - name: location_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The location the prompt was asked from, by its ID in ref.locations.
+  - name: prompt_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: Opaque Peec prompt key derived from the project mapping and vendor prompt reference.
+  - name: engine
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The engine asked, as the pipeline names it.
+  - name: period
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The pull period, as the run names it.
+  - name: link
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: A link the answer cites, as the vendor gave it. An answer cites each link once.
+  - name: period_start
+    type: DATE
+    kind: attribute
+    nullable: false
+    meaning: The first day of the pull period, in the client's time zone.
+  - name: source_pulled_at
+    type: TIMESTAMP
+    kind: attribute
+    nullable: false
+    meaning: When the source received the answer the link came from. The same on every link of one answer;
+      a reader takes an answer's links of its latest answer.
+  - name: mapping
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: Immutable local project mapping.
+  - name: answer_key
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: Opaque source-local chat key. Every distinct chat survives.
+  - name: request_key
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: Complete weekly request identity, used with its pull marker.
+  - name: observation_date
+    type: DATE
+    kind: attribute
+    nullable: false
+    meaning: Vendor calendar date, not ingestion date. The vendor time zone still needs verification.
+  - name: pulled_at
+    type: TIMESTAMP
+    kind: key
+    nullable: false
+    meaning: When the fact's build saw the row. The runner gives it; a reader takes the latest per month,
+      client brand, country, location, prompt, engine, period and link.

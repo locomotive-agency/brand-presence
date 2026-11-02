@@ -86,9 +86,10 @@ class DataForSEOSend(TaskSend):
         # A request the answer left out stays of unknown outcome, and is looked for.
         return said
 
-    def find(self, batch: Sequence[Outgoing]) -> dict[str, str]:
+    def find(self, batch: Sequence[Outgoing]) -> list[Submitted]:
         by_tag = {ready.tag: ready.task_id for ready in self.api.ready(self.path) if ready.tag}
-        return {item.key: by_tag[item.key] for item in batch if item.key in by_tag}
+        return [Submitted(item.key, task_id=by_tag[item.key])
+                for item in batch if item.key in by_tag]
 
     def collect(self, task_id: str, key: str) -> Answer | None:
         task = self.api.get(self.path, task_id, self.get_suffix)

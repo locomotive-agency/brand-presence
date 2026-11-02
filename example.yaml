@@ -4,6 +4,7 @@ location: EU
 time_zone: Europe/Amsterdam
 state_dir: .brand-presence
 datasets:
+  ref: bp_ref
   ops: bp_ops
   raw: bp_raw
   stg: bp_stg
@@ -12,6 +13,8 @@ datasets:
 brands:
   - brand_id: aardvark
     name: Example Aardvark
+    aliases: []
+    domains: [aardvark.example]
 countries:
   - country_code: NL
     language: nl
@@ -19,9 +22,57 @@ countries:
 benchmark_sets:
   - client_brand_id: aardvark
     country_code: NL
+    # Uncomment to collect Cloro answers for this set.
+    # prompts:
+    #   - prompt_id: example-kettle
+    #     prompt: Which invented kettle keeps tea warm?
+    #     engines: [chatgpt, perplexity, gemini, ai-overview]
+    #     location_ids: []
+    #     keyword: example kettle
+    #     keyword_group: kettles
+    #     intent: comparison
+    # competitors: [example-rival]
+    # Add every competitor to brands before listing it here.
     keywords:
       - keyword: sample aardvark theepot
         term_type: brand
         brand_id: aardvark
       - keyword: voorbeeld theepot kopen
         term_type: generic
+
+mention_text_days: 366
+# Uncomment and replace tags to collect Syften mentions.
+# mention_filters:
+#   - tag: example-aardvark-nl
+#     mention_class: brand
+#     client_brand_id: aardvark
+#     subject_brand_id: aardvark
+#     country_code: NL
+#     keyword_group: kettles
+# subreddits:
+#   - subreddit: example_kettles
+#     community_group: kettles
+#     subscribers: null
+#     subscribers_as_of: null
+
+# Optional regional Cloro locations. Use the location_id in a prompt's location_ids.
+# locations:
+#   - location_id: example-region
+#     country_code: NL
+#     name: Example region
+#     canonical_name: Example region,Netherlands
+#     region_code: NL-NH
+
+# Uncomment and replace vendor references to collect existing Peec prompts.
+# peec_projects:
+#   - mapping: example-peec-nl
+#     project_id: example-project
+#     client_brand_id: aardvark
+#     country_code: NL
+#     engines: [chatgpt, perplexity, gemini, ai-overview]
+#     first_date: 2026-01-01
+# peec_brands:
+#   - mapping: example-peec-nl
+#     brand_id: aardvark
+#     vendor_brand_id: example-brand
+# Add one peec_brands entry for each competitor in the benchmark set.

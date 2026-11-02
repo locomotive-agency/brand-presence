@@ -1,0 +1,134 @@
+chart_group: ai answers
+grain: One row per pull period, client brand, country, prompt, engine, place and brand of the answer's set, mentioned or not. Each period holds one answer for each prompt, engine and place.
+key: [run_id, client_brand_id, country_code, prompt_id, engine, geo_id, brand]
+reads: [core.fct_ai_answers_v1, core.fct_ai_cited_links_v1, ref.benchmark_competitors, ref.current_brands, ref.current_benchmark_prompts, ref.current_locations]
+inputs: []
+checks: [labels_empty]
+columns:
+  - name: run_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The pull period the answer was collected in, as the run names it. One for each scheduled collection.
+  - name: run_date
+    type: DATE
+    kind: attribute
+    nullable: false
+    meaning: The day, in the client's time zone, the answer was received.
+  - name: month
+    type: DATE
+    kind: attribute
+    nullable: false
+    meaning: The first day of the month of run_date.
+  - name: client_brand_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The client brand the prompt was asked for.
+    holds: client brand
+  - name: country_code
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The country, as a two-letter code.
+    holds: country
+  - name: prompt_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The prompt, by its ID in the benchmark set.
+  - name: keyword
+    type: STRING
+    kind: dimension
+    nullable: true
+    meaning: The keyword the prompt stands for, from today's prompts tab. Null where today's set no longer holds the prompt or the prompt names no keyword.
+  - name: keyword_group
+    type: STRING
+    kind: dimension
+    nullable: true
+    meaning: The group of keywords the prompt is reported under, from today's prompts tab. Null exactly where keyword is null.
+  - name: intent
+    type: STRING
+    kind: dimension
+    nullable: true
+    meaning: 'What the prompt asks for, from today''s prompts tab: informational, comparison or transactional. Null exactly where keyword is null.'
+  - name: engine
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The engine asked, as the pipeline names it.
+  - name: geo_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The place the prompt was asked from, by its location ID. On a national row, the country's own location.
+  - name: geo_level
+    type: STRING
+    kind: dimension
+    nullable: false
+    meaning: national, state or city, from the kind of the place in today's locations tab, country, region or city. Only the places the tab lists for ai-answers have rows.
+  - name: brand
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: A brand of the answer's set, by its brand ID. The set is that of the benchmark version the request was planned from, the client brand and that version's competitors.
+  - name: brand_name
+    type: STRING
+    kind: attribute
+    nullable: true
+    meaning: The brand's name, from today's brands tab. Null where today's tab no longer lists the brand.
+  - name: brand_set_version
+    type: INT64
+    kind: attribute
+    nullable: true
+    meaning: The benchmark version the answer's set was read with, the one the request was planned from. Null where the client brand had no set in the country.
+  - name: answer_state
+    type: STRING
+    kind: dimension
+    nullable: false
+    meaning: 'What came back: answered, or none shown where the engine showed no answer.'
+  - name: brand_mentioned
+    type: BOOL
+    kind: attribute
+    nullable: true
+    meaning: Whether the answer names the brand, by its name or an alias as whole words, as the source matched it. Null where the answer has no text, as where the engine showed no answer, and where the source holds no mark for the brand. Never false for an answer with no text.
+  - name: mention_rank
+    type: INT64
+    kind: attribute
+    nullable: true
+    meaning: The brand's rank among the brands of the answer's set by where each is first named, 1 for the brand named first. Brands first named at the same place share a rank, and the next rank counts every brand before it. Null where the brand is not named, and on an answer the source collected before it stored where a brand is first named.
+  - name: is_recommended
+    type: BOOL
+    kind: attribute
+    nullable: true
+    meaning: Whether the answer recommends the brand. Null on every row until the stage 2 classification fills it.
+  - name: sentiment
+    type: STRING
+    kind: dimension
+    nullable: true
+    meaning: The answer's sentiment towards the brand. Null on every row until the stage 2 classification fills it.
+  - name: client_domain_cited
+    type: BOOL
+    kind: attribute
+    nullable: true
+    meaning: Whether the answer cites a page of one of the client brand's domains, as the source matched it. The same on every brand row of an answer. Null where the answer has no text, and where the source holds no mark for the client brand.
+  - name: cited_urls
+    type: ARRAY<STRING>
+    kind: attribute
+    nullable: true
+    meaning: Every link the answer cites, as the vendor gave it, in order of the link. An empty list where it cites none, and for an answer collected before the source kept full links, whose period is not yet written again from raw. Never null.
+  - name: answer_snippet
+    type: STRING
+    kind: attribute
+    nullable: true
+    meaning: At most 300 characters of the answer around the brand's first mention, from 100 characters before it, each run of white space made one space. Null where mention_rank is null.
+  - name: prompt_set_version
+    type: INT64
+    kind: attribute
+    nullable: true
+    meaning: The benchmark version the prompt was asked at. Null where the client brand had no set in the country.
+  - name: pulled_at
+    type: TIMESTAMP
+    kind: attribute
+    nullable: false
+    meaning: The latest pulled_at of the fact rows the row was made from, the answer's and its links'.

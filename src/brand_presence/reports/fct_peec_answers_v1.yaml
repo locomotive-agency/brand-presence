@@ -1,0 +1,169 @@
+kind: fact
+chart_group: ai answers
+grain: One row per answer and captured benchmark brand, per complete request snapshot and build. The month
+  is the vendor observation month.
+key:
+  - month
+  - client_brand_id
+  - country_code
+  - location_id
+  - prompt_id
+  - engine
+  - period
+  - subject_brand_id
+  - mapping
+  - answer_key
+  - pulled_at
+reads:
+  - stg.peec_answers
+  - stg.peec_pulls
+  - stg.peec_answer_brands
+inputs: []
+checks:
+  - first_of_month
+columns:
+  - name: month
+    type: DATE
+    kind: key
+    nullable: false
+    meaning: First day of the vendor observation month.
+  - name: client_brand_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The client brand the prompt was asked for.
+    holds: client brand
+  - name: country_code
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The country, as a two-letter code.
+    holds: country
+  - name: location_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The location the prompt was asked from, by its ID in ref.locations.
+  - name: prompt_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: Opaque Peec prompt key derived from the project mapping and vendor prompt reference.
+  - name: engine
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The engine asked, as the pipeline names it.
+  - name: period
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The pull period, as the run names it. Each period holds one answer for each prompt, engine
+      and location, the newer where it was asked again.
+  - name: subject_brand_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: A brand of the answer's benchmark set, the client brand or a competitor, by its brand ID,
+      as the source stored it. (none) on the one row of an answer with no text, for which the source stored
+      no brand.
+  - name: period_start
+    type: DATE
+    kind: attribute
+    nullable: false
+    meaning: The first day of the pull period, in the client's time zone.
+  - name: source_pulled_at
+    type: TIMESTAMP
+    kind: attribute
+    nullable: false
+    meaning: When the source received the answer the row came from. The same on every row of one answer;
+      a reader takes an answer's rows of its latest answer.
+  - name: benchmark_version
+    type: INT64
+    kind: attribute
+    nullable: true
+    meaning: The version of the client brand's benchmark set the request was planned from, which the answer's
+      brands belong to. Null where the brand had no set in the country.
+  - name: state
+    type: STRING
+    kind: dimension
+    nullable: false
+    meaning: 'What came back: answered, or none shown where the engine showed no answer.'
+  - name: named
+    type: BOOL
+    kind: attribute
+    nullable: true
+    meaning: Whether the answer names the brand, by its name or an alias as whole words, as the source
+      matched it. Null on the row of an answer with no text.
+  - name: cited
+    type: BOOL
+    kind: attribute
+    nullable: true
+    meaning: Whether the answer cites a page of one of the brand's domains, as the source matched it.
+      Null on the row of an answer with no text.
+  - name: first_mention_at
+    type: INT64
+    kind: attribute
+    nullable: true
+    meaning: Where the brand is first named in the answer, as the characters of the answer before the
+      earliest whole-word match of its name or an alias; 0 is the start of the text. Null where the brand
+      is not named, and on a row the source wrote before it stored the place.
+  - name: mention_rank
+    type: INT64
+    kind: attribute
+    nullable: true
+    meaning: The brand's rank among the brands of the answer's set by where each is first named, as the
+      source stored it, 1 for the brand named first. Brands first named at the same place share a rank.
+      Null where first_mention_at is null.
+  - name: answer_snippet
+    type: STRING
+    kind: attribute
+    nullable: true
+    meaning: At most 300 characters of the answer around the brand's first mention, from 100 characters
+      before it, each run of white space made one space. Null where first_mention_at is null.
+  - name: mapping
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: Immutable local project mapping.
+  - name: answer_key
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: Opaque source-local chat key. Every distinct chat survives.
+  - name: request_key
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: Complete weekly request identity, used with its pull marker.
+  - name: observation_date
+    type: DATE
+    kind: attribute
+    nullable: false
+    meaning: Vendor calendar date, not ingestion date. The vendor time zone still needs verification.
+  - name: citation_known
+    type: BOOL
+    kind: attribute
+    nullable: false
+    meaning: Every source entry was readable; false withholds this request from citation totals.
+  - name: prompt_version
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: The captured Peec prompt content version, independent of configuration benchmark versions.
+  - name: vendor_mentioned
+    type: BOOL
+    kind: attribute
+    nullable: true
+    meaning: Vendor mention mark; null when unknown. Separate from named.
+  - name: vendor_position
+    type: INT64
+    kind: attribute
+    nullable: true
+    meaning: Vendor position, not benchmark rank; null when unknown.
+  - name: pulled_at
+    type: TIMESTAMP
+    kind: key
+    nullable: false
+    meaning: When the fact's build saw the row. The runner gives it; a reader takes the latest per month,
+      client brand, country, location, prompt, engine, period and subject brand.

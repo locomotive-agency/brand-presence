@@ -56,7 +56,7 @@ def unsettled() -> list[str]:
 @dataclass(frozen=True)
 class Call:
     """One call a stand-in received. `subject` is what it was about: a statement, a table,
-    an object's path, a secret's name, a range of a sheet. It never holds a secret's value."""
+    a file's path or a table name. It never holds a credential's value."""
 
     service: str
     name: str
@@ -67,7 +67,7 @@ class Call:
 
 class Journal:
     """The calls of every stand-in that shares it, in the order they arrived. One journal
-    for a test's stand-ins lets it check an order across them, such as bucket before table."""
+    for a test's stand-ins lets it check an order across them, such as local file before table."""
 
     def __init__(self) -> None:
         self.calls: list[Call] = []

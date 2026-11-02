@@ -1,0 +1,31 @@
+table: ref.peec_brands
+owner: setup-loader
+version: 1
+grain: One row per load_number, mapping, brand_id. Replaced atomically with the complete request; reference
+  rows are only added.
+key:
+  - load_number
+  - mapping
+  - brand_id
+columns:
+  - name: load_number
+    type: INT64
+    kind: key
+    nullable: false
+    meaning: Load number.
+  - name: mapping
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The immutable local project mapping from the captured setup load.
+  - name: brand_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The explicitly mapped benchmark brand in the YAML configuration.
+  - name: vendor_brand_id
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: Protected vendor brand reference. Never printed.
+    shared: false

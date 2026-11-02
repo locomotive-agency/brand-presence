@@ -1,0 +1,70 @@
+chart_group: ai answers
+grain: One row per week_start, source, engine, keyword_group, domain. Only observed weeks are present;
+  countries and locations are combined within the client project.
+key:
+- week_start
+- source
+- engine
+- keyword_group
+- domain
+reads: []
+inputs:
+- ai_prompt_results_v2
+- peec_prompt_results_v1
+checks:
+- weekly_values
+columns:
+- name: week_start
+  type: DATE
+  kind: key
+  nullable: false
+  meaning: Monday of the ISO week of run_date. Cloro uses the client time zone; Peec uses the verified
+    vendor observation date, as the existing prompt reports do.
+- name: source
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: cloro for ai-answers, or peec. Sources are never combined.
+- name: engine
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The engine held by the facts. Peec already maps to chatgpt, perplexity, gemini and ai-overview;
+    Cloro names are preserved.
+- name: keyword_group
+  type: STRING
+  kind: key
+  nullable: true
+  meaning: The prompt's keyword group from the YAML configuration; unknown where the prompt has none,
+    which today is every Peec prompt (Peec owns its prompts).
+- name: domain
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: Every cited host, lower case without the leading www prefix. Includes client, competitor and third party
+    domains; uses the citations reports host normalisation.
+- name: citation_count
+  type: INT64
+  kind: measure
+  nullable: false
+  meaning: Total cited URL occurrences for this domain across answer runs. Different pages count separately.
+    Facts retain each URL once per answer, so repeated vendor occurrences of the same URL cannot be recovered.
+  unit: citations
+  sums:
+    over: []
+    dates: any
+- name: prompts_citing
+  type: INT64
+  kind: measure
+  nullable: false
+  meaning: Distinct prompt IDs whose answers cite the domain in this week, not runs. Repeated runs of
+    a prompt count once.
+  unit: prompts
+  sums:
+    over: []
+    dates: none
+- name: avg_citation_position
+  type: FLOAT64
+  kind: attribute
+  nullable: true
+  meaning: 'Not collected yet: the clean tables hold no citation order for either source. Null on every row until a later version collects it.'

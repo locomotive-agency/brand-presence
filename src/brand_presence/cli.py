@@ -9,7 +9,8 @@ from pydantic import ValidationError
 from brand_presence import runner, schema
 from brand_presence.errors import UserError
 from brand_presence.reports import runner as reports_runner
-from brand_presence.runs import Period, period_start
+from brand_presence.reports.definition import GROUPS
+from brand_presence.runs import Period, period_start, source_period
 from brand_presence.settings import credentials, load
 from brand_presence.sources.registry import SOURCES
 from brand_presence.state import locked
@@ -32,24 +33,41 @@ def initialise(config: Config = Path("config.yaml")):
 
 @app.command()
 def run(source: str, config: Config = Path("config.yaml"),
-        period: Annotated[str | None, typer.Option(help="Ended month, YYYY-MM.")] = None):
-    """Collect search volume, recovering unfinished work first."""
+        period: Annotated[str | None, typer.Option(
+            help="Month for search-volume, ISO week for AI sources, date for mentions.")] = None):
+    """Collect a source, recovering unfinished work first."""
     if source not in SOURCES:
-        raise typer.BadParameter("source must be search-volume")
+        raise typer.BadParameter("source must be " + ", ".join(SOURCES))
+    if source == "mentions" and period is not None:
+        raise typer.BadParameter("mentions uses its saved cursor; omit --period",
+                                 param_hint="--period")
     settings = load(config)
     try:
         named = Period(period, period_start(period)) if period is not None else None
     except ValueError:
-        raise typer.BadParameter("period must be a valid month in YYYY-MM format",
+        raise typer.BadParameter("period must be a valid YYYY-MM, YYYY-Www or YYYY-MM-DD",
                                  param_hint="--period") from None
     if named:
+        import re
         from datetime import UTC, datetime
 
-        from brand_presence.runs import period_for
-
-        if named.start > period_for(datetime.now(UTC), settings.time_zone).start:
-            raise typer.BadParameter("period must be a complete month")
-    keys = credentials()
+        form = (r"[0-9]{4}-[0-9]{2}" if source == "search-volume" else
+                r"[0-9]{4}-W[0-9]{2}")
+        if not re.fullmatch(form, named.name):
+            raise typer.BadParameter("period has the wrong format for this source")
+        if named.start > source_period(source, datetime.now(UTC), settings.time_zone).start:
+            raise typer.BadParameter("period is not available yet")
+    if source == "ai-answers" and not any(s.prompts for s in settings.benchmark_sets):
+        raise UserError("ai-answers needs prompts in benchmark_sets")
+    if source == "mentions" and not settings.mention_filters:
+        raise UserError("mentions needs mention_filters in YAML")
+    if source == "peec" and not settings.peec_projects:
+        raise UserError("peec needs peec_projects and peec_brands in YAML")
+    if source == "search-volume" and not any(
+        k.search_volume for s in settings.benchmark_sets for k in s.keywords
+    ):
+        raise UserError("search-volume needs enabled keywords in benchmark_sets")
+    keys = credentials(source)
     bq = connect(settings)
     with httpx.Client(timeout=60, follow_redirects=False) as http:
         result = runner.run(SOURCES[source](), settings, runner.World(bq, http, keys), period=named)
@@ -62,10 +80,13 @@ def run(source: str, config: Config = Path("config.yaml"),
 
 
 @reports.command("run")
-def report_run(config: Config = Path("config.yaml")):
-    """Build the search-volume fact and history report."""
+def report_run(config: Config = Path("config.yaml"),
+               source: Annotated[str, typer.Option()] = "search-volume"):
+    """Build source facts and serving reports."""
+    if source not in GROUPS:
+        raise typer.BadParameter("source must be " + ", ".join(GROUPS))
     settings = load(config)
-    for table in reports_runner.run(connect(settings), settings):
+    for table in reports_runner.run(connect(settings), settings, source=source):
         typer.echo(f"Built {settings.table(table)}")
 
 
@@ -79,7 +100,7 @@ def start():
         for issue in error.errors(include_input=False, include_url=False):
             field = ".".join(str(part) for part in issue["loc"])
             reason = ("set client_id to your own stable identifier; example is reserved"
-                      if field == "client_id" else issue["type"])
+                      if field == "client_id" else issue["msg"])
             typer.echo(f"Invalid configuration: {field or 'document'} ({reason})", err=True)
         raise SystemExit(1) from None
     except Exception as error:

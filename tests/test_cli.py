@@ -70,3 +70,51 @@ def test_example_client_id_has_a_clear_cli_error(monkeypatch, capsys):
         cli.start()
     assert raised.value.code == 1
     assert "set client_id to your own stable identifier" in capsys.readouterr().err
+
+
+def test_mentions_rejects_period_before_connecting(tmp_path, monkeypatch):
+    def denied(*args):
+        pytest.fail('mentions with --period reached credentials or connect')
+
+    monkeypatch.setattr(cli, 'credentials', denied)
+    monkeypatch.setattr(cli, 'connect', denied)
+    path = tmp_path / 'config.yaml'
+    path.write_text(yaml.safe_dump(configuration()))
+    result = CliRunner().invoke(cli.app, [
+        'run', 'mentions', '--period', '2026-03-02', '--config', str(path),
+    ])
+    assert result.exit_code == 2, result.exception
+    assert '--period' in result.output
+    assert 'mentions uses its saved cursor' in result.output
+
+
+@pytest.mark.parametrize('source,env_name,period', [
+    ('ai-answers', 'CLORO_API_KEY', '2026-W10'),
+    ('mentions', 'SYFTEN_API_KEY', None),
+    ('peec', 'PEEC_API_KEY', '2026-W09'),
+])
+def test_ported_sources_from_cli(tmp_path, respx_mock, monkeypatch, source, env_name, period):
+    from peec_project import prepared as peec_project
+    from reporting import install_sources
+    from test_cloro_workflow import prepared as cloro_project
+    from test_mentions_workflow import prepared as mentions_project
+
+    prepare = {'ai-answers': cloro_project, 'mentions': mentions_project, 'peec': peec_project}
+    project, _ = prepare[source](tmp_path, respx_mock)
+    path = tmp_path / 'config.yaml'
+    path.write_text(yaml.safe_dump(project.settings.model_dump(mode='json')))
+    monkeypatch.setattr(cli, 'connect', lambda _: project.bq)
+    monkeypatch.setenv(env_name, 'example-key')
+    world = cli.runner.World
+    monkeypatch.setattr(cli.runner, 'World', lambda *args: world(
+        *args, clock=lambda: project.now, sleep=lambda _: None, wait_seconds=60))
+    invoke = CliRunner()
+    args = ['run', source, '--config', str(path)]
+    if period is not None:
+        args += ['--period', period]
+    result = invoke.invoke(cli.app, args)
+    assert result.exit_code == 0, (result.output, result.exception)
+    install_sources(project.fake, project.settings)
+    result = invoke.invoke(cli.app, ['reports', 'run', '--source', source, '--config', str(path)])
+    assert result.exit_code == 0, (result.output, result.exception)
+    assert 'example-key' not in result.output

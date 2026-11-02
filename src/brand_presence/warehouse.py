@@ -5,7 +5,7 @@ from google.cloud import bigquery
 
 from brand_presence.settings import Settings
 
-TABLE = re.compile(r"(?<![\w.])(ops|raw|stg|core|mart)\.([A-Za-z_][A-Za-z0-9_]*)")
+TABLE = re.compile(r"(?<![\w.])(ops|raw|stg|core|mart|ref)\.([A-Za-z_][A-Za-z0-9_]*)")
 
 
 def qualify(sql: str, settings: Settings) -> str:

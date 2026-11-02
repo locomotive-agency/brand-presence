@@ -1,0 +1,115 @@
+table: stg.ai_answer_brands
+owner: ai-answers
+version: 1
+grain: 'One row per client brand, country, location, prompt, engine, brand of the benchmark set and
+  period: one brand in one answer. Its rows follow the answer''s in stg.ai_answers.'
+key:
+- client_brand_id
+- country_code
+- location_id
+- prompt_id
+- engine
+- subject_brand_id
+- period
+unknown: 'Never: every row is planned from a benchmark set, so its client brand, country and location
+  are those of the set.'
+columns:
+- name: client_brand_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The client brand the row was measured for, by its brand ID in the YAML configuration.
+  holds: client brand
+- name: country_code
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The country, as a two-letter code.
+  holds: country
+- name: location_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The location the request was for, by its ID in ref.locations.
+  holds: location
+- name: benchmark_version
+  type: INT64
+  kind: attribute
+  nullable: true
+  meaning: The version of the client brand's benchmark set in the row's country, at the load the request
+    was planned from.
+  null_means: 'The client brand has no benchmark set in the row''s country, or the row belongs to
+    none: a mention, or a pull of every country.'
+- name: snapshot_id
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The snapshot of the YAML configuration the request was planned from.
+- name: period
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The period of the pull that wrote the row, as the run names it. It tells apart the rows
+    of two pulls of the same dates.
+- name: period_start
+  type: DATE
+  kind: attribute
+  nullable: false
+  meaning: The first day of the row's period, in the client's time zone.
+- name: request_key
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The vendor request the row came from.
+- name: run_id
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The run that wrote the row.
+- name: pulled_at
+  type: TIMESTAMP
+  kind: attribute
+  nullable: false
+  meaning: When the answer the row came from was received.
+- name: prompt_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The prompt, by its ID in the benchmark set.
+- name: engine
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The engine asked.
+- name: subject_brand_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The brand of the benchmark set the row is about.
+- name: named
+  type: BOOL
+  kind: attribute
+  nullable: false
+  meaning: Whether the answer names the brand.
+- name: cited
+  type: BOOL
+  kind: attribute
+  nullable: false
+  meaning: Whether the answer cites a page of one of the brand's domains.
+- name: first_mention_at
+  type: INT64
+  kind: attribute
+  nullable: true
+  meaning: Where the brand is first named in the answer, as the number of characters of the answer's
+    answer_text in stg.ai_answers before the earliest whole-word match of its name or an alias. 0 is
+    the start of the text.
+  unit: characters
+  null_means: The brand is not named in the answer, or the position was not captured.
+- name: mention_rank
+  type: INT64
+  kind: attribute
+  nullable: true
+  meaning: 'The brand''s rank among the brands of the answer''s set by first_mention_at: 1 for the
+    brand named first. Brands first named at the same place share a rank, and the next rank counts
+    every brand before it. It is not summed: it is compared within one answer.'
+  null_means: first_mention_at is null.

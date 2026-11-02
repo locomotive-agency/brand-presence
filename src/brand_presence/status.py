@@ -98,3 +98,53 @@ ROW_REPEATED = "row repeated"
 
 IN_FLIGHT = "in flight"
 
+
+ENGINE_UNAVAILABLE = "engine unavailable"
+
+TASK_FAILED = "task failed"
+
+VENDOR_ERROR = "vendor error"
+
+NO_RESULTS = "no results"
+
+NO_TEXT = "no text"
+
+BLOCK_PAGE = "block page"
+
+TOO_SHORT = "too short"
+
+UNKNOWN_TASK_STATE = "unknown task state"
+
+OVERVIEW_UNREADABLE = "overview unreadable"
+
+NO_MATCHES = "no matches listed"
+
+CURSOR_UNREADABLE = "cursor unreadable"
+
+RESUME_POINT_UNREADABLE = "resume point unreadable"
+
+WINDOW = "window"
+
+KEY_MISSING = "key missing"
+
+KEY_REFUSED = "key refused"
+
+PEEC_PROJECT_ACCESS = "peec project access"
+
+PEEC_MAPPING_INVALID = "peec mapping invalid"
+
+PEEC_RESPONSE_UNREADABLE = "peec response unreadable"
+
+PEEC_PAGINATION_INCOMPLETE = "peec pagination incomplete"
+
+PEEC_ENGINE_UNMAPPED = "peec engine unmapped"
+
+PEEC_ANSWER_MISMATCH = "peec answer mismatch"
+
+PEEC_ANSWER_DATE_INVALID = "peec answer date invalid"
+
+PEEC_ANSWER_STATE_UNKNOWN = "peec answer state unknown"
+
+PEEC_PAGE_CAP = "peec page cap"
+
+PEEC_HISTORY_UNAVAILABLE = "peec history unavailable"
