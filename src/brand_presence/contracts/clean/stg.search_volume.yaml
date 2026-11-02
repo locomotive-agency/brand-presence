@@ -1,0 +1,156 @@
+table: stg.search_volume
+owner: search-volume
+version: 1
+grain: 'One row per client brand, country, location, keyword, calendar month and period. A calendar
+  month has one row for each pull that reported it, and period is the column that tells them apart:
+  read one pull''s rows, or the latest for each month, never their sum.'
+key:
+- client_brand_id
+- country_code
+- location_id
+- keyword
+- month
+- period
+unknown: 'Never: every row is planned from a benchmark set, so its client brand, country and location
+  are those of the set.'
+columns:
+- name: client_brand_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The client brand the row was measured for, by its brand ID in the configuration.
+  holds: client brand
+- name: country_code
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The country, as a two-letter code.
+  holds: country
+- name: location_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The location the request was for, by its ID in ref.locations.
+  holds: location
+- name: benchmark_version
+  type: INT64
+  kind: attribute
+  nullable: true
+  meaning: The version of the client brand's benchmark set in the row's country, at the load the request
+    was planned from.
+  null_means: 'The client brand has no benchmark set in the row''s country, or the row belongs to
+    none: a mention, or a pull of every country.'
+- name: snapshot_id
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The snapshot of the configuration the request was planned from.
+- name: period
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The period of the pull that wrote the row, as the run names it. It tells apart the rows
+    of two pulls of the same dates.
+- name: period_start
+  type: DATE
+  kind: attribute
+  nullable: false
+  meaning: The first day of the row's period, in the client's time zone.
+- name: request_key
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The vendor request the row came from.
+- name: run_id
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The run that wrote the row.
+- name: pulled_at
+  type: TIMESTAMP
+  kind: attribute
+  nullable: false
+  meaning: When the answer the row came from was received.
+- name: keyword
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The keyword, as the benchmark set lists it.
+- name: month
+  type: DATE
+  kind: key
+  nullable: false
+  meaning: The first day of the calendar month the figures are of.
+- name: search_volume
+  type: INT64
+  kind: measure
+  nullable: true
+  meaning: The keyword's monthly searches in the location.
+  unit: searches in the month, as the vendor estimates them
+  null_means: The vendor gave no figure for the month.
+  sums:
+    summable: true
+    over:
+    - keyword
+    - month
+    across_periods: false
+- name: cpc
+  type: FLOAT64
+  kind: measure
+  nullable: true
+  meaning: The average cost of a click on an ad for the keyword, as the vendor returns it.
+  unit: the vendor's currency, as the vendor returns it
+  null_means: The vendor gave no figure.
+  sums:
+    summable: false
+  money: true
+  reported: false
+- name: competition
+  type: STRING
+  kind: attribute
+  nullable: true
+  meaning: 'How much advertisers compete for the keyword, in the vendor''s words: LOW, MEDIUM or HIGH.'
+  null_means: The vendor gave no figure.
+- name: competition_index
+  type: INT64
+  kind: measure
+  nullable: true
+  meaning: How much advertisers compete for the keyword, as the vendor's index.
+  unit: the vendor's index, 0 to 100
+  null_means: The vendor gave no figure.
+  sums:
+    summable: false
+- name: low_top_of_page_bid
+  type: FLOAT64
+  kind: measure
+  nullable: true
+  meaning: The lower bid for an ad at the top of the first page, as the vendor returns it.
+  unit: the vendor's currency, as the vendor returns it
+  null_means: The vendor gave no figure.
+  sums:
+    summable: false
+  money: true
+  reported: false
+- name: high_top_of_page_bid
+  type: FLOAT64
+  kind: measure
+  nullable: true
+  meaning: The higher bid for an ad at the top of the first page, as the vendor returns it.
+  unit: the vendor's currency, as the vendor returns it
+  null_means: The vendor gave no figure.
+  sums:
+    summable: false
+  money: true
+  reported: false
+- name: term_type
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: 'The keyword''s term type in the benchmark set: brand, competitor or generic.'
+- name: subject_brand_id
+  type: STRING
+  kind: dimension
+  nullable: true
+  meaning: The brand the keyword is about, by its brand ID.
+  null_means: 'The keyword is about no brand: a generic one.'
+

@@ -1,0 +1,82 @@
+"""The local command line. Only connect after configuration and arguments are valid."""
+from pathlib import Path
+from typing import Annotated
+
+import httpx
+import typer
+from pydantic import ValidationError
+
+from brand_presence import runner, schema
+from brand_presence.errors import UserError
+from brand_presence.reports import runner as reports_runner
+from brand_presence.runs import Period, period_start
+from brand_presence.settings import credentials, load
+from brand_presence.sources.registry import SOURCES
+from brand_presence.state import locked
+from brand_presence.warehouse import connect
+
+app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False)
+reports = typer.Typer(no_args_is_help=True)
+app.add_typer(reports, name="reports")
+Config = Annotated[Path, typer.Option("--config", "-c", help="YAML configuration file.")]
+
+
+@app.command("init")
+def initialise(config: Config = Path("config.yaml")):
+    """Create datasets and tables in the configured project."""
+    settings = load(config)
+    with locked(settings.state_path):
+        schema.initialise(connect(settings))
+    typer.echo("Datasets and tables are ready.")
+
+
+@app.command()
+def run(source: str, config: Config = Path("config.yaml"),
+        period: Annotated[str | None, typer.Option(help="Ended month, YYYY-MM.")] = None):
+    """Collect search volume, recovering unfinished work first."""
+    if source not in SOURCES:
+        raise typer.BadParameter("source must be search-volume")
+    settings = load(config)
+    named = Period(period, period_start(period)) if period else None
+    if named:
+        from datetime import UTC, datetime
+
+        from brand_presence.runs import period_for
+
+        if named.start > period_for(datetime.now(UTC), settings.time_zone).start:
+            raise typer.BadParameter("period must be a complete month")
+    keys = credentials()
+    bq = connect(settings)
+    with httpx.Client(timeout=60, follow_redirects=False) as http:
+        result = runner.run(SOURCES[source](), settings, runner.World(bq, http, keys), period=named)
+    for line in result.lines:
+        typer.echo(line)
+    if result.source_counts:
+        typer.echo(f"Parsing counts: {result.source_counts}")
+    typer.echo(f"{result.status}: {result.counts}")
+    raise typer.Exit(result.exit_code)
+
+
+@reports.command("run")
+def report_run(config: Config = Path("config.yaml")):
+    """Build the search-volume fact and history report."""
+    settings = load(config)
+    for table in reports_runner.run(connect(settings), settings):
+        typer.echo(f"Built {settings.table(table)}")
+
+
+def start():
+    try:
+        app()
+    except UserError as error:
+        typer.echo(str(error), err=True)
+        raise SystemExit(1) from None
+    except ValidationError as error:
+        for issue in error.errors(include_input=False, include_url=False):
+            field = ".".join(str(part) for part in issue["loc"])
+            typer.echo(f"Invalid configuration: {field or 'document'} ({issue['type']})", err=True)
+        raise SystemExit(1) from None
+    except Exception as error:
+        typer.echo(f"Command failed: {type(error).__name__}. "
+                   "Check configuration and access.", err=True)
+        raise SystemExit(1) from None

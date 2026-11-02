@@ -1,0 +1,35 @@
+[project]
+name = "brand-presence"
+version = "0.1.0"
+description = "Search volume reporting in your own BigQuery project"
+requires-python = ">=3.12"
+dependencies = [
+  "typer>=0.12", "httpx>=0.27", "pydantic>=2.7", "tenacity>=8.3",
+  "google-cloud-bigquery>=3.25", "pyyaml>=6.0",
+]
+
+[project.scripts]
+brand-presence = "brand_presence.cli:start"
+
+[dependency-groups]
+dev = ["pytest>=8.2", "respx>=0.21", "ruff>=0.5", "sqlglot>=30.22"]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/brand_presence"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

@@ -1,0 +1,75 @@
+{
+  "id": "task-sv-1",
+  "status_code": 20000,
+  "status_message": "Ok.",
+  "cost": 0.05,
+  "result_count": 2,
+  "data": {
+    "keywords": [
+      "sample aardvark theepot",
+      "voorbeeld theepot kopen"
+    ],
+    "location_name": "Netherlands",
+    "language_code": "nl",
+    "search_partners": false,
+    "date_from": "2025-12-01",
+    "date_to": "2026-02-28",
+    "tag": "sample-tag-sv-1"
+  },
+  "result": [
+    {
+      "keyword": "sample aardvark theepot",
+      "search_partners": false,
+      "competition": "LOW",
+      "competition_index": 12,
+      "search_volume": 320,
+      "low_top_of_page_bid": 0.21,
+      "high_top_of_page_bid": 0.84,
+      "cpc": 0.55,
+      "monthly_searches": [
+        {
+          "year": 2026,
+          "month": 2,
+          "search_volume": 320
+        },
+        {
+          "year": 2026,
+          "month": 1,
+          "search_volume": 290
+        },
+        {
+          "year": 2025,
+          "month": 12,
+          "search_volume": 410
+        }
+      ]
+    },
+    {
+      "keyword": "voorbeeld theepot kopen",
+      "search_partners": false,
+      "competition": "HIGH",
+      "competition_index": 88,
+      "search_volume": 1900,
+      "low_top_of_page_bid": 0.4,
+      "high_top_of_page_bid": 1.6,
+      "cpc": 1.05,
+      "monthly_searches": [
+        {
+          "year": 2026,
+          "month": 2,
+          "search_volume": 1900
+        },
+        {
+          "year": 2026,
+          "month": 1,
+          "search_volume": 1600
+        },
+        {
+          "year": 2025,
+          "month": 12,
+          "search_volume": 2400
+        }
+      ]
+    }
+  ]
+}

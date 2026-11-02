@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.brand-presence/
+config.yaml
+.env
+dist/
+*.egg-info/

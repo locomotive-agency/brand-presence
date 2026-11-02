@@ -1,0 +1,90 @@
+chart_group: demand
+grain: One row per month, client_brand_id, country_code, location_id, keyword, showing the latest fact
+  revision across all retained months, including backfilled history.
+key:
+- month
+- client_brand_id
+- country_code
+- location_id
+- keyword
+reads:
+- core.fct_search_volume_v1
+inputs: []
+checks: []
+columns:
+- name: month
+  type: DATE
+  kind: key
+  nullable: false
+  meaning: The first day of the calendar month the figure is of. Copied from the latest fact revision
+    for this grain.
+  unit: null
+- name: client_brand_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The client brand the keyword was measured for. Copied from the latest fact revision for this
+    grain.
+  holds: client brand
+  unit: null
+- name: country_code
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The country, as a two-letter code. Copied from the latest fact revision for this grain.
+  holds: country
+  unit: null
+- name: location_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The location the figure is for, by its ID in ref.locations. A country's own location and its
+    regions and cities each have rows, so rows of one country are not added across locations. Copied from
+    the latest fact revision for this grain.
+  unit: null
+- name: keyword
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The keyword, as the benchmark set lists it. Copied from the latest fact revision for this grain.
+  unit: null
+- name: term_type
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: The keyword's term type in the benchmark set when it was pulled, as the source wrote it, brand,
+    competitor or generic. Copied from the latest fact revision for this grain.
+  unit: null
+- name: subject_brand_id
+  type: STRING
+  kind: dimension
+  nullable: true
+  meaning: The brand the keyword is about, by its brand ID, as the source wrote it. Null for a generic
+    keyword. Copied from the latest fact revision for this grain.
+  unit: null
+- name: benchmark_version
+  type: INT64
+  kind: attribute
+  nullable: true
+  meaning: The version of the client brand's benchmark set the shown pull was planned from. Null where
+    the brand had no set in the country. Copied from the latest fact revision for this grain.
+  unit: null
+- name: search_volume
+  type: INT64
+  kind: measure
+  nullable: true
+  meaning: The keyword's searches in the month and location, from the latest pull of the month. Null where
+    the vendor gave no figure, which counts as below the vendor's threshold. Copied from the latest fact
+    revision for this grain.
+  unit: searches in the month, as the vendor estimates them
+  sums:
+    over:
+    - keyword
+    dates: any
+- name: pulled_at
+  type: TIMESTAMP
+  kind: attribute
+  nullable: false
+  meaning: When the fact's build saw the row. The runner gives it; a reader takes the latest per month,
+    client brand, country, location and keyword. Copied from the latest fact revision for this grain.
+  unit: null

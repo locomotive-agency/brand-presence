@@ -1,0 +1,27 @@
+project_id: example-project
+client_id: example
+location: EU
+time_zone: Europe/Amsterdam
+state_dir: .brand-presence
+datasets:
+  ops: bp_ops
+  raw: bp_raw
+  stg: bp_stg
+  core: bp_core
+  mart: bp_mart
+brands:
+  - brand_id: aardvark
+    name: Example Aardvark
+countries:
+  - country_code: NL
+    language: nl
+    canonical_name: Netherlands
+benchmark_sets:
+  - client_brand_id: aardvark
+    country_code: NL
+    keywords:
+      - keyword: sample aardvark theepot
+        term_type: brand
+        brand_id: aardvark
+      - keyword: voorbeeld theepot kopen
+        term_type: generic

@@ -1,0 +1,24 @@
+{
+  "id": "task-iq-1",
+  "status_code": 40602,
+  "status_message": "Task In Queue.",
+  "cost": 0,
+  "result_count": 0,
+  "data": {
+    "keywords": [
+      "sample aardvark theepot",
+      "voorbeeld theepot kopen"
+    ],
+    "location_name": "Netherlands",
+    "language_code": "nl",
+    "type": "web",
+    "date_from": "2025-12-01",
+    "date_to": "2026-03-01",
+    "item_types": [
+      "google_trends_graph",
+      "google_trends_map"
+    ],
+    "tag": "sample-tag-iq-1"
+  },
+  "result": null
+}

@@ -1,0 +1,16 @@
+{
+  "id": "task-em-1",
+  "status_code": 20000,
+  "status_message": "Ok.",
+  "cost": 0.0006,
+  "result_count": 0,
+  "data": {
+    "keyword": "voorbeeld theepot kopen",
+    "location_name": "Netherlands",
+    "language_code": "nl",
+    "device": "desktop",
+    "depth": 20,
+    "tag": "sample-tag-em-1"
+  },
+  "result": null
+}
