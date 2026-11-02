@@ -1,6 +1,4 @@
-"""Search volume: Google Ads monthly search volume by keyword and location, from DataForSEO
-(search-demand "Search volume by keyword, location, month and pull", "What a search volume
-run asks for", "One vendor task per distinct request", "Configured search volume keywords").
+"""Search volume: Google Ads monthly search volume by keyword and location, from DataForSEO.
 
 A run asks for the three calendar months that end with its period, for every keyword a
 benchmark set flags for search volume, in every location of the set's country that the
@@ -14,8 +12,8 @@ it sends and writes when the answer's clean rows are written. `plan` reads no ta
 A month a later pull reports again is a new row: the period of the pull is in the key, and
 no pull changes a row of an earlier one.
 
-What an answer leaves out is counted on the run's line, never dropped unseen
-(canonical-vendor-sources, D9): a keyword asked with no result (`keywords_unanswered`), a
+What an answer leaves out is counted on the run's line: a keyword asked with no result
+(`keywords_unanswered`), a
 result for no keyword asked (`keywords_unmatched`), a result with no list of months
 (`keywords_without_months`) and a month whose year or number cannot be read
 (`months_unreadable`). A result whose keyword is no text cannot be told from another, and
@@ -222,7 +220,13 @@ class SearchVolumeSend(common.DataForSEOSend):
 
     def more(self, planned: Sequence[Request]) -> list[Request]:
         outstanding = [r for r in self.context.outstanding if is_history(r.body)]
-        return history_requests(planned, self.held() | pairs(outstanding))
+        reserved = pairs(outstanding) - self.held()
+        line = f"Reserved history pairs: {len(reserved)}"
+        if reserved:
+            sample = sorted(reserved)[:5]
+            line += f"; first {len(sample)}: " + ", ".join(repr(pair) for pair in sample)
+        self.context.out(line)
+        return history_requests(planned, self.held() | reserved)
 
     def written(self, written: Mapping[str, Request]) -> None:
         held = self.held()

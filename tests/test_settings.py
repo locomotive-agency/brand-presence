@@ -1,13 +1,13 @@
 import copy
-from pathlib import Path
 
 import pytest
 import yaml
 from pydantic import ValidationError
 
 from brand_presence.settings import Settings, credentials, load
+from project import configuration
 
-EXAMPLE = yaml.safe_load((Path(__file__).parents[1] / "example.yaml").read_text())
+EXAMPLE = configuration()
 
 
 @pytest.mark.parametrize("field,value", [
@@ -61,3 +61,43 @@ def test_credentials_are_read_from_environment_and_never_written(monkeypatch):
     monkeypatch.setenv("DATAFORSEO_PASSWORD", "example-password")
     assert credentials() == {"dataforseo-login": "example-login",
                               "dataforseo-password": "example-password"}
+
+
+@pytest.mark.parametrize("client_id", [None, "example", " example "])
+def test_client_id_must_be_explicit_and_not_the_example(client_id):
+    config = copy.deepcopy(EXAMPLE)
+    if client_id is None:
+        config.pop("client_id", None)
+    else:
+        config["client_id"] = client_id
+    with pytest.raises(ValidationError, match="client_id"):
+        Settings.model_validate(config)
+
+
+def test_example_client_id_error_explains_what_to_change():
+    config = copy.deepcopy(EXAMPLE)
+    config["client_id"] = "example"
+    with pytest.raises(ValidationError, match="set client_id to your own stable identifier"):
+        Settings.model_validate(config)
+
+
+@pytest.mark.parametrize("language", ["nl", "en", "fil", "zh-TW", "zh-CN"])
+def test_language_code_is_preserved_in_vendor_requests(tmp_path, respx_mock, language):
+    from project import Project
+
+    config = copy.deepcopy(EXAMPLE)
+    config["countries"][0]["language"] = language
+    settings = Settings.model_validate(config)
+    project = Project(tmp_path, respx_mock)
+    project.settings.countries = settings.countries
+    project.run()
+    assert len(project.vendor.tasks) == 2
+    assert {body["language_code"] for body in project.vendor.tasks.values()} == {language}
+
+
+@pytest.mark.parametrize("language", ["english", "zh_tw", "zh-tw", "zh-", "zh-TWW", "en/US"])
+def test_malformed_language_codes_are_refused(language):
+    config = copy.deepcopy(EXAMPLE)
+    config["countries"][0]["language"] = language
+    with pytest.raises(ValidationError, match="language"):
+        Settings.model_validate(config)

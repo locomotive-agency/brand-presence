@@ -3,8 +3,9 @@ from __future__ import annotations
 
 import json
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from importlib import metadata
 
 from google.cloud import bigquery
 
@@ -17,7 +18,6 @@ class Entry:
     time_limit_seconds: int = 3600
 
 CATALOGUE = {name: Entry() for name in ("search-volume", "reports", "init")}
-_SOURCE_COLUMNS = {}
 
 @dataclass(frozen=True)
 class Row:
@@ -25,18 +25,16 @@ class Row:
     client_id: str | None
     source: str
     started_at: datetime
-    image_version: str | None = "0.1.0"
+    image_version: str | None = field(default_factory=lambda: metadata.version("brand-presence"))
     period: str | None = None
     frequency: str | None = "monthly"
     execution: str | None = None
-
-Other = Row
 
 @dataclass(frozen=True)
 class Lines:
     out: object = print
 
-def _line(row, ended_as, ended_at, values, lines):
+def _line(row, ended_as, ended_at, values):
     return json.dumps({"run_id": row.run_id, "source": row.source,
                        "period": row.period, "status": ended_as,
                        "ended_at": ended_at.isoformat(), **values}, default=str)
@@ -95,7 +93,7 @@ def start(bq, row: Row) -> None:
 
 
 def others(bq, run_id: str, started_at: datetime,
-           catalogue: Mapping[str, Entry] = CATALOGUE) -> tuple[list[Other], list[Other]]:
+           catalogue: Mapping[str, Entry] = CATALOGUE) -> tuple[list[Row], list[Row]]:
     """The other `running` rows, read after this run's own row is written: those in
     flight, and those older than their job's time limit, which never ended. Each is read
     whole, so that the run that closes one can write its status line."""
@@ -111,7 +109,7 @@ def others(bq, run_id: str, started_at: datetime,
     for row in rows:
         entry = catalogue.get(row["source"])
         limit = timedelta(seconds=entry.time_limit_seconds if entry else longest)
-        other = Other(
+        other = Row(
             run_id=row["run_id"], client_id=row["client_id"], source=row["source"],
             started_at=row["started_at"], image_version=row["image_version"],
             period=row["period"], frequency=row["frequency"], execution=None,
@@ -122,7 +120,7 @@ def others(bq, run_id: str, started_at: datetime,
 
 
 def _checked(values: Mapping[str, object]) -> None:
-    unknown = sorted(set(values) - set(_END_COLUMNS) - set(_SOURCE_COLUMNS))
+    unknown = sorted(set(values) - set(_END_COLUMNS))
     if unknown:
         raise ValueError(f"ops.runs records no {', '.join(unknown)}")
 
@@ -138,9 +136,7 @@ def _update(bq, run_id: str, ended_as: str, ended_at: datetime,
         bigquery.ScalarQueryParameter("ended_at", "TIMESTAMP", ended_at),
         text_parameter("run_id", run_id),
     ]
-    given = {column: kind for column, kind in _SOURCE_COLUMNS.items()
-             if values.get(column) is not None}
-    for column, kind in {**_END_COLUMNS, **given}.items():
+    for column, kind in _END_COLUMNS.items():
         sets.append(f"{column} = @{column}")
         parameters.append(bigquery.ScalarQueryParameter(column, kind, values.get(column)))
     return changed(
@@ -166,7 +162,7 @@ def end(bq, row: Row, ended_as: str, ended_at: datetime, lines: Lines,
     except Exception:
         without_row(row, ended_at, lines, **values)
         raise
-    lines.out(_line(row, ended_as, ended_at, values, lines))
+    lines.out(_line(row, ended_as, ended_at, values))
 
 
 
@@ -180,11 +176,11 @@ def without_row(row: Row, ended_at: datetime, lines: Lines, *, ended_as: str = E
     if (ended_as == ERROR and said.get("error_class") is None
             and said.get("failed_check") is None):
         said["error_class"], said["error_count"] = RUN_ROW_FAILED, 1
-    lines.out(_line(row, ended_as, ended_at, said, lines))
+    lines.out(_line(row, ended_as, ended_at, said))
 
 
 
-def close_abandoned(bq, abandoned: list[Other], ended_at: datetime, lines: Lines) -> None:
+def close_abandoned(bq, abandoned: list[Row], ended_at: datetime, lines: Lines) -> None:
     """Close runs that never ended as `error`, with the class `did not finish`. Each gets
     its status line once its row is updated: a killed job wrote none of its own."""
     values = {"error_class": DID_NOT_FINISH, "error_count": 1}
@@ -193,5 +189,5 @@ def close_abandoned(bq, abandoned: list[Other], ended_at: datetime, lines: Lines
         # that does close it. A row another run closed since it was read has its line from
         # that run, with the end time the row holds.
         if _update(bq, other.run_id, ERROR, ended_at, values):
-            lines.out(_line(other, ERROR, ended_at, values, lines))
+            lines.out(_line(other, ERROR, ended_at, values))
 

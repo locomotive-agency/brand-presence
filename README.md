@@ -18,10 +18,21 @@ cp example.yaml config.yaml
 gcloud auth application-default login
 ```
 
-Edit `config.yaml`. Set `project_id` to your project. Choose one BigQuery location for
-all five datasets. Replace the invented brands and keywords with your own research.
-Use DataForSEO's country names and language codes. A keyword is `brand`, `competitor`
-or `generic`. Brand and competitor keywords need a listed `brand_id`.
+Edit `config.yaml`. Set `project_id` to your project and `client_id` to your own stable
+identifier, such as `aardvark-research`. `client_id` is required; `example` is rejected.
+It must start with a lowercase letter and contain only lowercase letters, digits,
+underscores or hyphens, up to 64 characters. Request keys are
+`client_id/source/period/hash`. Changing `client_id` changes every request key and
+re-pays the current period, so keep it unchanged when resuming work.
+
+Choose one BigQuery location for all five datasets. Replace the invented brands and
+keywords with your own research. Use DataForSEO's country names and language codes.
+Regional forms such as `zh-TW` are accepted structurally and passed through unchanged;
+the vendor decides whether a language is available for the endpoint and location.
+A keyword is `brand`, `competitor` or `generic`. Brand and competitor keywords need a
+listed `brand_id`. Each keyword has a `search_volume` flag, defaulting to `true`.
+Set it to `false` to exclude that keyword from collection. At least one keyword must
+enable it.
 
 Set `DATAFORSEO_LOGIN` and `DATAFORSEO_PASSWORD` in your shell environment. Use your
 DataForSEO API login and API password. Do not put them in the YAML file.
@@ -99,11 +110,23 @@ for a project and dataset set. Do not delete ledger rows or state to force a rer
 
 A task left `sending` becomes `unknown` and is looked up by its tag. If the ready
 list does not contain it, it stays unknown. A timeout or server error on a paid POST
-is never blindly retried. Expired paid tasks are also not submitted again. Unresolved
-history from an earlier period prevents another history payment in a new period.
-An unresolved task needs investigation with the vendor; this kit offers no force-repay
-switch. The vendor has finite result retention, so
-recover promptly. Missing local raw files stop clean recovery rather than paying again.
+is never blindly retried. Unknown and expired paid tasks are not submitted again in
+their original period.
+
+Unresolved history from an earlier period reserves its keyword and location pairs
+until an `unknown` or `expired` attempt is older than DataForSEO's 30-day result
+retention. Age starts at submission, or creation if submission was never recorded.
+After that, a later-period run can request the history again. This also releases a
+request left in the ledger by a crash before the POST. **This can pay once more for
+a request that the vendor may have run.** It does not resolve the old attempt's
+outcome. Each run's planning output lists the reserved pair count and up to five
+pairs, including zero when none remain. Stored answers awaiting clean writes keep
+their reservations regardless of age.
+
+Recover promptly and investigate unresolved tasks with the vendor. Missing local raw
+files stop clean recovery rather than paying again. Requests never sent because the
+run's deadline passed, or because the vendor took nothing, count as pending rather
+than failed.
 
 Clean writes delete by request key and by natural key within the period, then insert
 in one transaction. If a process stops after the commit, repeating the write is safe.

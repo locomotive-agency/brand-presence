@@ -215,8 +215,7 @@ def _natural_key(model: type[CleanRow], row: CleanRow) -> tuple:
 
 
 def repeated(models: Sequence[type[CleanRow]], rows: Sequence[CleanRow]) -> bool:
-    """Whether the rows of one answer hold two rows of one model with one natural key
-    (source-framework "Clean rows for a request are replaced, not merged")."""
+    """Whether one answer holds two rows of one model with the same natural key."""
     for model in models:
         seen: set[tuple] = set()
         for row in rows:
@@ -238,7 +237,7 @@ def _parent_key(parent: type[CleanRow], row: CleanRow) -> tuple:
 
 
 class Warehouse:
-    """The bucket and the tables of one client's project, as one run uses them."""
+    """The local raw files and tables of one client's project, as one run uses them."""
 
     def __init__(self, bq, state_dir: Path):
         self.bq = bq
@@ -262,6 +261,8 @@ class Warehouse:
         return model.model_validate_json(text)
 
     def load_raw(self, model: type[RawRow], paths: Sequence[str]) -> int:
+        if not paths:
+            return 0
         rows = [self.read_raw(model, path) for path in paths]
         if any(row is None for row in rows):
             raise FileNotFoundError("a raw answer is missing")

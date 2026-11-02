@@ -79,14 +79,12 @@ def columns_of(model: type[Row]) -> dict[str, tuple[str, bool]]:
 
 
 class CleanRow(Row):
-    """The standard columns of a clean row (data-model "Every clean row carries its brand,
-    country and location"). A row about a brand other than the client brand adds
+    """Every clean row carries its brand, country and location. A row about a brand
+    other than the client brand adds
     `subject_brand_id`.
 
     A table's model names its natural key: the columns that make a row one measure. The
-    key holds the period. A cursor source's table is the exception: it sets `item_key` to
-    the column of the vendor's own item ID, and its key holds that and no period. Whether
-    the table is a cursor source's is checked against the catalogue in tests/test_schema.py.
+    key holds the period.
 
     A table whose rows are parts of another table's row names that table's model as its
     `parent`: the brands in an answer are parts of the answer. Its own key holds every
@@ -258,4 +256,3 @@ class RunRow(Row):
         if value not in RUN_STATUSES:
             raise ValueError("not a status of a run")
         return value
-

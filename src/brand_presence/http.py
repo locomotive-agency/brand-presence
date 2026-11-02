@@ -12,10 +12,10 @@ from brand_presence import status
 RETRIES = 4
 # The waits before each retry, in seconds.
 WAITS = (1, 2, 4, 8)
-# The longest wait a vendor may name. A longer one ends the call: the next tick tries.
+# A longer vendor-requested wait ends the call; a later run may try again.
 LONGEST_NAMED_WAIT = 120
 
-# The classes of a vendor call, from the one list (src/pipeline/status.py).
+# Vendor call errors use the shared status names.
 CONNECTION = status.CONNECTION
 TIMEOUT = status.TIMEOUT
 LIMIT = status.LIMIT

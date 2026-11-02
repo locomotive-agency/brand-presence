@@ -114,8 +114,6 @@ class _Run:
         self._refs[self.ref.load_number] = self.ref
         self.sender = self.source.send(SendContext(
             self.world.keys, self.world.http, self.bq, self.started_at, self.world.sleep,
-            outstanding=tuple(request_of(row.request)
-                              for row in self.ledger.outstanding(self.period.name)),
         ))
 
     def go(self):
@@ -152,12 +150,19 @@ class _Run:
         # Settle recovered history before deciding whether more history is needed.
         self.load_and_write()
         self.stored = []
+        self.sender = self.source.send(SendContext(
+            self.world.keys, self.world.http, self.bq, self.started_at, self.world.sleep,
+            outstanding=tuple(request_of(row.request) for row in self.ledger.outstanding(
+                self.period.name, self.source.keeping_seconds)),
+            out=self.lines.append,
+        ))
         planned = self.source.plan(self.ref, self.period)
         requests = keyed([*planned, *self.sender.more(planned)], self.settings.client_id,
                           self.source.name, self.period.name)
         self.planned = list(requests)
         self.counts["requests_planned"] = len(requests)
-        attempts = ledger.to_submit(self.planned, self.ledger.of_period(self.period.name))
+        attempts = ledger.to_submit(self.planned, self.ledger.of_period(self.period.name),
+                                    unavailable=self.source.unavailable)
         wanted = [(key, attempt, requests[key]) for key, attempt in attempts.items()]
         size = max(1, self.sender.batch_size)
         deadline = self.started_at + timedelta(seconds=self.world.wait_seconds)
@@ -175,7 +180,8 @@ class _Run:
         self.load_and_write()
 
     def judge(self):
-        found = ledger.period_counts(self.planned, self.ledger.of_period(self.period.name))
+        found = ledger.period_counts(self.planned, self.ledger.of_period(self.period.name),
+                                     unavailable=self.source.unavailable)
         self.counts["requests_pending"] = found.pending
         self.counts["requests_unknown"] = found.unknown
         self.counts["requests_failed"] = found.failed
@@ -258,7 +264,7 @@ class _Run:
 
 
     def look_for_unknown(self) -> None:
-        """A ready-list miss leaves the request unknown, never eligible for payment."""
+        """A ready-list miss leaves the request unknown; it is not retried in its period."""
         rows = self.ledger.in_state(ledger.UNKNOWN)
         if rows:
             self.look(rows)
@@ -313,7 +319,7 @@ class _Run:
                     self.stored.append((marked, saved, self.raw_path(row)))
                     continue
                 now = self.clock()
-                if ledger.is_expired(row, 30 * 24 * 60 * 60, now):
+                if ledger.is_expired(row, self.source.keeping_seconds, now):
                     self.error(ledger.EXPIRED)
                     changed.append(ledger.changed(row, state=ledger.EXPIRED,
                                                   error_class=ledger.EXPIRED))
@@ -389,7 +395,7 @@ class _Run:
 
 
     def store(self, row: LedgerRow, answer: Answer) -> tuple[Verdict, RawRow, str]:
-        """Write one answer to the bucket as it arrives, under this run's own path."""
+        """Save one raw answer locally under the submitting run's path."""
         # Judged with what was asked beside it, which the ledger holds.
         verdict = self.verdict_of(replace(answer, asked=request_of(row.request).body))
         load_number, snapshot_id = planned_under(row.request)

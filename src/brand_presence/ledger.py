@@ -115,14 +115,18 @@ class Ledger:
             [text_parameter("state", COLLECTED)],
         )
 
-    def outstanding(self, period: str) -> list[LedgerRow]:
-        """Paid or uncertain work from another period that must not be requested again."""
-        return read(
+    def outstanding(self, period: str, keeping_seconds: int | None = None) -> list[LedgerRow]:
+        """Work from another period that still reserves its history pairs. Unknown and
+        expired attempts release their reservations after the vendor's retention time."""
+        rows = read(
             self.bq, self.model,
             "period != @period AND state IN UNNEST(@states) AND written_at IS NULL",
             [text_parameter("period", period),
              texts_parameter("states", [*IN_FLIGHT, COLLECTED, EXPIRED])],
         )
+        now = self.clock()
+        return [row for row in rows if row.state not in (UNKNOWN, EXPIRED)
+                or not is_expired(row, keeping_seconds, now)]
 
     # Writing ----------------------------------------------------------------------------
 
@@ -259,15 +263,16 @@ def period_counts(planned: Sequence[str], rows: Sequence[LedgerRow], *,
                   unavailable: Sequence[str] = ()) -> PeriodCounts:
     """Where the planned requests of a period stand when a run ends. A request is answered
     when an attempt at it is usable and its clean rows are written, by any run. One whose
-    last attempt was rejected as unavailable is pending: the next run sends it again."""
+    last attempt was rejected as unavailable, or that was never sent, is pending: the
+    next run sends it again."""
     attempts = _by_request(rows)
     answered = pending = unknown = failed = 0
     for key in planned:
         made = attempts.get(key, [])
         if any(row.state == COLLECTED and row.written_at is not None for row in made):
             answered += 1
-        elif made and (made[-1].state in (SENDING, SUBMITTED)
-                       or is_unavailable(made[-1], unavailable)):
+        elif not made or (made[-1].state in (SENDING, SUBMITTED)
+                          or is_unavailable(made[-1], unavailable)):
             pending += 1
         elif made and made[-1].state == UNKNOWN:
             unknown += 1

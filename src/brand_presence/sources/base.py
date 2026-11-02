@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 from abc import ABC, abstractmethod
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import ClassVar
@@ -26,6 +26,7 @@ class SendContext:
     started_at: datetime
     sleep: object
     outstanding: tuple[Request, ...] = ()
+    out: Callable[[str], None] = print
 
 class Source(ABC):
     name: ClassVar[str]
@@ -33,6 +34,7 @@ class Source(ABC):
     clean_models: ClassVar[tuple[type[CleanRow], ...]]
     ledger_model: ClassVar[type[LedgerRow]]
     unavailable: ClassVar[tuple[str, ...]] = ()
+    keeping_seconds: ClassVar[int | None] = None
 
     @abstractmethod
     def plan(self, settings: ClientRef, period: Period) -> list[Request]: ...
@@ -98,10 +100,9 @@ class Submitted:
 @dataclass(frozen=True)
 class Answer:
     """One finished answer. `response` is the vendor's answer and nothing else: no key and
-    no header. No cost is read from an answer (source-framework "The vendor's cost is not
-    recorded"). `content_date` is the date the content is of, where it has one, and
-    `custom_time` the time kept on the raw object for a deletion rule. `counts` is what the
-    sender counted on the way to this answer, such as items it left out before anything
+    no header. No cost is read from an answer. `content_date` is the date the content is of,
+    where it has one. `counts` is what the sender counted on the way to this answer,
+    such as items it left out before anything
     was stored. `asked` is
     the body of the request the answer is to. The framework sets it from the ledger before
     a task source's answer is judged, so that `usable` need not trust what the vendor
@@ -131,8 +132,7 @@ class Parsed:
     operational line.
     `refused` holds the refusal of each item the source left out because a row model
     would not take it: the rest of the answer is written, the run says the row model, the
-    field and the kind of error, and a cursor source's cursor moves on. A `parse` that
-    raises leaves the whole answer unwritten, and a cursor where it was."""
+    field and the kind of error. A `parse` that raises leaves the whole answer unwritten."""
 
     rows: Sequence[CleanRow]
     counts: Mapping[str, int] = field(default_factory=dict)
@@ -151,7 +151,7 @@ class TaskFailed(Exception):
 
 class TaskSend(ABC):
     """The vendor's side of a task source. The framework calls it, and writes the ledger
-    around each call. Every call goes through src/pipeline/http.py."""
+    around each call. Every vendor call uses the shared HTTP retry rules."""
 
     # How many requests one submission holds, and how long to wait between two rounds of
     # collecting.

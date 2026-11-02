@@ -1,7 +1,4 @@
-"""The DataForSEO calls, on a mocked vendor (search-demand "Tasks are posted, recorded and
-collected through the ledger", the vendor's half; source-framework "Retries are bounded and
-never repeat a billable request blindly", "Logs and errors hold no vendor text, query value
-or key")."""
+"""Mocked DataForSEO calls: bounded retries, safe paid submissions and redacted errors."""
 from __future__ import annotations
 
 import base64
@@ -79,7 +76,7 @@ def test_a_post_does_not_read_the_cost_the_vendor_gives_for_a_task():
     ]))
     vendor, _ = api()
     posted = vendor.post(PATH, [{"keyword": "a"}, {"keyword": "b"}, {"keyword": "c"}])
-    # The cost is not read (search-demand "No cost is read from an answer").
+    # The cost is not read.
     assert posted == [Posted("key-1", "task-1", 20100, created=True),
                       Posted("key-2", "task-2", 20100, created=True),
                       Posted("key-3", "task-3", 20100, created=True)]
@@ -184,8 +181,8 @@ def test_a_post_the_vendor_did_not_take_is_told_apart_from_one_it_may_have_taken
 
 @respx.mock
 def test_a_success_that_lists_no_tasks_is_an_error_and_never_nothing():
-    # canonical-vendor-sources, D5: a success with no list of tasks says nothing of what the
-    # vendor did. A post of it may have made the tasks, and they are looked for by tag.
+    # A success with no task list says nothing about what the vendor did. A post may
+    # have made the tasks, so they are looked for by tag.
     post = respx.post(f"{BASE}/{PATH}/task_post")
     ready = respx.get(f"{BASE}/{PATH}/tasks_ready")
     get = respx.get(f"{BASE}/{PATH}/task_get/task-1")

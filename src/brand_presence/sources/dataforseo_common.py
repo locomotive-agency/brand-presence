@@ -121,17 +121,17 @@ def usable(task: Mapping[str, object], *, needs_result: bool = True,
 
 
 class SearchDemandSource(Source):
-    """What the four sources have in common. It sets no name: it is no source itself."""
+    """Shared task submission and answer validation for DataForSEO search demand."""
 
     shape = TASKS
+    keeping_seconds = dataforseo.RESULT_RETENTION_SECONDS
     # The endpoint's own path, and what follows it in a get.
     path: ClassVar[str]
     get_suffix: ClassVar[str] = "task_get"
     # Whether a finished task with no result is no answer.
     needs_result: ClassVar[bool] = True
     # The task status codes that say the vendor found nothing to list. A task that finishes
-    # with one is a usable answer that writes no row (search-demand "A finished task with
-    # no result is not an answer").
+    # with one is a usable answer that writes no row.
     nothing_found: ClassVar[tuple[int, ...]] = ()
     # Whether each result holds a list of items, which a result without one is no answer.
     needs_items: ClassVar[bool] = False

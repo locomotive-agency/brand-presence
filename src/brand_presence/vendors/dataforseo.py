@@ -11,6 +11,7 @@ from brand_presence import http, status
 from brand_presence.http import NothingTaken, OutcomeUnknown, VendorError
 
 BASE = "https://api.dataforseo.com/v3"
+RESULT_RETENTION_SECONDS = 30 * 24 * 60 * 60
 
 # The two secrets the vendor's one login is kept in.
 LOGIN = "dataforseo-login"
@@ -24,14 +25,11 @@ TASKS_PER_POST = 100
 OK = 20000
 TASK_CREATED = 20100
 IN_PROGRESS = (40601, 40602)
-# The status code of a finished task the vendor found nothing for, "No Search Results.". An
-# ads transparency task gives it for a target that runs no ads, with no result. It is the
-# task's own code, at the top level of the task a get returns, which is what is stored.
+# A finished task with this status found no search results.
 NO_SEARCH_RESULTS = 40102
 # The vendor's codes that say a limit is reached. The one known is an envelope turned away
 # by a rate limit, of which the vendor took nothing. Which codes it gives for a spent
-# balance or a plan limit is not known (add-run-monitoring, design.md, A12): each is added
-# here when it is first seen, with a sample.
+# balance or a plan limit is not known: add a code only with an observed sample.
 LIMIT_CODES = (40202,)
 # From this code up, the fault is the vendor's own.
 VENDOR_FAULTS_FROM = 50000
@@ -64,7 +62,7 @@ def _code(held: Mapping) -> int | None:
 
 class DataForSEO:
     """One client's DataForSEO account. `path` in each call is the endpoint's own, such as
-    `serp/google/organic`."""
+    `keywords_data/google_ads/search_volume`."""
 
     def __init__(self, client: httpx.Client, login: str, password: str, *,
                  sleep: Callable[[float], None] = time.sleep):
@@ -151,4 +149,3 @@ class DataForSEO:
         if not tasks:
             raise VendorError(http.OTHER)
         return tasks[0]
-

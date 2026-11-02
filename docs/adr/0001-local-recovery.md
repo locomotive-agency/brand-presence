@@ -12,9 +12,16 @@ recorded before interruption. Raw-table loads replace their own run and request 
 An absent ready-list entry does not prove that the vendor took no paid request.
 Keep such attempts unknown. Do not retry a paid POST on an HTTP 5xx. This intentionally
 narrows the source's retry behaviour. Unresolved outcomes may require vendor support.
-An ambiguous per-task submission status also stays unknown. Expired paid tasks do not
-become new paid attempts. Unresolved history reserves its keyword and location pairs
-across period boundaries, so a new month cannot pay for the same history again.
+An ambiguous per-task submission status also stays unknown. Unknown and expired paid
+tasks do not become new paid attempts in their original period. Unresolved history
+reserves its keyword and location pairs across period boundaries while its result
+may still be retained. Once an unknown or expired attempt is older than DataForSEO's
+30-day result retention, release its reservation for later periods. Measure age from
+submission, or creation when submission was never recorded. Keep the original ledger
+row and its outcome. This permits history recovery after a crash before the POST,
+but may pay once more for a request the vendor ran. Stored answers awaiting clean
+writes keep their reservations regardless of age. Refresh reservations after recovery
+and report their count and a short sample before submitting new work.
 
 Keep the fact SQL, history SQL and report definitions unchanged. Build both in one
 transaction. Fact revisions append only changed rows; the history table is replaced.

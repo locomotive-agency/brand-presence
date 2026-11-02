@@ -189,7 +189,7 @@ def test_new_month_does_not_repeat_unresolved_history(tmp_path, respx_mock):
     project = Project(tmp_path, respx_mock)
     project.vendor.timeout_after_post = True
     project.run()
-    project.now += timedelta(days=31)
+    project.now += timedelta(days=30)
     project.vendor.hide_ready = True
     project.run(period="2026-03")
     history = [body for body in project.vendor.tasks.values() if is_history(body)]
@@ -197,6 +197,46 @@ def test_new_month_does_not_repeat_unresolved_history(tmp_path, respx_mock):
     assert len(project.vendor.tasks) == 3
     assert project.vendor.look_calls == 1
     assert sum(row["state"] == "unknown" for row in project.rows("ops.search_volume_tasks")) == 2
+
+
+@pytest.mark.parametrize("state", ["unknown", "expired", "sending", "submitted"])
+@pytest.mark.parametrize("age,history_count", [(30, 0), (31, 1)])
+def test_history_reservations_end_after_retention(
+        tmp_path, respx_mock, monkeypatch, state, age, history_count):
+    from datetime import timedelta
+
+    from brand_presence import ledger
+    from brand_presence.sources.search_volume import SearchVolumeTask, is_history
+
+    project = Project(tmp_path, respx_mock)
+    if state == "sending":
+        original = ledger.Ledger.add
+
+        def killed(self, rows):
+            original(self, rows)
+            raise Killed()
+
+        with monkeypatch.context() as patch:
+            patch.setattr(ledger.Ledger, "add", killed)
+            with pytest.raises(Killed):
+                project.run()
+        assert project.vendor.post_calls == 0
+    else:
+        project.vendor.timeout_after_post = state == "unknown"
+        project.vendor.waiting = True
+        project.run()
+        if state == "expired":
+            book = ledger.Ledger(project.bq, SearchVolumeTask, lambda: project.now)
+            book.rewrite([ledger.changed(row, state=ledger.EXPIRED)
+                          for row in book.of_period("2026-02")])
+    before = len(project.vendor.tasks)
+    project.vendor.hide_ready = True
+    project.vendor.waiting = False
+    project.now += timedelta(days=age)
+    project.run(period="2026-03")
+    new_tasks = list(project.vendor.tasks.values())[before:]
+    assert sum(is_history(body) for body in new_tasks) == history_count
+    assert len(new_tasks) == 1 + history_count
 
 
 def test_session_cleanup_failure_is_reported(tmp_path, respx_mock):
@@ -209,3 +249,104 @@ def test_session_cleanup_failure_is_reported(tmp_path, respx_mock):
     with pytest.raises(InternalServerError):
         with Transaction(project.bq):
             pass
+
+
+def test_reserved_history_pairs_are_reported_once_per_run(tmp_path, respx_mock):
+    from brand_presence.settings import Keyword
+
+    project = Project(tmp_path, respx_mock)
+    project.settings.benchmark_sets[0].keywords = [
+        Keyword(keyword=f"term {n}", term_type="generic") for n in range(7)]
+    project.vendor.timeout_after_post = True
+    result = project.run()
+    assert [line for line in result.lines if line.startswith("Reserved history pairs:")] == [
+        "Reserved history pairs: 0"]
+    project.vendor.hide_ready = True
+    result = project.run(period="2026-03")
+    lines = [line for line in result.lines if line.startswith("Reserved history pairs:")]
+    assert lines == ["Reserved history pairs: 7; first 5: "
+                     "('term 0', 'nl'), ('term 1', 'nl'), ('term 2', 'nl'), "
+                     "('term 3', 'nl'), ('term 4', 'nl')"]
+
+
+def test_recovered_history_is_not_reported_as_reserved(tmp_path, respx_mock):
+    project = Project(tmp_path, respx_mock)
+    project.vendor.timeout_after_post = True
+    project.run()
+    result = project.run(period="2026-03")
+    assert [line for line in result.lines if line.startswith("Reserved history pairs:")] == [
+        "Reserved history pairs: 0"]
+    assert len(project.vendor.tasks) == 3
+
+
+@pytest.mark.parametrize("reason", ["deadline", "nothing_taken"])
+def test_unsent_requests_are_pending_in_run_counts(tmp_path, respx_mock, reason):
+    from brand_presence.sources.search_volume import PATH
+    from brand_presence.vendors.dataforseo import BASE
+
+    project = Project(tmp_path, respx_mock)
+    if reason == "deadline":
+        project.fake.between("INSERT INTO .*config_snapshots", "SELECT .*search_volume_tasks",
+                             project.later)
+    else:
+        respx_mock.post(f"{BASE}/{PATH}/task_post").respond(
+            200, json={"status_code": 40202, "tasks": []})
+    result = project.run()
+    assert result.counts["requests_planned"] == 2
+    assert result.counts["requests_sent"] == 0
+    assert result.counts["requests_pending"] == 2
+    assert result.counts["requests_failed"] == 0
+    assert project.rows("ops.search_volume_tasks") == []
+    saved = project.rows("ops.runs")[-1]
+    assert saved["requests_pending"] == 2
+    assert saved["requests_failed"] == 0
+
+
+@pytest.mark.parametrize("check", ["counts", "attempts"])
+def test_source_unavailable_requests_stay_pending_and_can_retry(
+        tmp_path, respx_mock, monkeypatch, check):
+    import json
+
+    import httpx
+
+    from brand_presence.sources.dataforseo_common import TASK_REFUSED
+    from brand_presence.sources.search_volume import PATH, SearchVolumeSource
+    from brand_presence.vendors.dataforseo import BASE
+
+    project = Project(tmp_path, respx_mock)
+    monkeypatch.setattr(SearchVolumeSource, "unavailable", (TASK_REFUSED,))
+
+    def unavailable(request):
+        return httpx.Response(200, json={"status_code": 20000, "tasks": [
+            {"status_code": 40501, "data": body} for body in json.loads(request.content)]})
+
+    route = respx_mock.post(f"{BASE}/{PATH}/task_post").mock(side_effect=unavailable)
+    for _ in range(4):
+        result = project.run()
+    if check == "counts":
+        assert result.counts["requests_pending"] == 2
+        assert result.counts["requests_failed"] == 0
+    else:
+        assert route.call_count == 4
+        route.mock(side_effect=project.vendor.post)
+        assert project.run().status == "success"
+
+
+def test_empty_raw_load_does_not_open_a_session(tmp_path, respx_mock):
+    from brand_presence.sources.search_volume import SearchVolumeRaw
+
+    project = Project(tmp_path, respx_mock)
+    before = project.fake.statements()
+    assert Warehouse(project.bq, tmp_path).load_raw(SearchVolumeRaw, []) == 0
+    assert project.fake.statements() == before
+
+
+def test_run_records_the_installed_package_version(tmp_path, respx_mock, monkeypatch):
+    from importlib import metadata
+
+    original = metadata.version
+    monkeypatch.setattr(metadata, "version", lambda name: "9.8.7" if name == "brand-presence"
+                        else original(name))
+    project = Project(tmp_path, respx_mock)
+    assert project.run().status == "success"
+    assert project.rows("ops.runs")[-1]["image_version"] == "9.8.7"

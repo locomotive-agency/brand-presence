@@ -17,7 +17,7 @@ def fact_rows_statement(report: Report) -> str:
 def fact_insert_statement(report: Report) -> str:
     """The rows of the temporary table that differ from the latest row of their grain in the
     fact table, each with the build's pulled_at. EXCEPT DISTINCT compares whole rows, and two
-    nulls are equal (add-core-layer, D4, A2)."""
+    nulls are equal."""
     returned = ", ".join(report.returned)
     return (f"INSERT INTO {report.table} ({returned}, {PULLED_AT})\n"
             f"SELECT {returned}, @{PULLED_AT} FROM (\n"

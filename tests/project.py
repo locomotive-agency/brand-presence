@@ -5,17 +5,24 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import httpx
+import yaml
 from google.cloud import bigquery
 
 from brand_presence import runner, schema
 from brand_presence.runs import Period, period_start
-from brand_presence.settings import load
+from brand_presence.settings import Settings
 from brand_presence.sources.search_volume import PATH, SearchVolumeSource
 from brand_presence.vendors.dataforseo import BASE
 from brand_presence.warehouse import Client
 from fakes import FakeBigQuery
 
-ROOT = Path(__file__).parents[1]
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def configuration():
+    config = yaml.safe_load((ROOT / "example.yaml").read_text())
+    config["client_id"] = "aardvark-research"
+    return config
 
 
 class Killed(BaseException):
@@ -86,7 +93,7 @@ class Vendor:
 class Project:
     def __init__(self, tmp_path, router):
         self.now = datetime(2026, 3, 2, 12, tzinfo=UTC)
-        self.settings = load(ROOT / "example.yaml")
+        self.settings = Settings.model_validate(configuration())
         self.settings.state_dir = tmp_path
         self.fake = BigQuery(project=self.settings.project_id, clock=lambda: self.now)
         self.bq = Client(self.fake, self.settings)

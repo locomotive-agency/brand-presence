@@ -37,7 +37,11 @@ def run(source: str, config: Config = Path("config.yaml"),
     if source not in SOURCES:
         raise typer.BadParameter("source must be search-volume")
     settings = load(config)
-    named = Period(period, period_start(period)) if period else None
+    try:
+        named = Period(period, period_start(period)) if period is not None else None
+    except ValueError:
+        raise typer.BadParameter("period must be a valid month in YYYY-MM format",
+                                 param_hint="--period") from None
     if named:
         from datetime import UTC, datetime
 
@@ -74,7 +78,9 @@ def start():
     except ValidationError as error:
         for issue in error.errors(include_input=False, include_url=False):
             field = ".".join(str(part) for part in issue["loc"])
-            typer.echo(f"Invalid configuration: {field or 'document'} ({issue['type']})", err=True)
+            reason = ("set client_id to your own stable identifier; example is reserved"
+                      if field == "client_id" else issue["type"])
+            typer.echo(f"Invalid configuration: {field or 'document'} ({reason})", err=True)
         raise SystemExit(1) from None
     except Exception as error:
         typer.echo(f"Command failed: {type(error).__name__}. "

@@ -42,7 +42,7 @@ class Brand(Model):
 
 class Country(Model):
     country_code: Annotated[str, Field(pattern=r"^[A-Z]{2}$")]
-    language: Annotated[str, Field(pattern=r"^[a-z]{2,3}$")]
+    language: Annotated[str, Field(pattern=r"^[a-z]{2,3}(-[A-Z]{2})?$")]
     canonical_name: Text
 
 
@@ -61,7 +61,7 @@ class BenchmarkSet(Model):
 
 class Settings(Model):
     project_id: Annotated[str, Field(pattern=r"^[a-z][a-z0-9-]{4,28}[a-z0-9]$")]
-    client_id: Id = "example"
+    client_id: Id
     location: Annotated[str, Field(pattern=r"^[A-Za-z][A-Za-z0-9-]*$")] = "US"
     time_zone: str = "UTC"
     state_dir: Path = Path(".brand-presence")
@@ -69,6 +69,13 @@ class Settings(Model):
     brands: list[Brand] = Field(min_length=1)
     countries: list[Country] = Field(min_length=1)
     benchmark_sets: list[BenchmarkSet] = Field(min_length=1)
+
+    @field_validator("client_id")
+    @classmethod
+    def own_client_id(cls, value):
+        if value == "example":
+            raise ValueError("set client_id to your own stable identifier; example is reserved")
+        return value
 
     @field_validator("time_zone")
     @classmethod
