@@ -1,0 +1,71 @@
+{
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/102",
+        "id": "102"
+      },
+      "adGroup": {
+        "resourceName": "customers/1000000001/adGroups/201",
+        "id": "201"
+      },
+      "adGroupCriterion": {
+        "resourceName": "customers/1000000001/adGroupCriteria/201~302",
+        "criterionId": "302",
+        "keyword": {
+          "text": "aardvark boots",
+          "matchType": "PHRASE"
+        }
+      },
+      "segments": {
+        "date": "2026-02-23"
+      },
+      "metrics": {
+        "impressions": "120",
+        "clicks": "6",
+        "costMicros": "880000",
+        "conversions": 0.5,
+        "searchImpressionShare": 0.25
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/102",
+        "id": "102"
+      },
+      "adGroup": {
+        "resourceName": "customers/1000000001/adGroups/202",
+        "id": "202"
+      },
+      "adGroupCriterion": {
+        "resourceName": "customers/1000000001/adGroupCriteria/202~302",
+        "criterionId": "302",
+        "keyword": {
+          "text": "aardvark boots",
+          "matchType": "PHRASE"
+        }
+      },
+      "segments": {
+        "date": "2026-02-23"
+      },
+      "metrics": {
+        "impressions": "129",
+        "clicks": "7",
+        "costMicros": "925000",
+        "conversions": 1.5
+      }
+    }
+  ],
+  "fieldMask": "customer.id,customer.currencyCode,campaign.id,adGroup.id,adGroupCriterion.criterionId,adGroupCriterion.keyword.text,adGroupCriterion.keyword.matchType,segments.date,metrics.impressions,metrics.clicks,metrics.costMicros,metrics.conversions,metrics.searchImpressionShare",
+  "requestId": "sample-request-id"
+}

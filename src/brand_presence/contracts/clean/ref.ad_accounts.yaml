@@ -1,0 +1,34 @@
+table: ref.ad_accounts
+owner: setup-loader
+version: 1
+grain: One row per load and ad account. An account a later load no longer holds is no longer current,
+  and its rows here and in the clean tables stay.
+key:
+- load_number
+- ad_account_id
+columns:
+- name: load_number
+  type: INT64
+  kind: key
+  nullable: false
+  meaning: The number of the load that wrote the row.
+- name: ad_account_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The ID the YAML configuration gives the ad account. It is what a log line, a run record and a clean
+    row name the account by.
+- name: client_brand_id
+  type: STRING
+  kind: dimension
+  nullable: true
+  meaning: The one client brand whose ads run in the account.
+  null_means: 'The configuration names no client brand for the account: its rows carry the brand unknown.'
+  holds: client brand
+- name: customer_id
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: 'The customer ID Google Ads gives the account. An identifier a vendor gave: no report or sandbox
+    view carries it.'
+  shared: false

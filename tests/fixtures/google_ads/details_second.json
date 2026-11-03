@@ -1,0 +1,14 @@
+{
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/1000000002",
+        "id": "1000000002",
+        "currencyCode": "USD",
+        "timeZone": "America/New_York"
+      }
+    }
+  ],
+  "fieldMask": "customer.id,customer.currencyCode,customer.timeZone",
+  "requestId": "sample-request-id"
+}

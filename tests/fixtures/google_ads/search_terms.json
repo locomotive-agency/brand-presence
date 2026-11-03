@@ -1,0 +1,118 @@
+{
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/101",
+        "id": "101"
+      },
+      "adGroup": {
+        "resourceName": "customers/1000000001/adGroups/501",
+        "id": "501"
+      },
+      "searchTermView": {
+        "resourceName": "customers/1000000001/searchTermViews/101~501~sample",
+        "searchTerm": "sample brand aardvark price"
+      },
+      "segments": {
+        "date": "2026-02-23"
+      },
+      "metrics": {
+        "impressions": "300",
+        "clicks": "20",
+        "costMicros": "2100000",
+        "conversions": 1.0
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/101",
+        "id": "101"
+      },
+      "adGroup": {
+        "resourceName": "customers/1000000001/adGroups/501",
+        "id": "501"
+      },
+      "searchTermView": {
+        "resourceName": "customers/1000000001/searchTermViews/101~501~sample",
+        "searchTerm": "aardvark sample reviews"
+      },
+      "segments": {
+        "date": "2026-02-23"
+      },
+      "metrics": {
+        "impressions": "120",
+        "clicks": "6",
+        "costMicros": "640000",
+        "conversions": 0.0
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/101",
+        "id": "101"
+      },
+      "adGroup": {
+        "resourceName": "customers/1000000001/adGroups/502",
+        "id": "502"
+      },
+      "searchTermView": {
+        "resourceName": "customers/1000000001/searchTermViews/101~502~sample",
+        "searchTerm": "sample brand aardvark price"
+      },
+      "segments": {
+        "date": "2026-02-23"
+      },
+      "metrics": {
+        "impressions": "40",
+        "clicks": "2",
+        "costMicros": "230000",
+        "conversions": 0.0
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/101",
+        "id": "101"
+      },
+      "adGroup": {
+        "resourceName": "customers/1000000001/adGroups/501",
+        "id": "501"
+      },
+      "searchTermView": {
+        "resourceName": "customers/1000000001/searchTermViews/101~501~sample",
+        "searchTerm": "sample brand aardvark price"
+      },
+      "segments": {
+        "date": "2026-02-24"
+      },
+      "metrics": {
+        "impressions": "280",
+        "clicks": "18",
+        "costMicros": "1900000",
+        "conversions": 2.0
+      }
+    }
+  ],
+  "fieldMask": "customer.id,customer.currencyCode,campaign.id,adGroup.id,searchTermView.searchTerm,segments.date,metrics.impressions,metrics.clicks,metrics.costMicros,metrics.conversions",
+  "requestId": "sample-request-id"
+}

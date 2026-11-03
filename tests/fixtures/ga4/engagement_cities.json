@@ -1,0 +1,966 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    },
+    {
+      "name": "countryId"
+    },
+    {
+      "name": "region"
+    },
+    {
+      "name": "city"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "sessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "engagedSessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "totalUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "newUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "screenPageViews",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "userEngagementDuration",
+      "type": "TYPE_SECONDS"
+    },
+    {
+      "name": "eventCount",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "keyEvents",
+      "type": "TYPE_FLOAT"
+    }
+  ],
+  "rows": [
+    {
+      "dimensionValues": [
+        {
+          "value": "20260223"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Porto District"
+        },
+        {
+          "value": "Porto"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "30"
+        },
+        {
+          "value": "22"
+        },
+        {
+          "value": "26"
+        },
+        {
+          "value": "10"
+        },
+        {
+          "value": "90"
+        },
+        {
+          "value": "1650"
+        },
+        {
+          "value": "270"
+        },
+        {
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260223"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Lisbon"
+        },
+        {
+          "value": "Lisbon"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "50"
+        },
+        {
+          "value": "37"
+        },
+        {
+          "value": "46"
+        },
+        {
+          "value": "16"
+        },
+        {
+          "value": "150"
+        },
+        {
+          "value": "2750"
+        },
+        {
+          "value": "450"
+        },
+        {
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260223"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Coimbra District"
+        },
+        {
+          "value": "Coimbra"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "10"
+        },
+        {
+          "value": "7"
+        },
+        {
+          "value": "6"
+        },
+        {
+          "value": "3"
+        },
+        {
+          "value": "30"
+        },
+        {
+          "value": "550"
+        },
+        {
+          "value": "90"
+        },
+        {
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260224"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Porto District"
+        },
+        {
+          "value": "Porto"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "31"
+        },
+        {
+          "value": "23"
+        },
+        {
+          "value": "27"
+        },
+        {
+          "value": "10"
+        },
+        {
+          "value": "93"
+        },
+        {
+          "value": "1705"
+        },
+        {
+          "value": "279"
+        },
+        {
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260224"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Lisbon"
+        },
+        {
+          "value": "Lisbon"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "51"
+        },
+        {
+          "value": "38"
+        },
+        {
+          "value": "47"
+        },
+        {
+          "value": "17"
+        },
+        {
+          "value": "153"
+        },
+        {
+          "value": "2805"
+        },
+        {
+          "value": "459"
+        },
+        {
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260224"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Coimbra District"
+        },
+        {
+          "value": "Coimbra"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "11"
+        },
+        {
+          "value": "8"
+        },
+        {
+          "value": "7"
+        },
+        {
+          "value": "3"
+        },
+        {
+          "value": "33"
+        },
+        {
+          "value": "605"
+        },
+        {
+          "value": "99"
+        },
+        {
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260225"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Porto District"
+        },
+        {
+          "value": "Porto"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "32"
+        },
+        {
+          "value": "24"
+        },
+        {
+          "value": "28"
+        },
+        {
+          "value": "10"
+        },
+        {
+          "value": "96"
+        },
+        {
+          "value": "1760"
+        },
+        {
+          "value": "288"
+        },
+        {
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260225"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Lisbon"
+        },
+        {
+          "value": "Lisbon"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "52"
+        },
+        {
+          "value": "39"
+        },
+        {
+          "value": "48"
+        },
+        {
+          "value": "17"
+        },
+        {
+          "value": "156"
+        },
+        {
+          "value": "2860"
+        },
+        {
+          "value": "468"
+        },
+        {
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260225"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Coimbra District"
+        },
+        {
+          "value": "Coimbra"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "12"
+        },
+        {
+          "value": "9"
+        },
+        {
+          "value": "8"
+        },
+        {
+          "value": "4"
+        },
+        {
+          "value": "36"
+        },
+        {
+          "value": "660"
+        },
+        {
+          "value": "108"
+        },
+        {
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260226"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Porto District"
+        },
+        {
+          "value": "Porto"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "33"
+        },
+        {
+          "value": "24"
+        },
+        {
+          "value": "29"
+        },
+        {
+          "value": "11"
+        },
+        {
+          "value": "99"
+        },
+        {
+          "value": "1815"
+        },
+        {
+          "value": "297"
+        },
+        {
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260226"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Lisbon"
+        },
+        {
+          "value": "Lisbon"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "53"
+        },
+        {
+          "value": "39"
+        },
+        {
+          "value": "49"
+        },
+        {
+          "value": "17"
+        },
+        {
+          "value": "159"
+        },
+        {
+          "value": "2915"
+        },
+        {
+          "value": "477"
+        },
+        {
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260226"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Coimbra District"
+        },
+        {
+          "value": "Coimbra"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "13"
+        },
+        {
+          "value": "9"
+        },
+        {
+          "value": "9"
+        },
+        {
+          "value": "4"
+        },
+        {
+          "value": "39"
+        },
+        {
+          "value": "715"
+        },
+        {
+          "value": "117"
+        },
+        {
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260227"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Porto District"
+        },
+        {
+          "value": "Porto"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "34"
+        },
+        {
+          "value": "25"
+        },
+        {
+          "value": "30"
+        },
+        {
+          "value": "11"
+        },
+        {
+          "value": "102"
+        },
+        {
+          "value": "1870"
+        },
+        {
+          "value": "306"
+        },
+        {
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260227"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Lisbon"
+        },
+        {
+          "value": "Lisbon"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "54"
+        },
+        {
+          "value": "40"
+        },
+        {
+          "value": "50"
+        },
+        {
+          "value": "18"
+        },
+        {
+          "value": "162"
+        },
+        {
+          "value": "2970"
+        },
+        {
+          "value": "486"
+        },
+        {
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260227"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Coimbra District"
+        },
+        {
+          "value": "Coimbra"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "14"
+        },
+        {
+          "value": "10"
+        },
+        {
+          "value": "10"
+        },
+        {
+          "value": "4"
+        },
+        {
+          "value": "42"
+        },
+        {
+          "value": "770"
+        },
+        {
+          "value": "126"
+        },
+        {
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260228"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Porto District"
+        },
+        {
+          "value": "Porto"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "35"
+        },
+        {
+          "value": "26"
+        },
+        {
+          "value": "31"
+        },
+        {
+          "value": "11"
+        },
+        {
+          "value": "105"
+        },
+        {
+          "value": "1925"
+        },
+        {
+          "value": "315"
+        },
+        {
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260228"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Lisbon"
+        },
+        {
+          "value": "Lisbon"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "55"
+        },
+        {
+          "value": "41"
+        },
+        {
+          "value": "51"
+        },
+        {
+          "value": "18"
+        },
+        {
+          "value": "165"
+        },
+        {
+          "value": "3025"
+        },
+        {
+          "value": "495"
+        },
+        {
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260228"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Coimbra District"
+        },
+        {
+          "value": "Coimbra"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "15"
+        },
+        {
+          "value": "11"
+        },
+        {
+          "value": "11"
+        },
+        {
+          "value": "5"
+        },
+        {
+          "value": "45"
+        },
+        {
+          "value": "825"
+        },
+        {
+          "value": "135"
+        },
+        {
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260301"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Porto District"
+        },
+        {
+          "value": "Porto"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "36"
+        },
+        {
+          "value": "27"
+        },
+        {
+          "value": "32"
+        },
+        {
+          "value": "12"
+        },
+        {
+          "value": "108"
+        },
+        {
+          "value": "1980"
+        },
+        {
+          "value": "324"
+        },
+        {
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260301"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Lisbon"
+        },
+        {
+          "value": "Lisbon"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "56"
+        },
+        {
+          "value": "42"
+        },
+        {
+          "value": "52"
+        },
+        {
+          "value": "18"
+        },
+        {
+          "value": "168"
+        },
+        {
+          "value": "3080"
+        },
+        {
+          "value": "504"
+        },
+        {
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260301"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Coimbra District"
+        },
+        {
+          "value": "Coimbra"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "16"
+        },
+        {
+          "value": "12"
+        },
+        {
+          "value": "12"
+        },
+        {
+          "value": "5"
+        },
+        {
+          "value": "48"
+        },
+        {
+          "value": "880"
+        },
+        {
+          "value": "144"
+        },
+        {
+          "value": "1"
+        }
+      ]
+    }
+  ],
+  "rowCount": 21,
+  "metadata": {
+    "currencyCode": "EUR",
+    "timeZone": "Europe/Amsterdam"
+  },
+  "propertyQuota": {
+    "tokensPerDay": {
+      "consumed": 3,
+      "remaining": 199000
+    },
+    "tokensPerHour": {
+      "consumed": 3,
+      "remaining": 39000
+    },
+    "concurrentRequests": {
+      "consumed": 0,
+      "remaining": 10
+    },
+    "serverErrorsPerProjectPerHour": {
+      "consumed": 0,
+      "remaining": 10
+    },
+    "potentiallyThresholdedRequestsPerHour": {
+      "consumed": 0,
+      "remaining": 120
+    },
+    "tokensPerProjectPerHour": {
+      "consumed": 3,
+      "remaining": 13000
+    }
+  },
+  "kind": "analyticsData#runReport"
+}

@@ -38,6 +38,9 @@ def test_package_has_no_private_identifiers_or_services():
         "resume-" + "mention-pulls",
         "canonical-" + "report-sql",
         "add-" + "serving-tables",
+        "canonical-" + "google-sources", "brand-presence-" + "reporting",
+        "add-" + "google-sources", "secret" + " manager", "cloud" + " run",
+        "terra" + "form",
     )
     tracked = [
         str(p.relative_to(ROOT))
@@ -65,6 +68,9 @@ def test_example_keeps_optional_sources_disabled():
     assert not config.get('mention_filters')
     assert not config.get('subreddits')
     assert not config.get('peec_projects')
+    assert not config.get('web_properties')
+    assert not config.get('ad_accounts')
+    assert not config.get('modifiers')
     assert all(not group.get('prompts') for group in config['benchmark_sets'])
 
 
@@ -81,3 +87,22 @@ def test_all_ported_clean_and_ref_models_match_contracts():
         }, path.name
         if hasattr(model, "natural_key"):
             assert tuple(contract["key"]) == model.natural_key, path.name
+
+
+def test_google_report_groups_have_all_dependencies():
+    import sqlglot
+    from sqlglot import exp
+
+    from brand_presence.reports.definition import load
+    from brand_presence.schema import MODELS
+
+    available = {model.table for model in MODELS}
+    available |= {name.replace('ref.', 'ref.current_') for name in available
+                  if name.startswith('ref.')}
+    for source in ('search-console', 'ga4', 'google-ads'):
+        held = set(available)
+        for report in load(source):
+            tree = sqlglot.parse_one(report.statement, read='bigquery')
+            reads = {f'{t.db}.{t.name}' for t in tree.find_all(exp.Table) if t.db}
+            assert reads <= held, (report.name, reads - held)
+            held.add(report.table)

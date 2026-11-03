@@ -152,3 +152,29 @@ class PeecBrand(Row):
     mapping: str
     brand_id: str
     vendor_brand_id: str = Field(repr=False)
+
+
+class WebProperty(Row):
+    table: ClassVar[str] = "ref.web_properties"
+
+    load_number: int
+    web_property_id: str
+    client_brand_id: str
+    source: str
+    address: str = Field(repr=False)
+    hostname: str | None = Field(default=None, repr=False)
+
+
+class AdAccount(Row):
+    table: ClassVar[str] = "ref.ad_accounts"
+    load_number: int
+    ad_account_id: str
+    client_brand_id: str | None
+    customer_id: str = Field(repr=False)
+
+
+class Modifier(Row):
+    table: ClassVar[str] = "ref.modifiers"
+    load_number: int
+    modifier: str
+    match_order: int

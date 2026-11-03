@@ -1,0 +1,49 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "2026-02-23",
+        "nld",
+        "zzmarkerquery een"
+      ],
+      "clicks": 30,
+      "impressions": 400,
+      "ctr": 0.075,
+      "position": 2.5
+    },
+    {
+      "keys": [
+        "2026-02-23",
+        "nld",
+        "zzmarkerquery twee"
+      ],
+      "clicks": 15,
+      "impressions": 250,
+      "ctr": 0.06,
+      "position": 5.25
+    },
+    {
+      "keys": [
+        "2026-02-24",
+        "nld",
+        "zzmarkerquery een"
+      ],
+      "clicks": 28,
+      "impressions": 380,
+      "ctr": 0.073684,
+      "position": 2.5
+    },
+    {
+      "keys": [
+        "2026-02-26",
+        "nld",
+        "zzmarkerquery drie"
+      ],
+      "clicks": 9,
+      "impressions": 170,
+      "ctr": 0.052941,
+      "position": 8.0
+    }
+  ],
+  "responseAggregationType": "byProperty"
+}

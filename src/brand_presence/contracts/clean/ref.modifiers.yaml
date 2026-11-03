@@ -1,0 +1,25 @@
+table: ref.modifiers
+owner: setup-loader
+version: 1
+grain: One row per load and modifier, as the YAML configuration's modifiers configuration gave it. Rows are only added.
+key:
+- load_number
+- modifier
+columns:
+- name: load_number
+  type: INT64
+  kind: key
+  nullable: false
+  meaning: The number of the load that wrote the row.
+- name: modifier
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: A word or words a brand search term is grouped by. No two rows of one load differ only
+    in case. Match it to a term as whole words, without regard to case.
+- name: match_order
+  type: INT64
+  kind: attribute
+  nullable: false
+  meaning: The modifier's place in the order, the configuration's order column. A term takes the modifier
+    with the lowest match_order of those it holds. No two rows of one load share one.

@@ -10,6 +10,37 @@ from project import configuration
 EXAMPLE = configuration()
 
 
+def test_ads_location_error_names_location_and_source_opt_out():
+    config = copy.deepcopy(EXAMPLE)
+    config['ad_accounts'] = [dict(ad_account_id='ads', customer_id='1000000001')]
+    config['locations'] = [dict(location_id='north-holland', country_code='NL',
+                                name='North Holland', canonical_name='North Holland,Netherlands',
+                                region_code='NL-NH')]
+    with pytest.raises(ValidationError) as caught:
+        Settings.model_validate(config)
+    message = str(caught.value)
+    assert 'north-holland' in message
+    assert 'google_criterion_id' in message
+    assert 'sources without google-ads' in message
+    config['locations'][0]['sources'] = ['ai-answers']
+    assert Settings.model_validate(config).locations[0].google_criterion_id is None
+
+
+def test_prompt_refuses_location_without_ai_answers_source():
+    config = copy.deepcopy(EXAMPLE)
+    config['locations'] = [dict(location_id='north-holland', country_code='NL',
+                                name='North Holland', canonical_name='North Holland,Netherlands',
+                                region_code='NL-NH', sources=['google-ads'])]
+    config['benchmark_sets'][0]['prompts'] = [
+        dict(prompt_id='kettles', prompt='Which kettle?', engines=['chatgpt'],
+             location_ids=['north-holland'])]
+    with pytest.raises(ValidationError, match='north-holland.*ai-answers.*sources'):
+        Settings.model_validate(config)
+    config['locations'][0]['sources'].append('ai-answers')
+    assert Settings.model_validate(config).benchmark_sets[0].prompts[0].location_ids == [
+        'north-holland']
+
+
 @pytest.mark.parametrize("field,value", [
     ("project_id", "example` ; DROP TABLE anything"),
     ("project_id", "../example"),

@@ -189,8 +189,6 @@ class Ledger:
         self.rewrite([row.model_copy(update={"state": UNKNOWN}) for row in left])
         return len(left)
 
-
-
     def did_not_finish(self, run_id: str) -> int:
         """A window source's rows that an earlier run left as `sending`: that run died
         with the attempt open. They are `failed` now, with the class `did not finish`;
@@ -327,7 +325,7 @@ def to_send(planned: Sequence[str], rows: Sequence[LedgerRow], *, again: bool = 
             found[key] = number
             continue
         states = {row.state for row in made}
-        if SENDING in states or (COLLECTED in states and made[-1].state != UNUSABLE):
+        if states & {SENDING, UNKNOWN} or (COLLECTED in states and made[-1].state != UNUSABLE):
             continue
         if counted(made, refusals) >= ATTEMPTS:
             continue

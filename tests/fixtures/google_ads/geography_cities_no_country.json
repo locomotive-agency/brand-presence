@@ -1,0 +1,31 @@
+{
+  "fieldMask": "customer.id,customer.currencyCode,campaign.id,geographicView.countryCriterionId,geographicView.locationType,segments.geoTargetCity,segments.date,metrics.impressions,metrics.clicks,metrics.costMicros,metrics.conversions",
+  "requestId": "sample-request-id",
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/101",
+        "id": "101"
+      },
+      "geographicView": {
+        "resourceName": "customers/1000000001/geographicViews/geographicViews/~LOCATION_OF_PRESENCE",
+        "locationType": "LOCATION_OF_PRESENCE"
+      },
+      "segments": {
+        "date": "2026-02-23",
+        "geoTargetCity": "geoTargetConstants/9990002"
+      },
+      "metrics": {
+        "impressions": "17",
+        "clicks": "1",
+        "costMicros": "90000",
+        "conversions": 0.0
+      }
+    }
+  ]
+}

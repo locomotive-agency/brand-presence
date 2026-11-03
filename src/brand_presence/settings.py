@@ -58,6 +58,7 @@ class Keyword(Model):
     term_type: Literal["brand", "competitor", "generic"]
     brand_id: Id | None = None
     search_volume: bool = True
+    canonical_term: Text | None = None
 
 
 Engine = Literal["chatgpt", "perplexity", "gemini", "ai-overview"]
@@ -88,10 +89,23 @@ class Prompt(Model):
 class Location(Model):
     location_id: Id
     country_code: Annotated[str, Field(pattern=r"^[A-Z]{2}$")]
-    kind: Literal["region"] = "region"
+    kind: Literal["region", "city"] = "region"
     name: Text
     canonical_name: Text
-    region_code: Annotated[str, Field(pattern=r"^[A-Z]{2}-[A-Z0-9]{1,3}$")]
+    region_code: Annotated[str, Field(pattern=r"^[A-Z]{2}-[A-Z0-9]{1,3}$")] | None = None
+    sources: list[Literal["ai-answers", "ga4", "google-ads"]] = Field(
+        default_factory=lambda: ["ai-answers", "ga4", "google-ads"])
+    google_criterion_id: Annotated[str, Field(pattern=r"^[1-9][0-9]*$")] | None = None
+
+    @model_validator(mode="after")
+    def place(self):
+        if self.kind == "region" and self.region_code is None:
+            raise ValueError("region locations need region_code")
+        if len(self.sources) != len(set(self.sources)):
+            raise ValueError("location sources must be unique")
+        if self.kind == "city" and len(self.canonical_name.split(",")) not in (2, 3):
+            raise ValueError("city canonical_name must be City,Country or City,Region,Country")
+        return self
 
 
 class BenchmarkSet(Model):
@@ -139,6 +153,46 @@ class PeecBrand(Model):
     vendor_brand_id: Text = Field(repr=False)
 
 
+class WebProperty(Model):
+    web_property_id: Id
+    client_brand_id: Id
+    source: Literal["search-console", "ga4"]
+    address: Text = Field(repr=False)
+    hostname: str | None = Field(default=None, repr=False)
+
+    @model_validator(mode="after")
+    def address_for_source(self):
+        from urllib.parse import urlsplit
+
+        host_pattern = r"(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}"
+        if self.hostname is not None and not re.fullmatch(host_pattern, self.hostname):
+            raise ValueError("hostname must be a lowercase bare domain, without a path")
+        if self.source == "ga4":
+            if not re.fullmatch(r"[1-9][0-9]*", self.address):
+                raise ValueError("GA4 address must be the numeric property ID")
+        elif self.address.startswith("sc-domain:"):
+            if not re.fullmatch(host_pattern, self.address.removeprefix("sc-domain:")):
+                raise ValueError("Search Console domain address must be sc-domain:domain")
+        else:
+            site = urlsplit(self.address)
+            if (site.scheme not in ("https", "http") or not site.hostname
+                    or not re.fullmatch(host_pattern, site.hostname)
+                    or site.username or site.password or site.query or site.fragment):
+                raise ValueError("Search Console address must be a domain or URL-prefix property")
+        return self
+
+
+class AdAccount(Model):
+    ad_account_id: Id
+    client_brand_id: Id | None = None
+    customer_id: Annotated[str, Field(pattern=r"^[0-9]{10}$")] = Field(repr=False)
+
+
+class Modifier(Model):
+    modifier: Text
+    match_order: Annotated[int, Field(ge=1)]
+
+
 class Settings(Model):
     project_id: Annotated[str, Field(pattern=r"^[a-z][a-z0-9-]{4,28}[a-z0-9]$")]
     client_id: Id
@@ -155,6 +209,9 @@ class Settings(Model):
     mention_text_days: Annotated[int, Field(ge=1, le=366)] = 366
     peec_projects: list[PeecProject] = Field(default_factory=list)
     peec_brands: list[PeecBrand] = Field(default_factory=list)
+    web_properties: list[WebProperty] = Field(default_factory=list)
+    ad_accounts: list[AdAccount] = Field(default_factory=list)
+    modifiers: list[Modifier] = Field(default_factory=list)
 
     @field_validator("client_id")
     @classmethod
@@ -181,6 +238,38 @@ class Settings(Model):
             raise ValueError("brand IDs and country codes must be unique")
         if len(sets) != len(self.benchmark_sets):
             raise ValueError("one benchmark set is allowed per brand and country")
+        if len({p.web_property_id for p in self.web_properties}) != len(self.web_properties):
+            raise ValueError("web_property_id values must be unique")
+        if len({a.ad_account_id for a in self.ad_accounts}) != len(self.ad_accounts):
+            raise ValueError("ad_account_id values must be unique")
+        if len({a.customer_id for a in self.ad_accounts}) != len(self.ad_accounts):
+            raise ValueError("customer_id values must be unique")
+        for account in self.ad_accounts:
+            if account.client_brand_id is not None and account.client_brand_id not in {
+                s.client_brand_id for s in self.benchmark_sets
+            }:
+                raise ValueError("ad accounts must name a client brand in benchmark_sets")
+        criteria = [p.google_criterion_id for p in self.locations if p.google_criterion_id]
+        if len(criteria) != len(set(criteria)):
+            raise ValueError("google_criterion_id values must be unique")
+        if self.ad_accounts:
+            for place in self.locations:
+                if "google-ads" in place.sources and not place.google_criterion_id:
+                    raise ValueError(f"location {place.location_id} needs google_criterion_id "
+                                     "for Google Ads; set sources without google-ads to "
+                                     "exclude it from Google Ads")
+        if len({m.modifier.casefold() for m in self.modifiers}) != len(self.modifiers):
+            raise ValueError("modifiers must be unique ignoring case")
+        if len({m.match_order for m in self.modifiers}) != len(self.modifiers):
+            raise ValueError("modifier match_order values must be unique")
+        for property_ in self.web_properties:
+            if property_.client_brand_id not in {s.client_brand_id for s in self.benchmark_sets}:
+                raise ValueError("web properties must name a client brand in benchmark_sets")
+        for source, address in {(p.source, p.address) for p in self.web_properties}:
+            shared = [p for p in self.web_properties if (p.source, p.address) == (source, address)]
+            if len(shared) > 1 and (any(p.hostname is None for p in shared)
+                                   or len({p.hostname for p in shared}) != len(shared)):
+                raise ValueError("shared web properties need distinct hostname filters")
         if len({f.tag for f in self.mention_filters}) != len(self.mention_filters):
             raise ValueError("mention filter tags must be unique")
         if len({r.subreddit.casefold() for r in self.subreddits}) != len(self.subreddits):
@@ -223,10 +312,16 @@ class Settings(Model):
             if len({b.vendor_brand_id for b in mapped}) != len(mapped):
                 raise ValueError("Peec vendor brand references must be unique within a mapping")
         locations = {c.country_code.lower(): c.country_code for c in self.countries}
+        not_for_prompts = {p.location_id for p in self.locations if "ai-answers" not in p.sources}
+        from brand_presence.countries import TABLE
+
+        reserved_locations = {code.lower() for code, _, _ in TABLE} | {"unknown", "all", "other"}
         for place in self.locations:
+            if place.location_id in reserved_locations:
+                raise ValueError("location_id must not use a reserved location ID")
             if place.location_id in locations or place.country_code not in countries:
                 raise ValueError("locations need unique IDs and a listed country")
-            if not place.region_code.startswith(place.country_code + "-"):
+            if place.region_code and not place.region_code.startswith(place.country_code + "-"):
                 raise ValueError("region_code must belong to the location country")
             locations[place.location_id] = place.country_code
         for group in self.benchmark_sets:
@@ -239,12 +334,20 @@ class Settings(Model):
             for prompt in group.prompts:
                 if any(locations.get(p) != group.country_code for p in prompt.location_ids):
                     raise ValueError("prompt locations must belong to the benchmark country")
+                for location_id in prompt.location_ids:
+                    if location_id in not_for_prompts:
+                        raise ValueError(f"prompt {prompt.prompt_id} names location {location_id}, "
+                                         "which does not list ai-answers among its sources")
             if group.client_brand_id not in brands or group.country_code not in countries:
                 raise ValueError("a benchmark set names an unlisted brand or country")
             keywords = [k.keyword.casefold() for k in group.keywords]
             if len(keywords) != len(set(keywords)):
                 raise ValueError("keywords in a set must be unique, ignoring case")
             for keyword in group.keywords:
+                if keyword.canonical_term is not None and keyword.canonical_term not in {
+                    k.keyword for k in group.keywords
+                }:
+                    raise ValueError("canonical_term must name a keyword in the same benchmark set")
                 if keyword.term_type == "generic":
                     if keyword.brand_id is not None:
                         raise ValueError("a generic keyword has no brand_id")
@@ -252,7 +355,8 @@ class Settings(Model):
                     raise ValueError("a brand or competitor keyword needs a listed brand_id")
                 elif (keyword.term_type == "brand") != (keyword.brand_id == group.client_brand_id):
                     raise ValueError("a keyword's term type must match its brand")
-        if not self.mention_filters and not self.peec_projects and not any(
+        if not (self.mention_filters or self.peec_projects or self.web_properties
+                or self.ad_accounts) and not any(
             s.prompts or any(k.search_volume for k in s.keywords) for s in self.benchmark_sets
         ):
             raise ValueError("at least one benchmark set must have prompts or enabled keywords")
@@ -283,6 +387,29 @@ def load(path: Path) -> Settings:
 
 
 def credentials(source: str = "search-volume") -> dict[str, str]:
+    if source == "google-ads":
+        from brand_presence.vendors import google_ads
+
+        found = {}
+        for env, key in (("CLIENT_ID", google_ads.CLIENT_ID),
+                         ("CLIENT_SECRET", google_ads.CLIENT_SECRET),
+                         ("REFRESH_TOKEN", google_ads.REFRESH_TOKEN)):
+            value = os.environ.get(f"GOOGLE_ADS_{env}", "").strip()
+            if not value:
+                raise UserError(f"set GOOGLE_ADS_{env}")
+            found[key] = value
+        developer = os.environ.get("GOOGLE_ADS_DEVELOPER_TOKEN", "").strip()
+        if developer:
+            found[google_ads.DEVELOPER_TOKEN] = developer
+        login = os.environ.get("GOOGLE_ADS_LOGIN_CUSTOMER_ID", "").strip()
+        if login:
+            login = google_ads.digits_of(login)
+            if not re.fullmatch(r"[0-9]{10}", login):
+                raise UserError("GOOGLE_ADS_LOGIN_CUSTOMER_ID must have ten digits")
+            found[google_ads.LOGIN_CUSTOMER_ID] = login
+        return found
+    if source in ("search-console", "ga4"):
+        return {}
     if source != "search-volume":
         env, key = {"ai-answers": ("CLORO_API_KEY", "cloro-api-key"),
                     "mentions": ("SYFTEN_API_KEY", "syften-api-token"),

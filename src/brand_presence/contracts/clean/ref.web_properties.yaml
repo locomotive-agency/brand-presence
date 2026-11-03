@@ -1,0 +1,45 @@
+table: ref.web_properties
+owner: setup-loader
+version: 1
+grain: One row per load and web property. A web property a later load no longer holds is no longer current,
+  and its rows here and in the clean tables stay.
+key:
+- load_number
+- web_property_id
+columns:
+- name: load_number
+  type: INT64
+  kind: key
+  nullable: false
+  meaning: The number of the load that wrote the row.
+- name: web_property_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The ID the YAML configuration gives the web property. It is what a log line, a run record and a
+    clean row name the property by.
+- name: client_brand_id
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: The one client brand the web property belongs to.
+  holds: client brand
+- name: source
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: 'The source that reads it: ga4 or search-console.'
+- name: address
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: 'The number of the GA4 property, or the Search Console site as that service names it, exactly
+    as typed in the configuration. An identifier a vendor gave: no report or sandbox view carries it.'
+  shared: false
+- name: hostname
+  type: STRING
+  kind: attribute
+  nullable: true
+  meaning: The one hostname whose traffic the source reads for this row, where two client brands share
+    the GA4 property or the Search Console site.
+  null_means: The row is read whole.

@@ -1,0 +1,109 @@
+{
+  "fieldMask": "customer.id,customer.currencyCode,campaign.id,geographicView.countryCriterionId,geographicView.locationType,segments.geoTargetRegion,segments.date,metrics.impressions,metrics.clicks,metrics.costMicros,metrics.conversions",
+  "requestId": "sample-request-id",
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/101",
+        "id": "101"
+      },
+      "geographicView": {
+        "resourceName": "customers/1000000001/geographicViews/geographicViews/2528~LOCATION_OF_PRESENCE",
+        "locationType": "LOCATION_OF_PRESENCE",
+        "countryCriterionId": "2528"
+      },
+      "segments": {
+        "date": "2026-02-23",
+        "geoTargetRegion": "geoTargetConstants/20766"
+      },
+      "metrics": {
+        "impressions": "200",
+        "clicks": "10",
+        "costMicros": "1500000",
+        "conversions": 1.0
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/101",
+        "id": "101"
+      },
+      "geographicView": {
+        "resourceName": "customers/1000000001/geographicViews/geographicViews/2528~LOCATION_OF_PRESENCE",
+        "locationType": "LOCATION_OF_PRESENCE",
+        "countryCriterionId": "2528"
+      },
+      "segments": {
+        "date": "2026-02-23",
+        "geoTargetRegion": "geoTargetConstants/9990102"
+      },
+      "metrics": {
+        "impressions": "60",
+        "clicks": "3",
+        "costMicros": "400000",
+        "conversions": 0.0
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/101",
+        "id": "101"
+      },
+      "geographicView": {
+        "resourceName": "customers/1000000001/geographicViews/geographicViews/2528~LOCATION_OF_PRESENCE",
+        "locationType": "LOCATION_OF_PRESENCE",
+        "countryCriterionId": "2528"
+      },
+      "segments": {
+        "date": "2026-02-23"
+      },
+      "metrics": {
+        "impressions": "15",
+        "clicks": "1",
+        "costMicros": "90000",
+        "conversions": 0.0
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/101",
+        "id": "101"
+      },
+      "geographicView": {
+        "resourceName": "customers/1000000001/geographicViews/geographicViews/2528~AREA_OF_INTEREST",
+        "locationType": "AREA_OF_INTEREST",
+        "countryCriterionId": "2528"
+      },
+      "segments": {
+        "date": "2026-02-23",
+        "geoTargetRegion": "geoTargetConstants/20766"
+      },
+      "metrics": {
+        "impressions": "30",
+        "clicks": "1",
+        "costMicros": "120000",
+        "conversions": 0.0
+      }
+    }
+  ]
+}

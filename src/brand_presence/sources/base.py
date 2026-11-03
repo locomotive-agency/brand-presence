@@ -13,7 +13,7 @@ from pydantic import ValidationError
 
 from brand_presence import request_keys
 from brand_presence.client_ref import BenchmarkSet, ClientRef, InconsistentRef
-from brand_presence.rows import CleanRow, LedgerRow, RawRow
+from brand_presence.rows import UNKNOWN, CleanRow, LedgerRow, RawRow
 from brand_presence.runs import Period, period_start
 
 TASKS = "tasks"
@@ -32,6 +32,7 @@ class SendContext:
     run_id: str | None = None
     deadline: datetime | None = None
     clock: object = None
+    tokens: object = None
 
 class Source(ABC):
     name: ClassVar[str]
@@ -40,6 +41,10 @@ class Source(ABC):
     ledger_model: ClassVar[type[LedgerRow]]
     unavailable: ClassVar[tuple[str, ...]] = ()
     keeping_seconds: ClassVar[int | None] = None
+    require_latest_attempt: ClassVar[bool] = False
+    durable_pages: ClassVar[bool] = False
+    history_periods: ClassVar[int] = 52
+    history_requests: ClassVar[int] = 200
 
     def identity(self, request: Request) -> Mapping[str, object]:
         """The identity fields of a window request, from which its key is made."""
@@ -512,6 +517,10 @@ class WindowSend(ABC):
         """An empty dependent part has no vendor response to fetch or fabricate."""
         return False
 
+    def restore(self, request: Request, part: str, page: int, response: Mapping):
+        """Restore pagination state from a durable page before reading the next one."""
+        return None
+
     def written(self, requests: Mapping[str, Request]) -> None:  # noqa: B027 - as TaskSend
         """Called once the clean rows of these requests are written, with each request
         under its key."""
@@ -581,3 +590,33 @@ def assembled(text: str, pages: Sequence[RawRow]) -> RawRow:
         response=json.dumps({"parts": parts}, ensure_ascii=False), usable=True,
         load_number=last.load_number, snapshot_id=last.snapshot_id,
     )
+
+
+def in_country(columns: Mapping[str, object], settings: ClientRef,
+               country_code: str) -> dict[str, object]:
+    if country_code == UNKNOWN:
+        location_id = UNKNOWN
+    else:
+        location_id = next(
+            (item.location_id for item in settings.locations
+             if item.kind == "country" and item.country_code == country_code),
+            None,
+        )
+        if location_id is None:
+            raise InconsistentRef("the load holds no location of kind country for a country "
+                                  "an answer reports")
+    version = next(
+        (s.version for s in settings.benchmark_sets
+         if (s.client_brand_id, s.country_code) == (columns["client_brand_id"], country_code)),
+        None,
+    )
+    return {**columns, "country_code": country_code, "location_id": location_id,
+            "benchmark_version": version}
+
+
+def in_city(columns: Mapping[str, object], settings: ClientRef, country_code: str,
+            city_location_id: str | None) -> dict[str, object]:
+    placed = in_country(columns, settings, country_code)
+    if city_location_id is not None:
+        placed["location_id"] = city_location_id
+    return placed

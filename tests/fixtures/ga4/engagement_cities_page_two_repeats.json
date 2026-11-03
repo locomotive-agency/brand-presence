@@ -1,0 +1,210 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    },
+    {
+      "name": "countryId"
+    },
+    {
+      "name": "region"
+    },
+    {
+      "name": "city"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "sessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "engagedSessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "totalUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "newUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "screenPageViews",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "userEngagementDuration",
+      "type": "TYPE_SECONDS"
+    },
+    {
+      "name": "eventCount",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "keyEvents",
+      "type": "TYPE_FLOAT"
+    }
+  ],
+  "rows": [
+    {
+      "dimensionValues": [
+        {
+          "value": "20260223"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Porto District"
+        },
+        {
+          "value": "Porto"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "30"
+        },
+        {
+          "value": "22"
+        },
+        {
+          "value": "26"
+        },
+        {
+          "value": "10"
+        },
+        {
+          "value": "90"
+        },
+        {
+          "value": "1650"
+        },
+        {
+          "value": "270"
+        },
+        {
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260224"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Porto District"
+        },
+        {
+          "value": "Porto"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "31"
+        },
+        {
+          "value": "23"
+        },
+        {
+          "value": "27"
+        },
+        {
+          "value": "10"
+        },
+        {
+          "value": "93"
+        },
+        {
+          "value": "1705"
+        },
+        {
+          "value": "279"
+        },
+        {
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260224"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Lisbon"
+        },
+        {
+          "value": "Lisbon"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "51"
+        },
+        {
+          "value": "38"
+        },
+        {
+          "value": "47"
+        },
+        {
+          "value": "17"
+        },
+        {
+          "value": "153"
+        },
+        {
+          "value": "2805"
+        },
+        {
+          "value": "459"
+        },
+        {
+          "value": "2"
+        }
+      ]
+    }
+  ],
+  "rowCount": 100003,
+  "metadata": {
+    "currencyCode": "EUR",
+    "timeZone": "Europe/Amsterdam"
+  },
+  "propertyQuota": {
+    "tokensPerDay": {
+      "consumed": 3,
+      "remaining": 199000
+    },
+    "tokensPerHour": {
+      "consumed": 3,
+      "remaining": 39000
+    },
+    "concurrentRequests": {
+      "consumed": 0,
+      "remaining": 10
+    },
+    "serverErrorsPerProjectPerHour": {
+      "consumed": 0,
+      "remaining": 10
+    },
+    "potentiallyThresholdedRequestsPerHour": {
+      "consumed": 0,
+      "remaining": 120
+    },
+    "tokensPerProjectPerHour": {
+      "consumed": 3,
+      "remaining": 13000
+    }
+  },
+  "kind": "analyticsData#runReport"
+}

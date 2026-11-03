@@ -1,0 +1,45 @@
+{
+  "name": "engagement",
+  "dimensions": [
+    "date",
+    "countryId",
+    "sessionDefaultChannelGroup",
+    "customUser:membership_tier"
+  ],
+  "column": "channel_group",
+  "columns": [
+    [
+      "sessions",
+      "sessions"
+    ],
+    [
+      "engagedSessions",
+      "engaged_sessions"
+    ],
+    [
+      "totalUsers",
+      "total_users"
+    ],
+    [
+      "newUsers",
+      "new_users"
+    ],
+    [
+      "screenPageViews",
+      "page_views"
+    ],
+    [
+      "userEngagementDuration",
+      "engagement_seconds"
+    ],
+    [
+      "eventCount",
+      "event_count"
+    ],
+    [
+      "keyEvents",
+      "key_events"
+    ]
+  ],
+  "filter_by": "hostName"
+}

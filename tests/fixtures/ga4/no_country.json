@@ -1,0 +1,95 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    },
+    {
+      "name": "countryId"
+    },
+    {
+      "name": "sessionDefaultChannelGroup"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "sessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "engagedSessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "totalUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "newUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "screenPageViews",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "userEngagementDuration",
+      "type": "TYPE_SECONDS"
+    },
+    {
+      "name": "eventCount",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "keyEvents",
+      "type": "TYPE_FLOAT"
+    }
+  ],
+  "rows": [
+    {"dimensionValues": [{"value": "20260223"}, {"value": "(not set)"}, {"value": "Direct"}], "metricValues": [{"value": "5"}, {"value": "4"}, {"value": "5"}, {"value": "1"}, {"value": "15"}, {"value": "275"}, {"value": "45"}, {"value": "0"}]},
+    {"dimensionValues": [{"value": "20260223"}, {"value": "(not set)"}, {"value": "Unassigned"}], "metricValues": [{"value": "2"}, {"value": "2"}, {"value": "2"}, {"value": "0"}, {"value": "6"}, {"value": "110"}, {"value": "18"}, {"value": "0"}]},
+    {"dimensionValues": [{"value": "20260224"}, {"value": "(not set)"}, {"value": "Direct"}], "metricValues": [{"value": "8"}, {"value": "6"}, {"value": "7"}, {"value": "2"}, {"value": "25"}, {"value": "447"}, {"value": "74"}, {"value": "0"}]},
+    {"dimensionValues": [{"value": "20260224"}, {"value": "(not set)"}, {"value": "Unassigned"}], "metricValues": [{"value": "5"}, {"value": "4"}, {"value": "5"}, {"value": "1"}, {"value": "16"}, {"value": "282"}, {"value": "47"}, {"value": "0"}]},
+    {"dimensionValues": [{"value": "20260225"}, {"value": "(not set)"}, {"value": "Direct"}], "metricValues": [{"value": "11"}, {"value": "9"}, {"value": "10"}, {"value": "3"}, {"value": "35"}, {"value": "619"}, {"value": "103"}, {"value": "1"}]},
+    {"dimensionValues": [{"value": "20260225"}, {"value": "(not set)"}, {"value": "Unassigned"}], "metricValues": [{"value": "8"}, {"value": "6"}, {"value": "7"}, {"value": "2"}, {"value": "26"}, {"value": "454"}, {"value": "76"}, {"value": "0"}]},
+    {"dimensionValues": [{"value": "20260226"}, {"value": "(not set)"}, {"value": "Direct"}], "metricValues": [{"value": "14"}, {"value": "11"}, {"value": "12"}, {"value": "4"}, {"value": "45"}, {"value": "791"}, {"value": "132"}, {"value": "1"}]},
+    {"dimensionValues": [{"value": "20260226"}, {"value": "(not set)"}, {"value": "Unassigned"}], "metricValues": [{"value": "11"}, {"value": "9"}, {"value": "10"}, {"value": "3"}, {"value": "36"}, {"value": "626"}, {"value": "105"}, {"value": "1"}]},
+    {"dimensionValues": [{"value": "20260227"}, {"value": "(not set)"}, {"value": "Direct"}], "metricValues": [{"value": "17"}, {"value": "13"}, {"value": "15"}, {"value": "5"}, {"value": "55"}, {"value": "963"}, {"value": "161"}, {"value": "1"}]},
+    {"dimensionValues": [{"value": "20260227"}, {"value": "(not set)"}, {"value": "Unassigned"}], "metricValues": [{"value": "14"}, {"value": "11"}, {"value": "12"}, {"value": "4"}, {"value": "46"}, {"value": "798"}, {"value": "134"}, {"value": "1"}]},
+    {"dimensionValues": [{"value": "20260228"}, {"value": "(not set)"}, {"value": "Direct"}], "metricValues": [{"value": "20"}, {"value": "15"}, {"value": "17"}, {"value": "6"}, {"value": "65"}, {"value": "1135"}, {"value": "190"}, {"value": "2"}]},
+    {"dimensionValues": [{"value": "20260228"}, {"value": "(not set)"}, {"value": "Unassigned"}], "metricValues": [{"value": "17"}, {"value": "13"}, {"value": "15"}, {"value": "5"}, {"value": "56"}, {"value": "970"}, {"value": "163"}, {"value": "1"}]},
+    {"dimensionValues": [{"value": "20260301"}, {"value": "(not set)"}, {"value": "Direct"}], "metricValues": [{"value": "23"}, {"value": "18"}, {"value": "20"}, {"value": "7"}, {"value": "75"}, {"value": "1307"}, {"value": "219"}, {"value": "2"}]},
+    {"dimensionValues": [{"value": "20260301"}, {"value": "(not set)"}, {"value": "Unassigned"}], "metricValues": [{"value": "20"}, {"value": "15"}, {"value": "17"}, {"value": "6"}, {"value": "66"}, {"value": "1142"}, {"value": "192"}, {"value": "2"}]}
+  ],
+  "rowCount": 14,
+  "metadata": {
+    "currencyCode": "EUR",
+    "timeZone": "Europe/Amsterdam"
+  },
+  "propertyQuota": {
+    "tokensPerDay": {
+      "consumed": 3,
+      "remaining": 199000
+    },
+    "tokensPerHour": {
+      "consumed": 3,
+      "remaining": 39000
+    },
+    "concurrentRequests": {
+      "consumed": 0,
+      "remaining": 10
+    },
+    "serverErrorsPerProjectPerHour": {
+      "consumed": 0,
+      "remaining": 10
+    },
+    "potentiallyThresholdedRequestsPerHour": {
+      "consumed": 0,
+      "remaining": 120
+    },
+    "tokensPerProjectPerHour": {
+      "consumed": 3,
+      "remaining": 13000
+    }
+  },
+  "kind": "analyticsData#runReport"
+}

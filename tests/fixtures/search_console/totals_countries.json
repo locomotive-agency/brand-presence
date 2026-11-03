@@ -1,0 +1,155 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "2026-02-23",
+        "nld"
+      ],
+      "clicks": 66.0,
+      "impressions": 1500,
+      "ctr": 0.044,
+      "position": 4.2
+    },
+    {
+      "keys": [
+        "2026-02-24",
+        "nld"
+      ],
+      "clicks": 60,
+      "impressions": 1400,
+      "ctr": 0.042857,
+      "position": 4.5
+    },
+    {
+      "keys": [
+        "2026-02-25",
+        "nld"
+      ],
+      "clicks": 12,
+      "impressions": 300,
+      "ctr": 0.04,
+      "position": 6.125
+    },
+    {
+      "keys": [
+        "2026-02-26",
+        "nld"
+      ],
+      "clicks": 70,
+      "impressions": 1600,
+      "ctr": 0.04375,
+      "position": 3.9
+    },
+    {
+      "keys": [
+        "2026-02-27",
+        "nld"
+      ],
+      "clicks": 6,
+      "impressions": 200,
+      "ctr": 0.03,
+      "position": 7.75
+    },
+    {
+      "keys": [
+        "2026-02-28",
+        "nld"
+      ],
+      "clicks": 4,
+      "impressions": 100,
+      "ctr": 0.04,
+      "position": 9.5
+    },
+    {
+      "keys": [
+        "2026-03-01",
+        "nld"
+      ],
+      "clicks": 42,
+      "impressions": 900,
+      "ctr": 0.046667,
+      "position": 5.0
+    },
+    {
+      "keys": [
+        "2026-02-23",
+        "prt"
+      ],
+      "clicks": 40,
+      "impressions": 800,
+      "ctr": 0.05,
+      "position": 4.2
+    },
+    {
+      "keys": [
+        "2026-02-24",
+        "prt"
+      ],
+      "clicks": 30,
+      "impressions": 600,
+      "ctr": 0.05,
+      "position": 4.5
+    },
+    {
+      "keys": [
+        "2026-02-25",
+        "prt"
+      ],
+      "clicks": 30,
+      "impressions": 600,
+      "ctr": 0.05,
+      "position": 6.125
+    },
+    {
+      "keys": [
+        "2026-02-26",
+        "prt"
+      ],
+      "clicks": 30,
+      "impressions": 600,
+      "ctr": 0.05,
+      "position": 3.9
+    },
+    {
+      "keys": [
+        "2026-02-27",
+        "prt"
+      ],
+      "clicks": 30,
+      "impressions": 600,
+      "ctr": 0.05,
+      "position": 7.75
+    },
+    {
+      "keys": [
+        "2026-02-28",
+        "prt"
+      ],
+      "clicks": 20,
+      "impressions": 400,
+      "ctr": 0.05,
+      "position": 9.5
+    },
+    {
+      "keys": [
+        "2026-03-01",
+        "prt"
+      ],
+      "clicks": 20,
+      "impressions": 400,
+      "ctr": 0.05,
+      "position": 5.0
+    },
+    {
+      "keys": [
+        "2026-02-25",
+        "zzz"
+      ],
+      "clicks": 2,
+      "impressions": 40,
+      "ctr": 0.05,
+      "position": 11.5
+    }
+  ],
+  "responseAggregationType": "byProperty"
+}

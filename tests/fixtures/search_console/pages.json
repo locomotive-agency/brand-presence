@@ -1,0 +1,236 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "2026-02-23",
+        "nld",
+        "https://aardvark.example/"
+      ],
+      "clicks": 27,
+      "impressions": 376,
+      "ctr": 0.071809,
+      "position": 2.0
+    },
+    {
+      "keys": [
+        "2026-02-23",
+        "nld",
+        "https://aardvark.example/theepot"
+      ],
+      "clicks": 13,
+      "impressions": 187,
+      "ctr": 0.069519,
+      "position": 4.5
+    },
+    {
+      "keys": [
+        "2026-02-23",
+        "nld",
+        "https://aardvark.example/winkel/rood"
+      ],
+      "clicks": 13,
+      "impressions": 187,
+      "ctr": 0.069519,
+      "position": 7.25
+    },
+    {
+      "keys": [
+        "2026-02-24",
+        "nld",
+        "https://aardvark.example/"
+      ],
+      "clicks": 24,
+      "impressions": 350,
+      "ctr": 0.068571,
+      "position": 2.0
+    },
+    {
+      "keys": [
+        "2026-02-24",
+        "nld",
+        "https://aardvark.example/theepot"
+      ],
+      "clicks": 12,
+      "impressions": 175,
+      "ctr": 0.068571,
+      "position": 4.5
+    },
+    {
+      "keys": [
+        "2026-02-24",
+        "nld",
+        "https://aardvark.example/winkel/rood"
+      ],
+      "clicks": 12,
+      "impressions": 175,
+      "ctr": 0.068571,
+      "position": 7.25
+    },
+    {
+      "keys": [
+        "2026-02-25",
+        "nld",
+        "https://aardvark.example/"
+      ],
+      "clicks": 6,
+      "impressions": 76,
+      "ctr": 0.078947,
+      "position": 2.0
+    },
+    {
+      "keys": [
+        "2026-02-25",
+        "nld",
+        "https://aardvark.example/theepot"
+      ],
+      "clicks": 2,
+      "impressions": 37,
+      "ctr": 0.054054,
+      "position": 4.5
+    },
+    {
+      "keys": [
+        "2026-02-25",
+        "nld",
+        "https://aardvark.example/winkel/rood"
+      ],
+      "clicks": 2,
+      "impressions": 37,
+      "ctr": 0.054054,
+      "position": 7.25
+    },
+    {
+      "keys": [
+        "2026-02-26",
+        "nld",
+        "https://aardvark.example/"
+      ],
+      "clicks": 28,
+      "impressions": 400,
+      "ctr": 0.07,
+      "position": 2.0
+    },
+    {
+      "keys": [
+        "2026-02-26",
+        "nld",
+        "https://aardvark.example/theepot"
+      ],
+      "clicks": 14,
+      "impressions": 200,
+      "ctr": 0.07,
+      "position": 4.5
+    },
+    {
+      "keys": [
+        "2026-02-26",
+        "nld",
+        "https://aardvark.example/winkel/rood"
+      ],
+      "clicks": 14,
+      "impressions": 200,
+      "ctr": 0.07,
+      "position": 7.25
+    },
+    {
+      "keys": [
+        "2026-02-27",
+        "nld",
+        "https://aardvark.example/"
+      ],
+      "clicks": 3,
+      "impressions": 50,
+      "ctr": 0.06,
+      "position": 2.0
+    },
+    {
+      "keys": [
+        "2026-02-27",
+        "nld",
+        "https://aardvark.example/theepot"
+      ],
+      "clicks": 1,
+      "impressions": 25,
+      "ctr": 0.04,
+      "position": 4.5
+    },
+    {
+      "keys": [
+        "2026-02-27",
+        "nld",
+        "https://aardvark.example/winkel/rood"
+      ],
+      "clicks": 1,
+      "impressions": 25,
+      "ctr": 0.04,
+      "position": 7.25
+    },
+    {
+      "keys": [
+        "2026-02-28",
+        "nld",
+        "https://aardvark.example/"
+      ],
+      "clicks": 3,
+      "impressions": 26,
+      "ctr": 0.115385,
+      "position": 2.0
+    },
+    {
+      "keys": [
+        "2026-02-28",
+        "nld",
+        "https://aardvark.example/theepot"
+      ],
+      "clicks": 0,
+      "impressions": 12,
+      "ctr": 0.0,
+      "position": 4.5
+    },
+    {
+      "keys": [
+        "2026-02-28",
+        "nld",
+        "https://aardvark.example/winkel/rood"
+      ],
+      "clicks": 0,
+      "impressions": 12,
+      "ctr": 0.0,
+      "position": 7.25
+    },
+    {
+      "keys": [
+        "2026-03-01",
+        "nld",
+        "https://aardvark.example/"
+      ],
+      "clicks": 17,
+      "impressions": 226,
+      "ctr": 0.075221,
+      "position": 2.0
+    },
+    {
+      "keys": [
+        "2026-03-01",
+        "nld",
+        "https://aardvark.example/theepot"
+      ],
+      "clicks": 8,
+      "impressions": 112,
+      "ctr": 0.071429,
+      "position": 4.5
+    },
+    {
+      "keys": [
+        "2026-03-01",
+        "nld",
+        "https://aardvark.example/winkel/rood"
+      ],
+      "clicks": 8,
+      "impressions": 112,
+      "ctr": 0.071429,
+      "position": 7.25
+    }
+  ],
+  "responseAggregationType": "byPage"
+}

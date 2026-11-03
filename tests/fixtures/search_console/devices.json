@@ -1,0 +1,236 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "2026-02-23",
+        "nld",
+        "DESKTOP"
+      ],
+      "clicks": 27,
+      "impressions": 600,
+      "ctr": 0.045,
+      "position": 3.5
+    },
+    {
+      "keys": [
+        "2026-02-23",
+        "nld",
+        "MOBILE"
+      ],
+      "clicks": 33,
+      "impressions": 750,
+      "ctr": 0.044,
+      "position": 4.75
+    },
+    {
+      "keys": [
+        "2026-02-23",
+        "nld",
+        "TABLET"
+      ],
+      "clicks": 6,
+      "impressions": 150,
+      "ctr": 0.04,
+      "position": 6.0
+    },
+    {
+      "keys": [
+        "2026-02-24",
+        "nld",
+        "DESKTOP"
+      ],
+      "clicks": 24,
+      "impressions": 560,
+      "ctr": 0.042857,
+      "position": 3.5
+    },
+    {
+      "keys": [
+        "2026-02-24",
+        "nld",
+        "MOBILE"
+      ],
+      "clicks": 30,
+      "impressions": 700,
+      "ctr": 0.042857,
+      "position": 4.75
+    },
+    {
+      "keys": [
+        "2026-02-24",
+        "nld",
+        "TABLET"
+      ],
+      "clicks": 6,
+      "impressions": 140,
+      "ctr": 0.042857,
+      "position": 6.0
+    },
+    {
+      "keys": [
+        "2026-02-25",
+        "nld",
+        "DESKTOP"
+      ],
+      "clicks": 5,
+      "impressions": 120,
+      "ctr": 0.041667,
+      "position": 3.5
+    },
+    {
+      "keys": [
+        "2026-02-25",
+        "nld",
+        "MOBILE"
+      ],
+      "clicks": 6,
+      "impressions": 150,
+      "ctr": 0.04,
+      "position": 4.75
+    },
+    {
+      "keys": [
+        "2026-02-25",
+        "nld",
+        "TABLET"
+      ],
+      "clicks": 1,
+      "impressions": 30,
+      "ctr": 0.033333,
+      "position": 6.0
+    },
+    {
+      "keys": [
+        "2026-02-26",
+        "nld",
+        "DESKTOP"
+      ],
+      "clicks": 28,
+      "impressions": 640,
+      "ctr": 0.04375,
+      "position": 3.5
+    },
+    {
+      "keys": [
+        "2026-02-26",
+        "nld",
+        "MOBILE"
+      ],
+      "clicks": 35,
+      "impressions": 800,
+      "ctr": 0.04375,
+      "position": 4.75
+    },
+    {
+      "keys": [
+        "2026-02-26",
+        "nld",
+        "TABLET"
+      ],
+      "clicks": 7,
+      "impressions": 160,
+      "ctr": 0.04375,
+      "position": 6.0
+    },
+    {
+      "keys": [
+        "2026-02-27",
+        "nld",
+        "DESKTOP"
+      ],
+      "clicks": 3,
+      "impressions": 80,
+      "ctr": 0.0375,
+      "position": 3.5
+    },
+    {
+      "keys": [
+        "2026-02-27",
+        "nld",
+        "MOBILE"
+      ],
+      "clicks": 3,
+      "impressions": 100,
+      "ctr": 0.03,
+      "position": 4.75
+    },
+    {
+      "keys": [
+        "2026-02-27",
+        "nld",
+        "TABLET"
+      ],
+      "clicks": 0,
+      "impressions": 20,
+      "ctr": 0.0,
+      "position": 6.0
+    },
+    {
+      "keys": [
+        "2026-02-28",
+        "nld",
+        "DESKTOP"
+      ],
+      "clicks": 2,
+      "impressions": 40,
+      "ctr": 0.05,
+      "position": 3.5
+    },
+    {
+      "keys": [
+        "2026-02-28",
+        "nld",
+        "MOBILE"
+      ],
+      "clicks": 2,
+      "impressions": 50,
+      "ctr": 0.04,
+      "position": 4.75
+    },
+    {
+      "keys": [
+        "2026-02-28",
+        "nld",
+        "TABLET"
+      ],
+      "clicks": 0,
+      "impressions": 10,
+      "ctr": 0.0,
+      "position": 6.0
+    },
+    {
+      "keys": [
+        "2026-03-01",
+        "nld",
+        "DESKTOP"
+      ],
+      "clicks": 17,
+      "impressions": 360,
+      "ctr": 0.047222,
+      "position": 3.5
+    },
+    {
+      "keys": [
+        "2026-03-01",
+        "nld",
+        "MOBILE"
+      ],
+      "clicks": 21,
+      "impressions": 450,
+      "ctr": 0.046667,
+      "position": 4.75
+    },
+    {
+      "keys": [
+        "2026-03-01",
+        "nld",
+        "TABLET"
+      ],
+      "clicks": 4,
+      "impressions": 90,
+      "ctr": 0.044444,
+      "position": 6.0
+    }
+  ],
+  "responseAggregationType": "byProperty"
+}

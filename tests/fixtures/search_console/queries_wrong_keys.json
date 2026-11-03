@@ -1,0 +1,37 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "2026-02-23",
+        "nld",
+        "voorbeeld theepot"
+      ],
+      "clicks": 30,
+      "impressions": 400,
+      "ctr": 0.075,
+      "position": 2.5
+    },
+    {
+      "keys": [
+        "2026-02-24",
+        "nld"
+      ],
+      "clicks": 28,
+      "impressions": 380,
+      "ctr": 0.073684,
+      "position": 2.5
+    },
+    {
+      "keys": [
+        "2026-02-26",
+        "nld",
+        "theepot kopen"
+      ],
+      "clicks": 16,
+      "impressions": 260,
+      "ctr": 0.061538,
+      "position": 5.25
+    }
+  ],
+  "responseAggregationType": "byProperty"
+}

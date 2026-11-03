@@ -1,0 +1,137 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "2026-02-23",
+        "nld",
+        "voorbeeld theepot"
+      ],
+      "clicks": 30,
+      "impressions": 400,
+      "ctr": 0.075,
+      "position": 2.5
+    },
+    {
+      "keys": [
+        "2026-02-23",
+        "nld",
+        "theepot kopen"
+      ],
+      "clicks": 15,
+      "impressions": 250,
+      "ctr": 0.06,
+      "position": 5.25
+    },
+    {
+      "keys": [
+        "2026-02-23",
+        "nld",
+        "theepot rood aardewerk"
+      ],
+      "clicks": 8,
+      "impressions": 160,
+      "ctr": 0.05,
+      "position": 8.0
+    },
+    {
+      "keys": [
+        "2026-02-24",
+        "nld",
+        "voorbeeld theepot"
+      ],
+      "clicks": 28,
+      "impressions": 380,
+      "ctr": 0.073684,
+      "position": 2.5
+    },
+    {
+      "keys": [
+        "2026-02-24",
+        "nld",
+        "theepot kopen"
+      ],
+      "clicks": 14,
+      "impressions": 240,
+      "ctr": 0.058333,
+      "position": 5.25
+    },
+    {
+      "keys": [
+        "2026-02-24",
+        "nld",
+        "theepot rood aardewerk"
+      ],
+      "clicks": 7,
+      "impressions": 150,
+      "ctr": 0.046667,
+      "position": 8.0
+    },
+    {
+      "keys": [
+        "2026-02-26",
+        "nld",
+        "voorbeeld theepot"
+      ],
+      "clicks": 32,
+      "impressions": 420,
+      "ctr": 0.07619,
+      "position": 2.5
+    },
+    {
+      "keys": [
+        "2026-02-26",
+        "nld",
+        "theepot kopen"
+      ],
+      "clicks": 16,
+      "impressions": 260,
+      "ctr": 0.061538,
+      "position": 5.25
+    },
+    {
+      "keys": [
+        "2026-02-26",
+        "nld",
+        "theepot rood aardewerk"
+      ],
+      "clicks": 9,
+      "impressions": 170,
+      "ctr": 0.052941,
+      "position": 8.0
+    },
+    {
+      "keys": [
+        "2026-03-01",
+        "nld",
+        "voorbeeld theepot"
+      ],
+      "clicks": 20,
+      "impressions": 300,
+      "ctr": 0.066667,
+      "position": 2.5
+    },
+    {
+      "keys": [
+        "2026-03-01",
+        "nld",
+        "theepot kopen"
+      ],
+      "clicks": 10,
+      "impressions": 150,
+      "ctr": 0.066667,
+      "position": 5.25
+    },
+    {
+      "keys": [
+        "2026-03-01",
+        "nld",
+        "theepot rood aardewerk"
+      ],
+      "clicks": 6,
+      "impressions": 120,
+      "ctr": 0.05,
+      "position": 8.0
+    }
+  ],
+  "responseAggregationType": "byProperty"
+}

@@ -1,0 +1,60 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "2026-02-24",
+        "nld",
+        "theepot kopen"
+      ],
+      "clicks": 14,
+      "impressions": 240,
+      "ctr": 0.058333,
+      "position": 3.75
+    },
+    {
+      "keys": [
+        "2026-02-25",
+        "nld",
+        "voorbeeld theepot"
+      ],
+      "clicks": 12,
+      "impressions": 220,
+      "ctr": 0.054545,
+      "position": 2.5
+    },
+    {
+      "keys": [
+        "2026-02-25",
+        "nld",
+        "theepot kopen"
+      ],
+      "clicks": 10,
+      "impressions": 200,
+      "ctr": 0.05,
+      "position": 4.0
+    },
+    {
+      "keys": [
+        "2026-02-26",
+        "nld",
+        "voorbeeld theepot"
+      ],
+      "clicks": 8,
+      "impressions": 180,
+      "ctr": 0.044444,
+      "position": 2.75
+    },
+    {
+      "keys": [
+        "2026-02-26",
+        "nld",
+        "theepot kopen"
+      ],
+      "clicks": 6,
+      "impressions": 160,
+      "ctr": 0.0375,
+      "position": 4.25
+    }
+  ],
+  "responseAggregationType": "byProperty"
+}

@@ -1,0 +1,200 @@
+table: stg.ga4_engagement_cities
+owner: ga4
+version: 1
+grain: One row per client brand, web property, country, city, date and period. The city is a city
+  the client lists for ga4, or other for every other place of the country on that date. A date has
+  one row for each pull whose window held it, and period tells them apart. Within one answer the
+  city rows of a country add up to that answer's rows of the country; they are not promised to
+  equal stg.ga4_engagement, which comes from another request.
+key:
+- client_brand_id
+- web_property_id
+- country_code
+- city_id
+- date
+- period
+unknown: 'The country and the location are unknown for traffic the service could not place, (not set).
+  The client brand never is: it is the web property''s.'
+days: The GA4 property's own days, counted in the property's time zone, which the pull row names in
+  source_time_zone. Not the client's days.
+sampled_by: stg.ga4_pulls.sampled
+columns:
+- name: client_brand_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The client brand the row was measured for, by its brand ID in the YAML configuration.
+  holds: client brand
+- name: country_code
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The country, as a two-letter code. unknown where the source could not place the row.
+  holds: country
+- name: location_id
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: The listed city's location, by its ID in ref.locations, or the country's own location
+    of kind country for an other row.
+  holds: location
+- name: benchmark_version
+  type: INT64
+  kind: attribute
+  nullable: true
+  meaning: The version of the client brand's benchmark set in the row's country, at the load the request
+    was planned from.
+  null_means: 'The client brand has no benchmark set in the row''s country, or the row belongs to
+    none: a mention, or a pull of every country.'
+- name: snapshot_id
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The snapshot of the YAML configuration the request was planned from.
+- name: period
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The period of the pull that wrote the row, as the run names it. It tells apart the rows
+    of two pulls of the same dates.
+- name: period_start
+  type: DATE
+  kind: attribute
+  nullable: false
+  meaning: The first day of the row's period, in the client's time zone.
+- name: request_key
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The vendor request the row came from.
+- name: run_id
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The run that wrote the row.
+- name: pulled_at
+  type: TIMESTAMP
+  kind: attribute
+  nullable: false
+  meaning: When the answer the row came from was received.
+- name: web_property_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The GA4 property, by the ID the YAML configuration gives it. Never its number.
+- name: date
+  type: DATE
+  kind: key
+  nullable: false
+  meaning: The property's own day, in the time zone the pull row names.
+- name: city_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: 'The location ID of a city the client lists for ga4, or other: every other place of the
+    country on that date, unlisted cities and the service''s (not set) and (other) among them. other
+    is not a city.'
+- name: sessions
+  type: NUMERIC
+  kind: measure
+  nullable: false
+  meaning: Sessions.
+  unit: sessions
+  sums:
+    summable: true
+    over:
+    - web_property_id
+    - country_code
+    - date
+    - city_id
+    across_periods: false
+- name: engaged_sessions
+  type: NUMERIC
+  kind: measure
+  nullable: false
+  meaning: Engaged sessions.
+  unit: sessions
+  sums:
+    summable: true
+    over:
+    - web_property_id
+    - country_code
+    - date
+    - city_id
+    across_periods: false
+- name: total_users
+  type: NUMERIC
+  kind: measure
+  nullable: true
+  meaning: 'Users of this date and city. It cannot be summed: a user seen in two cities or on two days
+    is in both.'
+  unit: users
+  null_means: The row is other, which folds several places, whose users cannot be summed.
+  sums:
+    summable: false
+- name: new_users
+  type: NUMERIC
+  kind: measure
+  nullable: true
+  meaning: New users of this date and city. It cannot be summed without counting a user more than
+    once.
+  unit: users
+  null_means: The row is other, which folds several places, whose users cannot be summed.
+  sums:
+    summable: false
+- name: page_views
+  type: NUMERIC
+  kind: measure
+  nullable: false
+  meaning: Page views.
+  unit: views
+  sums:
+    summable: true
+    over:
+    - web_property_id
+    - country_code
+    - date
+    - city_id
+    across_periods: false
+- name: engagement_seconds
+  type: NUMERIC
+  kind: measure
+  nullable: false
+  meaning: User engagement duration, summed over the sessions.
+  unit: seconds
+  sums:
+    summable: true
+    over:
+    - web_property_id
+    - country_code
+    - date
+    - city_id
+    across_periods: false
+- name: event_count
+  type: NUMERIC
+  kind: measure
+  nullable: false
+  meaning: Events.
+  unit: events
+  sums:
+    summable: true
+    over:
+    - web_property_id
+    - country_code
+    - date
+    - city_id
+    across_periods: false
+- name: key_events
+  type: NUMERIC
+  kind: measure
+  nullable: false
+  meaning: Key events. The service types this count as a decimal number.
+  unit: key events
+  sums:
+    summable: true
+    over:
+    - web_property_id
+    - country_code
+    - date
+    - city_id
+    across_periods: false

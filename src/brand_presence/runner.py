@@ -54,6 +54,7 @@ class World:
     sleep: object = time.sleep
     status_out: object = print
     wait_seconds: int = 2400
+    tokens: object = None
 
 
 def error_class_of(error):
@@ -590,7 +591,7 @@ def run(source: Source, settings: Settings, world: World, *, period: Period | No
             from brand_presence.cursor_runner import CursorRun
 
             return CursorRun(source, settings, world, period).go()
-        if source.name == "peec":
+        if getattr(source, "shape", None) == "window":
             from brand_presence.window_runner import WindowRun
 
             return WindowRun(source, settings, world, period).go()

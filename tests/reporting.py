@@ -2,6 +2,7 @@
 import json
 import sqlite3
 from datetime import date, datetime
+from decimal import Decimal
 
 import sqlglot
 from sqlglot import exp
@@ -9,7 +10,8 @@ from sqlglot import exp
 
 def stored(value):
     return (value.isoformat() if isinstance(value, date | datetime) else
-            json.dumps(value) if isinstance(value, list) else value)
+            json.dumps(value) if isinstance(value, list) else
+            str(value) if isinstance(value, Decimal) else value)
 
 
 def date_trunc(unit, value):

@@ -1,0 +1,34 @@
+{
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/1000000002",
+        "id": "1000000002",
+        "currencyCode": "USD"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000002/campaigns/401",
+        "id": "401"
+      },
+      "adGroup": {
+        "resourceName": "customers/1000000002/adGroups/801",
+        "id": "801"
+      },
+      "searchTermView": {
+        "resourceName": "customers/1000000002/searchTermViews/401~801~sample",
+        "searchTerm": "shared sample search"
+      },
+      "segments": {
+        "date": "2026-02-24"
+      },
+      "metrics": {
+        "impressions": "90",
+        "clicks": "3",
+        "costMicros": "400000",
+        "conversions": 0.0
+      }
+    }
+  ],
+  "fieldMask": "customer.id,customer.currencyCode,campaign.id,adGroup.id,searchTermView.searchTerm,segments.date,metrics.impressions,metrics.clicks,metrics.costMicros,metrics.conversions",
+  "requestId": "sample-request-id"
+}

@@ -34,7 +34,7 @@ def initialise(config: Config = Path("config.yaml")):
 @app.command()
 def run(source: str, config: Config = Path("config.yaml"),
         period: Annotated[str | None, typer.Option(
-            help="Month for search-volume, ISO week for AI sources, date for mentions.")] = None):
+            help="Month for search-volume; ISO week for AI/Google; date for mentions.")] = None):
     """Collect a source, recovering unfinished work first."""
     if source not in SOURCES:
         raise typer.BadParameter("source must be " + ", ".join(SOURCES))
@@ -67,6 +67,12 @@ def run(source: str, config: Config = Path("config.yaml"),
         k.search_volume for s in settings.benchmark_sets for k in s.keywords
     ):
         raise UserError("search-volume needs enabled keywords in benchmark_sets")
+    if source == "google-ads" and not settings.ad_accounts:
+        raise UserError("google-ads needs ad_accounts in YAML")
+    if source in ("search-console", "ga4") and not any(
+        p.source == source for p in settings.web_properties
+    ):
+        raise UserError(f"{source} needs web_properties in YAML")
     keys = credentials(source)
     bq = connect(settings)
     with httpx.Client(timeout=60, follow_redirects=False) as http:

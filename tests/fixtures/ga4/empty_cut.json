@@ -1,0 +1,82 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    },
+    {
+      "name": "countryId"
+    },
+    {
+      "name": "sessionDefaultChannelGroup"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "sessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "engagedSessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "totalUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "newUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "screenPageViews",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "userEngagementDuration",
+      "type": "TYPE_SECONDS"
+    },
+    {
+      "name": "eventCount",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "keyEvents",
+      "type": "TYPE_FLOAT"
+    }
+  ],
+  "metadata": {
+    "currencyCode": "EUR",
+    "timeZone": "Europe/Amsterdam",
+    "dataCut": {
+      "startDate": "2026-02-23",
+      "endDate": "2026-03-01"
+    }
+  },
+  "propertyQuota": {
+    "tokensPerDay": {
+      "consumed": 3,
+      "remaining": 199000
+    },
+    "tokensPerHour": {
+      "consumed": 3,
+      "remaining": 39000
+    },
+    "concurrentRequests": {
+      "consumed": 0,
+      "remaining": 10
+    },
+    "serverErrorsPerProjectPerHour": {
+      "consumed": 0,
+      "remaining": 10
+    },
+    "potentiallyThresholdedRequestsPerHour": {
+      "consumed": 0,
+      "remaining": 120
+    },
+    "tokensPerProjectPerHour": {
+      "consumed": 3,
+      "remaining": 13000
+    }
+  },
+  "kind": "analyticsData#runReport"
+}

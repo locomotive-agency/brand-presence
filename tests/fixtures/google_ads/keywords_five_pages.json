@@ -1,0 +1,333 @@
+[
+  {
+    "results": [
+      {
+        "customer": {
+          "resourceName": "customers/1000000001",
+          "id": "1000000001",
+          "currencyCode": "EUR"
+        },
+        "campaign": {
+          "resourceName": "customers/1000000001/campaigns/102",
+          "id": "102"
+        },
+        "adGroup": {
+          "resourceName": "customers/1000000001/adGroups/201",
+          "id": "201"
+        },
+        "adGroupCriterion": {
+          "resourceName": "customers/1000000001/adGroupCriteria/201~310",
+          "criterionId": "310",
+          "keyword": {
+            "text": "sample term 0",
+            "matchType": "BROAD"
+          }
+        },
+        "segments": {
+          "date": "2026-02-23"
+        },
+        "metrics": {
+          "impressions": "120",
+          "clicks": "6",
+          "costMicros": "880000",
+          "conversions": 0.5,
+          "searchImpressionShare": 0.25
+        }
+      },
+      {
+        "customer": {
+          "resourceName": "customers/1000000001",
+          "id": "1000000001",
+          "currencyCode": "EUR"
+        },
+        "campaign": {
+          "resourceName": "customers/1000000001/campaigns/102",
+          "id": "102"
+        },
+        "adGroup": {
+          "resourceName": "customers/1000000001/adGroups/201",
+          "id": "201"
+        },
+        "adGroupCriterion": {
+          "resourceName": "customers/1000000001/adGroupCriteria/201~311",
+          "criterionId": "311",
+          "keyword": {
+            "text": "sample term 1",
+            "matchType": "BROAD"
+          }
+        },
+        "segments": {
+          "date": "2026-02-24"
+        },
+        "metrics": {
+          "impressions": "129",
+          "clicks": "7",
+          "costMicros": "925000",
+          "conversions": 1.5,
+          "searchImpressionShare": 0.26
+        }
+      }
+    ],
+    "fieldMask": "customer.id,customer.currencyCode,campaign.id,adGroup.id,adGroupCriterion.criterionId,adGroupCriterion.keyword.text,adGroupCriterion.keyword.matchType,segments.date,metrics.impressions,metrics.clicks,metrics.costMicros,metrics.conversions,metrics.searchImpressionShare",
+    "requestId": "sample-request-id",
+    "nextPageToken": "page-2"
+  },
+  {
+    "results": [
+      {
+        "customer": {
+          "resourceName": "customers/1000000001",
+          "id": "1000000001",
+          "currencyCode": "EUR"
+        },
+        "campaign": {
+          "resourceName": "customers/1000000001/campaigns/102",
+          "id": "102"
+        },
+        "adGroup": {
+          "resourceName": "customers/1000000001/adGroups/202",
+          "id": "202"
+        },
+        "adGroupCriterion": {
+          "resourceName": "customers/1000000001/adGroupCriteria/202~312",
+          "criterionId": "312",
+          "keyword": {
+            "text": "sample term 2",
+            "matchType": "BROAD"
+          }
+        },
+        "segments": {
+          "date": "2026-02-25"
+        },
+        "metrics": {
+          "impressions": "138",
+          "clicks": "8",
+          "costMicros": "970000",
+          "conversions": 2.5,
+          "searchImpressionShare": 0.27
+        }
+      },
+      {
+        "customer": {
+          "resourceName": "customers/1000000001",
+          "id": "1000000001",
+          "currencyCode": "EUR"
+        },
+        "campaign": {
+          "resourceName": "customers/1000000001/campaigns/102",
+          "id": "102"
+        },
+        "adGroup": {
+          "resourceName": "customers/1000000001/adGroups/202",
+          "id": "202"
+        },
+        "adGroupCriterion": {
+          "resourceName": "customers/1000000001/adGroupCriteria/202~313",
+          "criterionId": "313",
+          "keyword": {
+            "text": "sample term 3",
+            "matchType": "BROAD"
+          }
+        },
+        "segments": {
+          "date": "2026-02-23"
+        },
+        "metrics": {
+          "impressions": "147",
+          "clicks": "9",
+          "costMicros": "1015000",
+          "conversions": 3.5,
+          "searchImpressionShare": 0.28
+        }
+      }
+    ],
+    "fieldMask": "customer.id,customer.currencyCode,campaign.id,adGroup.id,adGroupCriterion.criterionId,adGroupCriterion.keyword.text,adGroupCriterion.keyword.matchType,segments.date,metrics.impressions,metrics.clicks,metrics.costMicros,metrics.conversions,metrics.searchImpressionShare",
+    "requestId": "sample-request-id",
+    "nextPageToken": "page-3"
+  },
+  {
+    "results": [
+      {
+        "customer": {
+          "resourceName": "customers/1000000001",
+          "id": "1000000001",
+          "currencyCode": "EUR"
+        },
+        "campaign": {
+          "resourceName": "customers/1000000001/campaigns/102",
+          "id": "102"
+        },
+        "adGroup": {
+          "resourceName": "customers/1000000001/adGroups/203",
+          "id": "203"
+        },
+        "adGroupCriterion": {
+          "resourceName": "customers/1000000001/adGroupCriteria/203~314",
+          "criterionId": "314",
+          "keyword": {
+            "text": "sample term 4",
+            "matchType": "BROAD"
+          }
+        },
+        "segments": {
+          "date": "2026-02-24"
+        },
+        "metrics": {
+          "impressions": "156",
+          "clicks": "10",
+          "costMicros": "1060000",
+          "conversions": 4.5,
+          "searchImpressionShare": 0.29
+        }
+      },
+      {
+        "customer": {
+          "resourceName": "customers/1000000001",
+          "id": "1000000001",
+          "currencyCode": "EUR"
+        },
+        "campaign": {
+          "resourceName": "customers/1000000001/campaigns/102",
+          "id": "102"
+        },
+        "adGroup": {
+          "resourceName": "customers/1000000001/adGroups/203",
+          "id": "203"
+        },
+        "adGroupCriterion": {
+          "resourceName": "customers/1000000001/adGroupCriteria/203~315",
+          "criterionId": "315",
+          "keyword": {
+            "text": "sample term 5",
+            "matchType": "BROAD"
+          }
+        },
+        "segments": {
+          "date": "2026-02-25"
+        },
+        "metrics": {
+          "impressions": "165",
+          "clicks": "11",
+          "costMicros": "1105000",
+          "conversions": 5.5,
+          "searchImpressionShare": 0.3
+        }
+      }
+    ],
+    "fieldMask": "customer.id,customer.currencyCode,campaign.id,adGroup.id,adGroupCriterion.criterionId,adGroupCriterion.keyword.text,adGroupCriterion.keyword.matchType,segments.date,metrics.impressions,metrics.clicks,metrics.costMicros,metrics.conversions,metrics.searchImpressionShare",
+    "requestId": "sample-request-id",
+    "nextPageToken": "page-4"
+  },
+  {
+    "results": [
+      {
+        "customer": {
+          "resourceName": "customers/1000000001",
+          "id": "1000000001",
+          "currencyCode": "EUR"
+        },
+        "campaign": {
+          "resourceName": "customers/1000000001/campaigns/102",
+          "id": "102"
+        },
+        "adGroup": {
+          "resourceName": "customers/1000000001/adGroups/204",
+          "id": "204"
+        },
+        "adGroupCriterion": {
+          "resourceName": "customers/1000000001/adGroupCriteria/204~316",
+          "criterionId": "316",
+          "keyword": {
+            "text": "sample term 6",
+            "matchType": "BROAD"
+          }
+        },
+        "segments": {
+          "date": "2026-02-23"
+        },
+        "metrics": {
+          "impressions": "174",
+          "clicks": "12",
+          "costMicros": "1150000",
+          "conversions": 6.5,
+          "searchImpressionShare": 0.31
+        }
+      },
+      {
+        "customer": {
+          "resourceName": "customers/1000000001",
+          "id": "1000000001",
+          "currencyCode": "EUR"
+        },
+        "campaign": {
+          "resourceName": "customers/1000000001/campaigns/102",
+          "id": "102"
+        },
+        "adGroup": {
+          "resourceName": "customers/1000000001/adGroups/204",
+          "id": "204"
+        },
+        "adGroupCriterion": {
+          "resourceName": "customers/1000000001/adGroupCriteria/204~317",
+          "criterionId": "317",
+          "keyword": {
+            "text": "sample term 7",
+            "matchType": "BROAD"
+          }
+        },
+        "segments": {
+          "date": "2026-02-24"
+        },
+        "metrics": {
+          "impressions": "183",
+          "clicks": "13",
+          "costMicros": "1195000",
+          "conversions": 7.5,
+          "searchImpressionShare": 0.32
+        }
+      }
+    ],
+    "fieldMask": "customer.id,customer.currencyCode,campaign.id,adGroup.id,adGroupCriterion.criterionId,adGroupCriterion.keyword.text,adGroupCriterion.keyword.matchType,segments.date,metrics.impressions,metrics.clicks,metrics.costMicros,metrics.conversions,metrics.searchImpressionShare",
+    "requestId": "sample-request-id",
+    "nextPageToken": "page-5"
+  },
+  {
+    "results": [
+      {
+        "customer": {
+          "resourceName": "customers/1000000001",
+          "id": "1000000001",
+          "currencyCode": "EUR"
+        },
+        "campaign": {
+          "resourceName": "customers/1000000001/campaigns/102",
+          "id": "102"
+        },
+        "adGroup": {
+          "resourceName": "customers/1000000001/adGroups/205",
+          "id": "205"
+        },
+        "adGroupCriterion": {
+          "resourceName": "customers/1000000001/adGroupCriteria/205~318",
+          "criterionId": "318",
+          "keyword": {
+            "text": "sample term 8",
+            "matchType": "BROAD"
+          }
+        },
+        "segments": {
+          "date": "2026-02-25"
+        },
+        "metrics": {
+          "impressions": "192",
+          "clicks": "14",
+          "costMicros": "1240000",
+          "conversions": 8.5,
+          "searchImpressionShare": 0.33
+        }
+      }
+    ],
+    "fieldMask": "customer.id,customer.currencyCode,campaign.id,adGroup.id,adGroupCriterion.criterionId,adGroupCriterion.keyword.text,adGroupCriterion.keyword.matchType,segments.date,metrics.impressions,metrics.clicks,metrics.costMicros,metrics.conversions,metrics.searchImpressionShare",
+    "requestId": "sample-request-id"
+  }
+]

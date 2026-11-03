@@ -1,0 +1,256 @@
+{
+  "samples": {
+    "invalid_grant": {
+      "where": "token endpoint",
+      "status": 400,
+      "body": {
+        "error": "invalid_grant",
+        "error_description": "Token has been expired or revoked."
+      }
+    },
+    "invalid_client": {
+      "where": "token endpoint",
+      "status": 401,
+      "body": {
+        "error": "invalid_client",
+        "error_description": "The OAuth client was not found."
+      }
+    },
+    "quotaError": {
+      "where": "search",
+      "status": 403,
+      "body": {
+        "error": {
+          "code": 403,
+          "message": "Too many requests for this customer.",
+          "status": "PERMISSION_DENIED",
+          "details": [
+            {
+              "@type": "type.googleapis.com/google.ads.googleads.v26.errors.GoogleAdsFailure",
+              "errors": [
+                {
+                  "errorCode": {
+                    "quotaError": "RESOURCE_TEMPORARILY_EXHAUSTED"
+                  },
+                  "message": "Too many requests for this customer."
+                }
+              ],
+              "requestId": "invented-request-1"
+            }
+          ]
+        }
+      }
+    },
+    "RESOURCE_EXHAUSTED": {
+      "where": "search",
+      "status": 429,
+      "body": {
+        "error": {
+          "code": 429,
+          "message": "Resource has been exhausted (e.g. check quota).",
+          "status": "RESOURCE_EXHAUSTED"
+        }
+      }
+    },
+    "OAUTH_TOKEN_EXPIRED": {
+      "where": "search",
+      "status": 401,
+      "body": {
+        "error": {
+          "code": 401,
+          "message": "The access token has expired.",
+          "status": "UNAUTHENTICATED",
+          "details": [
+            {
+              "@type": "type.googleapis.com/google.ads.googleads.v26.errors.GoogleAdsFailure",
+              "errors": [
+                {
+                  "errorCode": {
+                    "authenticationError": "OAUTH_TOKEN_EXPIRED"
+                  },
+                  "message": "The access token has expired."
+                }
+              ],
+              "requestId": "invented-request-1"
+            }
+          ]
+        }
+      }
+    },
+    "UNAUTHENTICATED": {
+      "where": "search",
+      "status": 401,
+      "body": {
+        "error": {
+          "code": 401,
+          "message": "Request had invalid authentication credentials.",
+          "status": "UNAUTHENTICATED",
+          "details": [
+            {
+              "@type": "type.googleapis.com/google.ads.googleads.v26.errors.GoogleAdsFailure",
+              "errors": [
+                {
+                  "errorCode": {
+                    "authenticationError": "OAUTH_TOKEN_INVALID"
+                  },
+                  "message": "Request had invalid authentication credentials."
+                }
+              ],
+              "requestId": "invented-request-1"
+            }
+          ]
+        }
+      }
+    },
+    "DEVELOPER_TOKEN_NOT_APPROVED": {
+      "where": "search",
+      "status": 403,
+      "body": {
+        "error": {
+          "code": 403,
+          "message": "The developer token is only approved for test accounts.",
+          "status": "PERMISSION_DENIED",
+          "details": [
+            {
+              "@type": "type.googleapis.com/google.ads.googleads.v26.errors.GoogleAdsFailure",
+              "errors": [
+                {
+                  "errorCode": {
+                    "authorizationError": "DEVELOPER_TOKEN_NOT_APPROVED"
+                  },
+                  "message": "The developer token is only approved for test accounts."
+                }
+              ],
+              "requestId": "invented-request-1"
+            }
+          ]
+        }
+      }
+    },
+    "DEVELOPER_TOKEN_PROHIBITED": {
+      "where": "search",
+      "status": 403,
+      "body": {
+        "error": {
+          "code": 403,
+          "message": "The developer token is not allowed with this project.",
+          "status": "PERMISSION_DENIED",
+          "details": [
+            {
+              "@type": "type.googleapis.com/google.ads.googleads.v26.errors.GoogleAdsFailure",
+              "errors": [
+                {
+                  "errorCode": {
+                    "authorizationError": "DEVELOPER_TOKEN_PROHIBITED"
+                  },
+                  "message": "The developer token is not allowed with this project."
+                }
+              ],
+              "requestId": "invented-request-1"
+            }
+          ]
+        }
+      }
+    },
+    "DEVELOPER_TOKEN_INVALID": {
+      "where": "search",
+      "status": 403,
+      "body": {
+        "error": {
+          "code": 403,
+          "message": "The developer token is not valid.",
+          "status": "PERMISSION_DENIED",
+          "details": [
+            {
+              "@type": "type.googleapis.com/google.ads.googleads.v26.errors.GoogleAdsFailure",
+              "errors": [
+                {
+                  "errorCode": {
+                    "authenticationError": "DEVELOPER_TOKEN_INVALID"
+                  },
+                  "message": "The developer token is not valid."
+                }
+              ],
+              "requestId": "invented-request-1"
+            }
+          ]
+        }
+      }
+    },
+    "USER_PERMISSION_DENIED": {
+      "where": "search",
+      "status": 403,
+      "body": {
+        "error": {
+          "code": 403,
+          "message": "The user does not have permission to access the customer.",
+          "status": "PERMISSION_DENIED",
+          "details": [
+            {
+              "@type": "type.googleapis.com/google.ads.googleads.v26.errors.GoogleAdsFailure",
+              "errors": [
+                {
+                  "errorCode": {
+                    "authorizationError": "USER_PERMISSION_DENIED"
+                  },
+                  "message": "The user does not have permission to access the customer."
+                }
+              ],
+              "requestId": "invented-request-1"
+            }
+          ]
+        }
+      }
+    },
+    "CUSTOMER_NOT_ENABLED": {
+      "where": "search",
+      "status": 403,
+      "body": {
+        "error": {
+          "code": 403,
+          "message": "The customer account is not enabled.",
+          "status": "PERMISSION_DENIED",
+          "details": [
+            {
+              "@type": "type.googleapis.com/google.ads.googleads.v26.errors.GoogleAdsFailure",
+              "errors": [
+                {
+                  "errorCode": {
+                    "authorizationError": "CUSTOMER_NOT_ENABLED"
+                  },
+                  "message": "The customer account is not enabled."
+                }
+              ],
+              "requestId": "invented-request-1"
+            }
+          ]
+        }
+      }
+    },
+    "off the table": {
+      "where": "search",
+      "status": 403,
+      "body": {
+        "error": {
+          "code": 403,
+          "message": "The user is not permitted to perform this action.",
+          "status": "PERMISSION_DENIED",
+          "details": [
+            {
+              "@type": "type.googleapis.com/google.ads.googleads.v26.errors.GoogleAdsFailure",
+              "errors": [
+                {
+                  "errorCode": {
+                    "authorizationError": "ACTION_NOT_PERMITTED"
+                  },
+                  "message": "The user is not permitted to perform this action."
+                }
+              ],
+              "requestId": "invented-request-1"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

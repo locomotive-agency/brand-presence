@@ -9,6 +9,8 @@ from brand_presence.errors import UserError
 from brand_presence.reports.definition import load
 from brand_presence.rows import RunRow, columns_of
 from brand_presence.sources.ai_answers import AiAnswer, AiAnswerBrand, AiAnswersRaw, AiAnswersTask
+from brand_presence.sources.ga4 import Ga4
+from brand_presence.sources.google_ads import GoogleAds
 from brand_presence.sources.mentions import (
     MentionFact,
     MentionsCursor,
@@ -24,6 +26,7 @@ from brand_presence.sources.peec import (
     PeecRaw,
     PeecTask,
 )
+from brand_presence.sources.search_console import SearchConsole
 from brand_presence.sources.search_volume import (
     SearchVolume,
     SearchVolumeHistory,
@@ -36,6 +39,9 @@ REF_MODELS = tuple(
 )
 
 MODELS = (
+    GoogleAds.raw_model, GoogleAds.ledger_model, *GoogleAds.clean_models,
+    Ga4.raw_model, Ga4.ledger_model, *Ga4.clean_models,
+    SearchConsole.raw_model, SearchConsole.ledger_model, *SearchConsole.clean_models,
     PeecRaw, PeecTask, PeecPrompt, PeecPull, PeecAnswer, PeecAnswerBrand,
     MentionsRaw, MentionFact, MentionText, MentionsTask, MentionsCursor,
     AiAnswer,
@@ -66,6 +72,15 @@ def initialise(bq) -> None:
             for name, (kind, required) in columns_of(model).items()
         )
         partition = " PARTITION BY period_start" if model is SearchVolume else ""
+        if model.table in ("raw.search_console", "raw.google_ads"):
+            partition = " PARTITION BY content_date"
+        if model.table in (
+            "stg.search_console_queries", "stg.search_console_pages", "stg.ga4_landing_pages",
+            "stg.ga4_engagement_cities", "stg.google_ads_campaigns", "stg.google_ads_geo",
+            "stg.google_ads_geo_cities", "stg.google_ads_geo_regions", "stg.google_ads_keywords",
+            "stg.google_ads_search_terms",
+        ):
+            partition = " PARTITION BY date"
         if model is MentionFact:
             partition = " PARTITION BY match_date"
         if model in (MentionsRaw, MentionText):
@@ -79,14 +94,12 @@ def initialise(bq) -> None:
     for name in ("matches_unlisted", "rate_limit_waits"):
         query(bq, f"ALTER TABLE ops.runs ADD COLUMN IF NOT EXISTS {name} INT64")
     for model in REF_MODELS:
-        if model is ref_rows.Prompt:
+        if model in (ref_rows.Prompt, ref_rows.Keyword, ref_rows.CompetitorRow):
             sql = (
-                "SELECT member.* FROM ref.benchmark_prompts member "
+                f"SELECT member.* FROM {model.table} member "
                 "JOIN ref.current_benchmark_sets held USING "
                 "(client_brand_id, country_code, benchmark_version)"
             )
-        elif model in (ref_rows.CompetitorRow, ref_rows.Keyword):
-            continue
         else:
             sql = (
                 f"SELECT * FROM {model.table} WHERE load_number = "

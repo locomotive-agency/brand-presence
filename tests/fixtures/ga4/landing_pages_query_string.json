@@ -1,0 +1,109 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    },
+    {
+      "name": "countryId"
+    },
+    {
+      "name": "landingPage"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "sessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "engagedSessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "totalUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "newUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "screenPageViews",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "userEngagementDuration",
+      "type": "TYPE_SECONDS"
+    },
+    {
+      "name": "eventCount",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "keyEvents",
+      "type": "TYPE_FLOAT"
+    }
+  ],
+  "rows": [
+    {"dimensionValues": [{"value": "20260223"}, {"value": "NL"}, {"value": "/"}], "metricValues": [{"value": "30"}, {"value": "22"}, {"value": "26"}, {"value": "10"}, {"value": "60"}, {"value": "1500"}, {"value": "240"}, {"value": "3"}]},
+    {"dimensionValues": [{"value": "20260223"}, {"value": "NL"}, {"value": "/pricing"}], "metricValues": [{"value": "24"}, {"value": "18"}, {"value": "21"}, {"value": "8"}, {"value": "48"}, {"value": "1200"}, {"value": "192"}, {"value": "2"}]},
+    {"dimensionValues": [{"value": "20260223"}, {"value": "NL"}, {"value": "/blog/first-post"}], "metricValues": [{"value": "18"}, {"value": "14"}, {"value": "16"}, {"value": "6"}, {"value": "36"}, {"value": "900"}, {"value": "144"}, {"value": "1"}]},
+    {"dimensionValues": [{"value": "20260223"}, {"value": "NL"}, {"value": "(not set)"}], "metricValues": [{"value": "12"}, {"value": "10"}, {"value": "11"}, {"value": "4"}, {"value": "24"}, {"value": "600"}, {"value": "96"}, {"value": "0"}]},
+    {"dimensionValues": [{"value": "20260224"}, {"value": "NL"}, {"value": "/"}], "metricValues": [{"value": "30"}, {"value": "22"}, {"value": "26"}, {"value": "10"}, {"value": "60"}, {"value": "1500"}, {"value": "240"}, {"value": "3"}]},
+    {"dimensionValues": [{"value": "20260224"}, {"value": "NL"}, {"value": "/pricing?ref=newsletter"}], "metricValues": [{"value": "24"}, {"value": "18"}, {"value": "21"}, {"value": "8"}, {"value": "48"}, {"value": "1200"}, {"value": "192"}, {"value": "2"}]},
+    {"dimensionValues": [{"value": "20260224"}, {"value": "NL"}, {"value": "/blog/first-post"}], "metricValues": [{"value": "18"}, {"value": "14"}, {"value": "16"}, {"value": "6"}, {"value": "36"}, {"value": "900"}, {"value": "144"}, {"value": "1"}]},
+    {"dimensionValues": [{"value": "20260224"}, {"value": "NL"}, {"value": "(not set)"}], "metricValues": [{"value": "12"}, {"value": "10"}, {"value": "11"}, {"value": "4"}, {"value": "24"}, {"value": "600"}, {"value": "96"}, {"value": "0"}]},
+    {"dimensionValues": [{"value": "20260225"}, {"value": "NL"}, {"value": "/"}], "metricValues": [{"value": "30"}, {"value": "22"}, {"value": "26"}, {"value": "10"}, {"value": "60"}, {"value": "1500"}, {"value": "240"}, {"value": "3"}]},
+    {"dimensionValues": [{"value": "20260225"}, {"value": "NL"}, {"value": "/pricing"}], "metricValues": [{"value": "24"}, {"value": "18"}, {"value": "21"}, {"value": "8"}, {"value": "48"}, {"value": "1200"}, {"value": "192"}, {"value": "2"}]},
+    {"dimensionValues": [{"value": "20260225"}, {"value": "NL"}, {"value": "/blog/first-post"}], "metricValues": [{"value": "18"}, {"value": "14"}, {"value": "16"}, {"value": "6"}, {"value": "36"}, {"value": "900"}, {"value": "144"}, {"value": "1"}]},
+    {"dimensionValues": [{"value": "20260225"}, {"value": "NL"}, {"value": "(not set)"}], "metricValues": [{"value": "12"}, {"value": "10"}, {"value": "11"}, {"value": "4"}, {"value": "24"}, {"value": "600"}, {"value": "96"}, {"value": "0"}]},
+    {"dimensionValues": [{"value": "20260226"}, {"value": "NL"}, {"value": "/"}], "metricValues": [{"value": "30"}, {"value": "22"}, {"value": "26"}, {"value": "10"}, {"value": "60"}, {"value": "1500"}, {"value": "240"}, {"value": "3"}]},
+    {"dimensionValues": [{"value": "20260226"}, {"value": "NL"}, {"value": "/pricing"}], "metricValues": [{"value": "24"}, {"value": "18"}, {"value": "21"}, {"value": "8"}, {"value": "48"}, {"value": "1200"}, {"value": "192"}, {"value": "2"}]},
+    {"dimensionValues": [{"value": "20260226"}, {"value": "NL"}, {"value": "/blog/first-post"}], "metricValues": [{"value": "18"}, {"value": "14"}, {"value": "16"}, {"value": "6"}, {"value": "36"}, {"value": "900"}, {"value": "144"}, {"value": "1"}]},
+    {"dimensionValues": [{"value": "20260226"}, {"value": "NL"}, {"value": "(not set)"}], "metricValues": [{"value": "12"}, {"value": "10"}, {"value": "11"}, {"value": "4"}, {"value": "24"}, {"value": "600"}, {"value": "96"}, {"value": "0"}]},
+    {"dimensionValues": [{"value": "20260227"}, {"value": "NL"}, {"value": "/"}], "metricValues": [{"value": "30"}, {"value": "22"}, {"value": "26"}, {"value": "10"}, {"value": "60"}, {"value": "1500"}, {"value": "240"}, {"value": "3"}]},
+    {"dimensionValues": [{"value": "20260227"}, {"value": "NL"}, {"value": "/pricing"}], "metricValues": [{"value": "24"}, {"value": "18"}, {"value": "21"}, {"value": "8"}, {"value": "48"}, {"value": "1200"}, {"value": "192"}, {"value": "2"}]},
+    {"dimensionValues": [{"value": "20260227"}, {"value": "NL"}, {"value": "/blog/first-post"}], "metricValues": [{"value": "18"}, {"value": "14"}, {"value": "16"}, {"value": "6"}, {"value": "36"}, {"value": "900"}, {"value": "144"}, {"value": "1"}]},
+    {"dimensionValues": [{"value": "20260227"}, {"value": "NL"}, {"value": "(not set)"}], "metricValues": [{"value": "12"}, {"value": "10"}, {"value": "11"}, {"value": "4"}, {"value": "24"}, {"value": "600"}, {"value": "96"}, {"value": "0"}]},
+    {"dimensionValues": [{"value": "20260228"}, {"value": "NL"}, {"value": "/"}], "metricValues": [{"value": "30"}, {"value": "22"}, {"value": "26"}, {"value": "10"}, {"value": "60"}, {"value": "1500"}, {"value": "240"}, {"value": "3"}]},
+    {"dimensionValues": [{"value": "20260228"}, {"value": "NL"}, {"value": "/pricing"}], "metricValues": [{"value": "24"}, {"value": "18"}, {"value": "21"}, {"value": "8"}, {"value": "48"}, {"value": "1200"}, {"value": "192"}, {"value": "2"}]},
+    {"dimensionValues": [{"value": "20260228"}, {"value": "NL"}, {"value": "/blog/first-post"}], "metricValues": [{"value": "18"}, {"value": "14"}, {"value": "16"}, {"value": "6"}, {"value": "36"}, {"value": "900"}, {"value": "144"}, {"value": "1"}]},
+    {"dimensionValues": [{"value": "20260228"}, {"value": "NL"}, {"value": "(not set)"}], "metricValues": [{"value": "12"}, {"value": "10"}, {"value": "11"}, {"value": "4"}, {"value": "24"}, {"value": "600"}, {"value": "96"}, {"value": "0"}]},
+    {"dimensionValues": [{"value": "20260301"}, {"value": "NL"}, {"value": "/"}], "metricValues": [{"value": "30"}, {"value": "22"}, {"value": "26"}, {"value": "10"}, {"value": "60"}, {"value": "1500"}, {"value": "240"}, {"value": "3"}]},
+    {"dimensionValues": [{"value": "20260301"}, {"value": "NL"}, {"value": "/pricing"}], "metricValues": [{"value": "24"}, {"value": "18"}, {"value": "21"}, {"value": "8"}, {"value": "48"}, {"value": "1200"}, {"value": "192"}, {"value": "2"}]},
+    {"dimensionValues": [{"value": "20260301"}, {"value": "NL"}, {"value": "/blog/first-post"}], "metricValues": [{"value": "18"}, {"value": "14"}, {"value": "16"}, {"value": "6"}, {"value": "36"}, {"value": "900"}, {"value": "144"}, {"value": "1"}]},
+    {"dimensionValues": [{"value": "20260301"}, {"value": "NL"}, {"value": "(not set)"}], "metricValues": [{"value": "12"}, {"value": "10"}, {"value": "11"}, {"value": "4"}, {"value": "24"}, {"value": "600"}, {"value": "96"}, {"value": "0"}]}
+  ],
+  "rowCount": 28,
+  "metadata": {
+    "currencyCode": "EUR",
+    "timeZone": "Europe/Amsterdam"
+  },
+  "propertyQuota": {
+    "tokensPerDay": {
+      "consumed": 3,
+      "remaining": 199000
+    },
+    "tokensPerHour": {
+      "consumed": 3,
+      "remaining": 39000
+    },
+    "concurrentRequests": {
+      "consumed": 0,
+      "remaining": 10
+    },
+    "serverErrorsPerProjectPerHour": {
+      "consumed": 0,
+      "remaining": 10
+    },
+    "potentiallyThresholdedRequestsPerHour": {
+      "consumed": 0,
+      "remaining": 120
+    },
+    "tokensPerProjectPerHour": {
+      "consumed": 3,
+      "remaining": 13000
+    }
+  },
+  "kind": "analyticsData#runReport"
+}

@@ -1,0 +1,254 @@
+table: stg.ga4_pulls
+owner: ga4
+version: 1
+grain: 'One row per GA4 request and period: one pull of a web property''s report.'
+key:
+- web_property_id
+- report
+- period
+unknown: Never. A pull of every country carries the reserved value all as its country and its location,
+  not unknown.
+days: The GA4 property's own days, counted in the property's time zone, which the pull row names in
+  source_time_zone. Not the client's days.
+columns:
+- name: client_brand_id
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: The client brand the row was measured for, by its brand ID in the YAML configuration.
+  holds: client brand
+- name: country_code
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: The country, as a two-letter code. A pull of every country carries all.
+  holds: country
+- name: location_id
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: The location the request was for, by its ID in ref.locations. A pull of every country carries
+    all.
+  holds: location
+- name: benchmark_version
+  type: INT64
+  kind: attribute
+  nullable: true
+  meaning: The version of the client brand's benchmark set in the row's country, at the load the request
+    was planned from.
+  null_means: 'The client brand has no benchmark set in the row''s country, or the row belongs to
+    none: a mention, or a pull of every country.'
+- name: snapshot_id
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The snapshot of the YAML configuration the request was planned from.
+- name: period
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The period of the pull that wrote the row, as the run names it. It tells apart the rows
+    of two pulls of the same dates.
+- name: period_start
+  type: DATE
+  kind: attribute
+  nullable: false
+  meaning: The first day of the row's period, in the client's time zone.
+- name: request_key
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The vendor request the row came from.
+- name: run_id
+  type: STRING
+  kind: attribute
+  nullable: false
+  meaning: The run that wrote the row.
+- name: pulled_at
+  type: TIMESTAMP
+  kind: attribute
+  nullable: false
+  meaning: When the answer the row came from was received.
+- name: window_start
+  type: DATE
+  kind: attribute
+  nullable: false
+  meaning: The first date of the window the pull asked for.
+- name: window_end
+  type: DATE
+  kind: attribute
+  nullable: false
+  meaning: The last date of the window the pull asked for.
+- name: rows_written
+  type: INT64
+  kind: measure
+  nullable: false
+  meaning: The engagement rows the pull gave. Zero for an answer with no rows.
+  unit: rows
+  sums:
+    summable: true
+    over:
+    - web_property_id
+    - report
+    across_periods: true
+- name: pages
+  type: INT64
+  kind: measure
+  nullable: false
+  meaning: The pages of answer the pull read.
+  unit: pages
+  sums:
+    summable: true
+    over:
+    - web_property_id
+    - report
+    across_periods: true
+- name: row_limit_hit
+  type: BOOL
+  kind: attribute
+  nullable: false
+  meaning: True when the service reported more rows than were read, folded rows into an (other) row,
+    or marked data as cut, where it gives such a mark. False says only that no limit was seen, not
+    that every row came.
+- name: source_time_zone
+  type: STRING
+  kind: attribute
+  nullable: true
+  meaning: The property's time zone, as the answer gives it.
+  null_means: The answer did not give the property's time zone.
+- name: web_property_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The GA4 property, by the ID the YAML configuration gives it. Never its number.
+- name: report
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The name of the report asked for.
+- name: sampled
+  type: BOOL
+  kind: attribute
+  nullable: true
+  meaning: True when the answer holds a sampling entry. Null where the service gives no such mark.
+  null_means: Null where the service gives no such mark.
+- name: samples_read
+  type: INT64
+  kind: measure
+  nullable: true
+  meaning: The samples the service read. Null when the answer was not sampled.
+  unit: samples
+  null_means: Null when the answer was not sampled.
+  sums:
+    summable: false
+- name: sampling_space
+  type: INT64
+  kind: measure
+  nullable: true
+  meaning: The size of the space the samples were read from. Null when the answer was not sampled.
+  unit: sessions
+  null_means: Null when the answer was not sampled.
+  sums:
+    summable: false
+- name: other_row
+  type: BOOL
+  kind: attribute
+  nullable: true
+  meaning: True when the service said it folded rows into an (other) row. Null where the service gives
+    no such mark.
+  null_means: Null where the service gives no such mark.
+- name: thresholded
+  type: BOOL
+  kind: attribute
+  nullable: true
+  meaning: True when the service said it withheld rows by thresholding. Null where the service gives
+    no such mark.
+  null_means: Null where the service gives no such mark.
+- name: rows_reported
+  type: INT64
+  kind: measure
+  nullable: true
+  meaning: The row count the service reports. Null where it reports none, as for an answer with no
+    rows.
+  unit: rows
+  null_means: Null where it reports none, as for an answer with no rows.
+  sums:
+    summable: false
+- name: tokens_used
+  type: INT64
+  kind: measure
+  nullable: true
+  meaning: The quota tokens the pull used, over its pages. Null where no answer reported the quota.
+  unit: quota tokens
+  null_means: Null where no answer reported the quota.
+  sums:
+    summable: true
+    over:
+    - web_property_id
+    - report
+    across_periods: true
+- name: tokens_left_day
+  type: INT64
+  kind: measure
+  nullable: true
+  meaning: The property's tokens left for the day, after the pull.
+  unit: quota tokens
+  null_means: No answer of the pull reported the quota.
+  sums:
+    summable: false
+- name: tokens_left_hour
+  type: INT64
+  kind: measure
+  nullable: true
+  meaning: The property's tokens left for the hour, after the pull.
+  unit: quota tokens
+  null_means: No answer of the pull reported the quota.
+  sums:
+    summable: false
+- name: data_cut
+  type: BOOL
+  kind: attribute
+  nullable: true
+  meaning: 'True when the answer''s metadata says data was cut: a week the service no longer holds,
+    not a week with no traffic. Never false: no answer is said to be uncut on a mark nobody has seen.'
+  null_means: The answer held no such mark.
+- name: cut_start
+  type: DATE
+  kind: attribute
+  nullable: true
+  meaning: The first date the answer names as cut, where it names any.
+  null_means: The answer names no date as cut.
+- name: cut_end
+  type: DATE
+  kind: attribute
+  nullable: true
+  meaning: The last date the answer names as cut, where it names any.
+  null_means: The answer names no date as cut.
+- name: empty_reason
+  type: STRING
+  kind: attribute
+  nullable: true
+  meaning: 'Why the service says an answer has no rows: a code from the list in the code, or other.
+    Never the service''s text. Null where it gives no reason.'
+  null_means: Null where it gives no reason.
+- name: listed_cities_unmatched
+  type: INT64
+  kind: attribute
+  nullable: true
+  meaning: For an engagement_cities pull, the cities listed for ga4 in a country the answer holds rows
+    for that no row matched by name. Their traffic is in the other rows.
+  null_means: The pull is of another report, or was written before the column.
+- name: listed_countries_unmatched
+  type: INT64
+  kind: attribute
+  nullable: true
+  meaning: For an engagement pull, the countries listed in the load that no row of
+    the answer holds.
+  null_means: The pull is of another report, or was written before the column.
+- name: city_days_ambiguous
+  type: INT64
+  kind: attribute
+  nullable: true
+  meaning: For an engagement_cities pull, the listed cities and days on which a city
+    could not be told from another of its name. The Data API folds such a day into the other row.
+  null_means: The pull is of another report, or was written before the column.

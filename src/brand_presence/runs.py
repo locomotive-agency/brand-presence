@@ -38,7 +38,7 @@ def source_period(source, at, time_zone):
     local = at.astimezone(ZoneInfo(time_zone)).date()
     if source == "mentions":
         return Period(local.isoformat(), local)
-    if source == "peec":
+    if source in ("peec", "search-console", "ga4", "google-ads"):
         local -= timedelta(days=7)
     year, week, _ = local.isocalendar()
     return Period(f"{year}-W{week:02d}", date.fromisocalendar(year, week, 1))

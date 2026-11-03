@@ -5,19 +5,23 @@ from typing import ClassVar
 
 from pydantic import BaseModel, ConfigDict
 
-from brand_presence import ref_rows
+from brand_presence import countries, ref_rows
 from brand_presence.bigquery import Transaction, query, rows_parameter
+from brand_presence.errors import UserError
 from brand_presence.request_keys import content_hash
 from brand_presence.rows import Row
 from brand_presence.settings import (
+    AdAccount,
     Brand,
     Keyword,
     MentionFilter,
+    Modifier,
     PeecBrand,
     PeecProject,
     Prompt,
     Settings,
     Subreddit,
+    WebProperty,
 )
 
 
@@ -29,10 +33,12 @@ class Location(BaseModel):
     location_id: str
     canonical_name: str
     country_code: str
-    sources: tuple[str, ...] = ("search-volume", "ai-answers", "peec")
+    sources: tuple[str, ...] = ("search-volume", "ai-answers", "peec", "search-console",
+                                "ga4", "google-ads")
     kind: str = "country"
     name: str = ""
     region_code: str | None = None
+    google_criterion_id: str | None = None
 
 
 class BenchmarkSet(BaseModel):
@@ -56,6 +62,16 @@ class ClientRef(BaseModel):
     subreddits: tuple[Subreddit, ...] = ()
     peec_projects: tuple[PeecProject, ...] = ()
     peec_brands: tuple[PeecBrand, ...] = ()
+    web_properties: tuple[WebProperty, ...] = ()
+    ad_accounts: tuple[AdAccount, ...] = ()
+    modifiers: tuple[Modifier, ...] = ()
+
+    def web_properties_of(self, source):
+        return tuple(p for p in self.web_properties if p.source == source)
+
+    @property
+    def listed_locations(self):
+        return tuple(p for p in self.locations if p.sources)
 
     def brand(self, brand_id):
         return next((b for b in self.brands if b.brand_id == brand_id), None)
@@ -85,6 +101,9 @@ def apply(bq, settings: Settings, now: datetime) -> ClientRef:
             "mention_text_days",
             "peec_projects",
             "peec_brands",
+            "web_properties",
+            "ad_accounts",
+            "modifiers",
         },
     )
     identity = content_hash(content)
@@ -95,6 +114,13 @@ def apply(bq, settings: Settings, now: datetime) -> ClientRef:
     before = ClientRef.model_validate_json(held[0]["payload"]) if held else None
     for snapshot in held:
         previous = ClientRef.model_validate_json(snapshot["payload"])
+        for collection, field, label in (("web_properties", "web_property_id", "Web property"),
+                                          ("ad_accounts", "ad_account_id", "Ad account")):
+            current_items = {getattr(item, field): item for item in getattr(settings, collection)}
+            for old in getattr(previous, collection):
+                current = current_items.get(getattr(old, field))
+                if current is not None and current != old:
+                    raise UserError(f"{label} ID cannot be rebound; use a new local ID")
         for old in previous.peec_projects:
             for current in settings.peec_projects:
                 if old.mapping == current.mapping and (
@@ -102,15 +128,13 @@ def apply(bq, settings: Settings, now: datetime) -> ClientRef:
                     old.client_brand_id,
                     old.country_code,
                 ) != (current.project_id, current.client_brand_id, current.country_code):
-                    from brand_presence.errors import UserError
-
                     raise UserError("Peec mapping cannot be rebound to another project or market")
     highest = {}
     for snapshot in held:
         for group in ClientRef.model_validate_json(snapshot["payload"]).benchmark_sets:
             key = (group.client_brand_id, group.country_code)
             highest[key] = max(highest.get(key, 0), group.version)
-    countries = {c.country_code: c for c in settings.countries}
+    listed_countries = {c.country_code: c for c in settings.countries}
     brands = {b.brand_id: b for b in settings.brands}
     sets = []
     for group in settings.benchmark_sets:
@@ -127,7 +151,7 @@ def apply(bq, settings: Settings, now: datetime) -> ClientRef:
             if before
             else None
         )
-        language = countries[group.country_code].language
+        language = listed_countries[group.country_code].language
         same = (
             old
             and old.keywords == tuple(group.keywords)
@@ -154,6 +178,9 @@ def apply(bq, settings: Settings, now: datetime) -> ClientRef:
         brands=tuple(settings.brands),
         peec_projects=tuple(settings.peec_projects),
         peec_brands=tuple(settings.peec_brands),
+        web_properties=tuple(settings.web_properties),
+        ad_accounts=tuple(settings.ad_accounts),
+        modifiers=tuple(settings.modifiers),
         mention_filters=tuple(settings.mention_filters),
         subreddits=tuple(settings.subreddits),
         locations=tuple(
@@ -165,7 +192,14 @@ def apply(bq, settings: Settings, now: datetime) -> ClientRef:
             )
             for c in settings.countries
         )
-        + tuple(Location(**p.model_dump()) for p in settings.locations),
+        + tuple(Location(**p.model_dump()) for p in settings.locations)
+        + tuple(Location(location_id=code.lower(), country_code=code, canonical_name=code,
+                         sources=())
+                for code, _, _ in countries.TABLE
+                if code not in listed_countries
+                and (settings.web_properties or settings.ad_accounts))
+        + tuple(Location(location_id=code, country_code=code, canonical_name=code, sources=())
+                for code in ("unknown", "all") if settings.web_properties or settings.ad_accounts),
     )
     row = Snapshot(
         load_number=number, snapshot_id=identity, applied_at=now, payload=ref.model_dump_json()
@@ -220,6 +254,18 @@ def write_refs(transaction, settings, ref, before):
     rows += [ref_rows.Subreddit(load_number=number, **r.model_dump()) for r in ref.subreddits]
     rows += [ref_rows.PeecProject(load_number=number, **p.model_dump()) for p in ref.peec_projects]
     rows += [ref_rows.PeecBrand(load_number=number, **b.model_dump()) for b in ref.peec_brands]
+    rows += [ref_rows.WebProperty(load_number=number, **p.model_dump()) for p in ref.web_properties]
+    rows += [ref_rows.AdAccount(load_number=number, **a.model_dump()) for a in ref.ad_accounts]
+    rows += [ref_rows.Modifier(load_number=number, **m.model_dump()) for m in ref.modifiers]
+    if any(a.client_brand_id is None for a in ref.ad_accounts):
+        rows.append(ref_rows.Brand(load_number=number, brand_id="unknown", name="Unknown",
+                                   kind="reserved", aliases=[], domains=[]))
+    if ref.web_properties or ref.ad_accounts:
+        listed = {c.country_code for c in settings.countries}
+        codes = [code for code, _, _ in countries.TABLE] + ["unknown", "all"]
+        rows += [ref_rows.Country(load_number=number, country_code=code,
+                                  language="und", listed=False)
+                 for code in codes if code not in listed]
     for group in ref.benchmark_sets:
         standard = dict(
             load_number=number,

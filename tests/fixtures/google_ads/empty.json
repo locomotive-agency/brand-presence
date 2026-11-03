@@ -1,0 +1,4 @@
+{
+  "fieldMask": "customer.id,customer.currencyCode,campaign.id,adGroup.id,adGroupCriterion.criterionId,adGroupCriterion.keyword.text,adGroupCriterion.keyword.matchType,segments.date,metrics.impressions,metrics.clicks,metrics.costMicros,metrics.conversions,metrics.searchImpressionShare",
+  "requestId": "sample-request-id"
+}

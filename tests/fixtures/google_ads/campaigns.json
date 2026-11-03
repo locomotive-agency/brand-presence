@@ -1,0 +1,161 @@
+{
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/101",
+        "id": "101",
+        "name": "Sample Spring Search",
+        "advertisingChannelType": "SEARCH",
+        "status": "ENABLED"
+      },
+      "segments": {
+        "date": "2026-02-23"
+      },
+      "metrics": {
+        "impressions": "1000",
+        "clicks": "40",
+        "costMicros": "5210000",
+        "conversions": 2.5,
+        "conversionsByConversionDate": 2.0,
+        "searchImpressionShare": 0.41,
+        "absoluteTopImpressionPercentage": 0.5,
+        "searchAbsoluteTopImpressionShare": 0.25,
+        "searchRankLostImpressionShare": 0.39,
+        "searchBudgetLostImpressionShare": 0.2
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/102",
+        "id": "102",
+        "name": "Sample Netherlands Launch",
+        "advertisingChannelType": "SEARCH",
+        "status": "ENABLED"
+      },
+      "segments": {
+        "date": "2026-02-23"
+      },
+      "metrics": {
+        "impressions": "1037",
+        "clicks": "43",
+        "costMicros": "5340000",
+        "conversions": 3.5,
+        "conversionsByConversionDate": 3.0
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/101",
+        "id": "101",
+        "name": "Sample Spring Search",
+        "advertisingChannelType": "SEARCH",
+        "status": "ENABLED"
+      },
+      "segments": {
+        "date": "2026-02-24"
+      },
+      "metrics": {
+        "impressions": "1074",
+        "clicks": "46",
+        "costMicros": "5470000",
+        "conversions": 4.5,
+        "conversionsByConversionDate": 4.0,
+        "searchImpressionShare": 0.43,
+        "absoluteTopImpressionPercentage": 0.4,
+        "searchAbsoluteTopImpressionShare": 0.0999,
+        "searchRankLostImpressionShare": 0.37,
+        "searchBudgetLostImpressionShare": 0.2
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/102",
+        "id": "102",
+        "name": "Sample Netherlands Launch",
+        "advertisingChannelType": "SEARCH",
+        "status": "ENABLED"
+      },
+      "segments": {
+        "date": "2026-02-24"
+      },
+      "metrics": {
+        "impressions": "1111",
+        "clicks": "49",
+        "costMicros": "5600000",
+        "conversions": 5.5,
+        "conversionsByConversionDate": 5.0
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/101",
+        "id": "101",
+        "name": "Sample Spring Search",
+        "advertisingChannelType": "SEARCH",
+        "status": "ENABLED"
+      },
+      "segments": {
+        "date": "2026-02-25"
+      },
+      "metrics": {
+        "impressions": "1148",
+        "clicks": "52",
+        "costMicros": "5730000",
+        "conversions": 6.5,
+        "conversionsByConversionDate": 6.0,
+        "searchImpressionShare": 0.45
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/102",
+        "id": "102",
+        "name": "Sample Netherlands Launch",
+        "advertisingChannelType": "SEARCH",
+        "status": "ENABLED"
+      },
+      "segments": {
+        "date": "2026-02-25"
+      },
+      "metrics": {
+        "impressions": "1185",
+        "clicks": "55",
+        "costMicros": "5860000",
+        "conversions": 7.5,
+        "conversionsByConversionDate": 7.0
+      }
+    }
+  ],
+  "fieldMask": "customer.id,customer.currencyCode,campaign.id,campaign.name,campaign.advertisingChannelType,campaign.status,segments.date,metrics.impressions,metrics.clicks,metrics.costMicros,metrics.conversions,metrics.conversionsByConversionDate,metrics.searchImpressionShare,metrics.absoluteTopImpressionPercentage,metrics.searchAbsoluteTopImpressionShare,metrics.searchRankLostImpressionShare,metrics.searchBudgetLostImpressionShare",
+  "requestId": "sample-request-id"
+}

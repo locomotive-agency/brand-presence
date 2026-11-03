@@ -1,0 +1,210 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    },
+    {
+      "name": "countryId"
+    },
+    {
+      "name": "region"
+    },
+    {
+      "name": "city"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "sessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "engagedSessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "totalUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "newUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "screenPageViews",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "userEngagementDuration",
+      "type": "TYPE_SECONDS"
+    },
+    {
+      "name": "eventCount",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "keyEvents",
+      "type": "TYPE_FLOAT"
+    }
+  ],
+  "rows": [
+    {
+      "dimensionValues": [
+        {
+          "value": "20260223"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "Lisbon"
+        },
+        {
+          "value": "Lisbon"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "20"
+        },
+        {
+          "value": "19"
+        },
+        {
+          "value": "18"
+        },
+        {
+          "value": "10"
+        },
+        {
+          "value": "40"
+        },
+        {
+          "value": "800"
+        },
+        {
+          "value": "100"
+        },
+        {
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260223"
+        },
+        {
+          "value": "PT"
+        },
+        {
+          "value": "(not set)"
+        },
+        {
+          "value": "(not set)"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "6"
+        },
+        {
+          "value": "5"
+        },
+        {
+          "value": "4"
+        },
+        {
+          "value": "3"
+        },
+        {
+          "value": "12"
+        },
+        {
+          "value": "240"
+        },
+        {
+          "value": "30"
+        },
+        {
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "dimensionValues": [
+        {
+          "value": "20260223"
+        },
+        {
+          "value": "FR"
+        },
+        {
+          "value": "Ile-de-France"
+        },
+        {
+          "value": "Paris"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "9"
+        },
+        {
+          "value": "8"
+        },
+        {
+          "value": "7"
+        },
+        {
+          "value": "4"
+        },
+        {
+          "value": "18"
+        },
+        {
+          "value": "360"
+        },
+        {
+          "value": "45"
+        },
+        {
+          "value": "1"
+        }
+      ]
+    }
+  ],
+  "rowCount": 3,
+  "metadata": {
+    "currencyCode": "EUR",
+    "timeZone": "Europe/Amsterdam"
+  },
+  "propertyQuota": {
+    "tokensPerDay": {
+      "consumed": 3,
+      "remaining": 199000
+    },
+    "tokensPerHour": {
+      "consumed": 3,
+      "remaining": 39000
+    },
+    "concurrentRequests": {
+      "consumed": 0,
+      "remaining": 10
+    },
+    "serverErrorsPerProjectPerHour": {
+      "consumed": 0,
+      "remaining": 10
+    },
+    "potentiallyThresholdedRequestsPerHour": {
+      "consumed": 0,
+      "remaining": 120
+    },
+    "tokensPerProjectPerHour": {
+      "consumed": 3,
+      "remaining": 13000
+    }
+  },
+  "kind": "analyticsData#runReport"
+}

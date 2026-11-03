@@ -1,0 +1,56 @@
+{
+  "results": [
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/101",
+        "id": "101",
+        "name": "Sample Spring Search",
+        "advertisingChannelType": "SEARCH",
+        "status": "ENABLED"
+      },
+      "segments": {
+        "date": "2026-02-22"
+      },
+      "metrics": {
+        "impressions": "1000",
+        "clicks": "40",
+        "costMicros": "5210000",
+        "conversions": 2.5,
+        "conversionsByConversionDate": 2.0,
+        "searchImpressionShare": 0.41
+      }
+    },
+    {
+      "customer": {
+        "resourceName": "customers/1000000001",
+        "id": "1000000001",
+        "currencyCode": "EUR"
+      },
+      "campaign": {
+        "resourceName": "customers/1000000001/campaigns/101",
+        "id": "101",
+        "name": "Sample Spring Search",
+        "advertisingChannelType": "SEARCH",
+        "status": "ENABLED"
+      },
+      "segments": {
+        "date": "2026-02-23"
+      },
+      "metrics": {
+        "impressions": "1037",
+        "clicks": "43",
+        "costMicros": "5340000",
+        "conversions": 3.5,
+        "conversionsByConversionDate": 3.0,
+        "searchImpressionShare": 0.42
+      }
+    }
+  ],
+  "fieldMask": "customer.id,customer.currencyCode,campaign.id,campaign.name,campaign.advertisingChannelType,campaign.status,segments.date,metrics.impressions,metrics.clicks,metrics.costMicros,metrics.conversions,metrics.conversionsByConversionDate,metrics.searchImpressionShare",
+  "requestId": "sample-request-id"
+}

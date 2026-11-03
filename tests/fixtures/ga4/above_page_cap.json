@@ -1,0 +1,88 @@
+{
+  "dimensionHeaders": [
+    {
+      "name": "date"
+    },
+    {
+      "name": "countryId"
+    },
+    {
+      "name": "sessionDefaultChannelGroup"
+    }
+  ],
+  "metricHeaders": [
+    {
+      "name": "sessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "engagedSessions",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "totalUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "newUsers",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "screenPageViews",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "userEngagementDuration",
+      "type": "TYPE_SECONDS"
+    },
+    {
+      "name": "eventCount",
+      "type": "TYPE_INTEGER"
+    },
+    {
+      "name": "keyEvents",
+      "type": "TYPE_FLOAT"
+    }
+  ],
+  "rows": [
+    {"dimensionValues": [{"value": "20260223"}, {"value": "NL"}, {"value": "Direct"}], "metricValues": [{"value": "40"}, {"value": "30"}, {"value": "34"}, {"value": "13"}, {"value": "120"}, {"value": "2200"}, {"value": "360"}, {"value": "4"}]},
+    {"dimensionValues": [{"value": "20260224"}, {"value": "NL"}, {"value": "Direct"}], "metricValues": [{"value": "43"}, {"value": "33"}, {"value": "36"}, {"value": "14"}, {"value": "130"}, {"value": "2372"}, {"value": "389"}, {"value": "4"}]},
+    {"dimensionValues": [{"value": "20260225"}, {"value": "NL"}, {"value": "Direct"}], "metricValues": [{"value": "46"}, {"value": "35"}, {"value": "39"}, {"value": "15"}, {"value": "140"}, {"value": "2544"}, {"value": "418"}, {"value": "4"}]},
+    {"dimensionValues": [{"value": "20260226"}, {"value": "NL"}, {"value": "Direct"}], "metricValues": [{"value": "49"}, {"value": "37"}, {"value": "41"}, {"value": "16"}, {"value": "150"}, {"value": "2716"}, {"value": "447"}, {"value": "4"}]},
+    {"dimensionValues": [{"value": "20260227"}, {"value": "NL"}, {"value": "Direct"}], "metricValues": [{"value": "52"}, {"value": "39"}, {"value": "44"}, {"value": "17"}, {"value": "160"}, {"value": "2888"}, {"value": "476"}, {"value": "5"}]},
+    {"dimensionValues": [{"value": "20260228"}, {"value": "NL"}, {"value": "Direct"}], "metricValues": [{"value": "55"}, {"value": "42"}, {"value": "46"}, {"value": "18"}, {"value": "170"}, {"value": "3060"}, {"value": "505"}, {"value": "5"}]},
+    {"dimensionValues": [{"value": "20260301"}, {"value": "NL"}, {"value": "Direct"}], "metricValues": [{"value": "58"}, {"value": "44"}, {"value": "49"}, {"value": "19"}, {"value": "180"}, {"value": "3232"}, {"value": "534"}, {"value": "5"}]}
+  ],
+  "rowCount": 1000007,
+  "metadata": {
+    "currencyCode": "EUR",
+    "timeZone": "Europe/Amsterdam"
+  },
+  "propertyQuota": {
+    "tokensPerDay": {
+      "consumed": 3,
+      "remaining": 199000
+    },
+    "tokensPerHour": {
+      "consumed": 3,
+      "remaining": 39000
+    },
+    "concurrentRequests": {
+      "consumed": 0,
+      "remaining": 10
+    },
+    "serverErrorsPerProjectPerHour": {
+      "consumed": 0,
+      "remaining": 10
+    },
+    "potentiallyThresholdedRequestsPerHour": {
+      "consumed": 0,
+      "remaining": 120
+    },
+    "tokensPerProjectPerHour": {
+      "consumed": 3,
+      "remaining": 13000
+    }
+  },
+  "kind": "analyticsData#runReport"
+}

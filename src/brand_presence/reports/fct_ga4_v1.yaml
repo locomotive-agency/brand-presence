@@ -1,0 +1,116 @@
+kind: fact
+chart_group: engagement
+grain: One row per month, client brand, web property, country, geography level, location and channel group, each time a build saw it change. Country rows hold the raw channel group; city rows hold (all). The rows of a web property that is no longer current stay. A report reads current properties through ref.current_web_properties.
+key: [month, client_brand_id, web_property_id, country_code, geo_level, location_id, channel_group, pulled_at]
+reads: [stg.ga4_engagement, stg.ga4_engagement_cities, stg.ga4_pulls, ref.current_locations]
+inputs: []
+checks: [first_of_month, geo_level_known]
+columns:
+  - name: month
+    type: DATE
+    kind: key
+    nullable: false
+    meaning: The first day of the calendar month, of the property's own days.
+  - name: client_brand_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The client brand the web property is for.
+    holds: client brand
+  - name: web_property_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The GA4 property, by the ID the YAML configuration gives it. Never its number.
+  - name: country_code
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The country, as a two-letter code, or unknown where the service could not place the traffic.
+    holds: country
+  - name: geo_level
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: country for a row of the country report, city for a row of the city report. A reader never adds rows of one level to rows of the other.
+  - name: location_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: On a country row, the country's own location. On a city row, the listed city's location, or the country's own location for the country's other row, the rest of the country beyond its listed cities.
+  - name: channel_group
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: On a country row, the session default channel group, as the service names it. On a city row, (all), since the city report has no channel.
+  - name: sessions
+    type: NUMERIC
+    kind: denominator
+    nullable: false
+    meaning: Sessions in the month, from the latest pull of each day.
+    unit: sessions
+    sums:
+      over: [web_property_id, country_code, location_id, channel_group]
+      dates: any
+  - name: engaged_sessions
+    type: NUMERIC
+    kind: numerator
+    nullable: false
+    meaning: Engaged sessions in the month, from the latest pull of each day. Over sessions it is the engagement rate.
+    unit: engaged sessions
+    sums:
+      over: [web_property_id, country_code, location_id, channel_group]
+      dates: any
+    denominator: sessions
+  - name: engagement_seconds
+    type: NUMERIC
+    kind: measure
+    nullable: false
+    meaning: User engagement duration in the month, summed over the sessions.
+    unit: seconds
+    sums:
+      over: [web_property_id, country_code, location_id, channel_group]
+      dates: any
+  - name: event_count
+    type: NUMERIC
+    kind: measure
+    nullable: false
+    meaning: Events in the month.
+    unit: events
+    sums:
+      over: [web_property_id, country_code, location_id, channel_group]
+      dates: any
+  - name: key_events
+    type: NUMERIC
+    kind: measure
+    nullable: false
+    meaning: Key events in the month. The service types this count as a decimal number.
+    unit: key events
+    sums:
+      over: [web_property_id, country_code, location_id, channel_group]
+      dates: any
+  - name: page_views
+    type: NUMERIC
+    kind: measure
+    nullable: false
+    meaning: Page views in the month, from the latest pull of each day.
+    unit: views
+    sums:
+      over: [web_property_id, country_code, location_id, channel_group]
+      dates: any
+  - name: days_covered
+    type: INT64
+    kind: attribute
+    nullable: false
+    meaning: The days of the month for which the web property's report of the row's level holds rows, in any country, from the latest pull of each day. A month is whole when it is the month's number of days.
+  - name: sampled
+    type: BOOL
+    kind: attribute
+    nullable: false
+    meaning: True where a pull a row of the month was made from said its answer was sampled, and false where every such pull said it was not. Never null, and never false for a pull that gave no mark, or a row with no pull row; such a row stops the build on its not null check.
+    sampled: true
+  - name: pulled_at
+    type: TIMESTAMP
+    kind: key
+    nullable: false
+    meaning: When the fact's build saw the row. The runner gives it; a reader takes the latest per month, client brand, web property, country, level, location and channel group.

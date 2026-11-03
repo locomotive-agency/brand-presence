@@ -1,0 +1,45 @@
+{
+  "name": "engagement_cities",
+  "dimensions": [
+    "date",
+    "countryId",
+    "latitude",
+    "city"
+  ],
+  "column": "city_id",
+  "columns": [
+    [
+      "sessions",
+      "sessions"
+    ],
+    [
+      "engagedSessions",
+      "engaged_sessions"
+    ],
+    [
+      "totalUsers",
+      "total_users"
+    ],
+    [
+      "newUsers",
+      "new_users"
+    ],
+    [
+      "screenPageViews",
+      "page_views"
+    ],
+    [
+      "userEngagementDuration",
+      "engagement_seconds"
+    ],
+    [
+      "eventCount",
+      "event_count"
+    ],
+    [
+      "keyEvents",
+      "key_events"
+    ]
+  ],
+  "filter_by": "hostName"
+}

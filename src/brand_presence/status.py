@@ -148,3 +148,43 @@ PEEC_ANSWER_STATE_UNKNOWN = "peec answer state unknown"
 PEEC_PAGE_CAP = "peec page cap"
 
 PEEC_HISTORY_UNAVAILABLE = "peec history unavailable"
+
+ACCESS = "access"
+
+NOT_READY = "not ready"
+
+REFUSAL_NOT_KNOWN = "refusal not known"
+
+FINISHED_WEEK_CHECK = "finished-week check"
+
+OUTSIDE_WINDOW = "date outside window"
+
+NOT_AN_ANSWER = "not an answer"
+
+PART_MISSING = "part missing"
+
+ROW_KEYS = "keys"
+
+COUNTRY_NOT_IN_TABLE = "country not in table"
+
+HEADERS = "headers"
+
+RESTRICTED = "metric restricted"
+
+QUERY_STRING = "query string"
+
+METADATA_MISSING = "metadata missing"
+
+ROW_COUNT_MISSING = "row count missing"
+
+SIGN_IN = "sign-in"
+
+CURRENCY_MISSING = "currency missing"
+
+CURRENCY_DIFFERS = "currency differs"
+
+OTHER_CUSTOMER = "another customer"
+
+PARTIAL_FAILURE = "partial failure"
+
+OTHER = "other"

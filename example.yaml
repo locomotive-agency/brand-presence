@@ -62,6 +62,7 @@ mention_text_days: 366
 #     name: Example region
 #     canonical_name: Example region,Netherlands
 #     region_code: NL-NH
+#     sources: [ai-answers]
 
 # Uncomment and replace vendor references to collect existing Peec prompts.
 # peec_projects:
@@ -76,3 +77,48 @@ mention_text_days: 366
 #     brand_id: aardvark
 #     vendor_brand_id: example-brand
 # Add one peec_brands entry for each competitor in the benchmark set.
+
+# Search Console API. The ID is your own stable name for this site.
+# web_properties:
+#   - web_property_id: example-site
+#     client_brand_id: aardvark
+#     source: search-console
+#     address: sc-domain:aardvark.example
+#     hostname: shop.aardvark.example  # Optional filter for a shared site.
+
+# GA4 API. Add this entry to web_properties above.
+#   - web_property_id: example-analytics
+#     client_brand_id: aardvark
+#     source: ga4
+#     address: '100000001'  # Invented numeric property ID. Keep the quotes.
+#     hostname: shop.aardvark.example  # Optional.
+# Optional city report. Add entries to locations.
+#   - location_id: example-city
+#     country_code: NL
+#     kind: city
+#     name: Example City
+#     canonical_name: Example City,Example Region,Netherlands
+#     sources: [ga4]
+
+# Google Ads API. Use your own ten-digit customer ID, without hyphens.
+# ad_accounts:
+#   - ad_account_id: example-ads
+#     client_brand_id: aardvark  # Optional. Omit to retain unknown ownership.
+#     customer_id: '1000000001'
+# Optional paid brand-search groups, evaluated in match_order.
+# modifiers:
+#   - modifier: price
+#     match_order: 1
+#   - modifier: reviews
+#     match_order: 2
+# Optional Google Ads geography. Add entries to locations above.
+#   - location_id: example-ads-region
+#     country_code: NL
+#     kind: region
+#     name: Example Region
+#     canonical_name: Example Region,Netherlands
+#     region_code: NL-NH
+#     sources: [google-ads]
+#     google_criterion_id: '1000000'  # Replace with Google's public location criterion.
+# A keyword can optionally set canonical_term to another keyword in the same set.
+# Credentials belong in environment variables, never this file.

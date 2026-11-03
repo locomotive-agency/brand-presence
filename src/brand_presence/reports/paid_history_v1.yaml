@@ -1,0 +1,104 @@
+chart_group: paid media
+grain: One row per month, client brand, country, national location, campaign type and currency, across
+  all retained delivery months, including backfilled history. Latest pull per full fact key; national
+  presence only. Missing months are absent, never zero.
+key:
+- month
+- client_brand_id
+- country_code
+- geo_id
+- campaign_type
+- currency_code
+reads:
+- core.fct_ads_v1
+- core.fct_ads_keywords_v1
+- ref.current_brands
+- ref.current_benchmark_keywords
+inputs: []
+checks:
+- first_of_month
+- national_only
+columns:
+- name: month
+  type: DATE
+  kind: key
+  nullable: false
+  meaning: The first day of the calendar month, of the account's own days.
+- name: client_brand_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The client brand of the ad accounts.
+  holds: client brand
+- name: country_code
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The country, as a two-letter code.
+  holds: country
+- name: geo_id
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The country's own location, copied from the national delivery fact, including locations no
+    longer in today's configuration.
+- name: geo_level
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: Always national. Only country report rows of location type presence supply this report.
+- name: campaign_type
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: A label of the campaign's advertising channel type, as of today's rule. Search (brand) for
+    a Search campaign whose keyword impressions in the month name the client brand more than half the
+    time, as whole words, by today's name or an alias or by one of the client brand's brand keywords in
+    today's configuration, of any country, misspellings included; Search (unlabelled) for a Search campaign with
+    no keyword impressions in the month, which nothing labels; Search (category) for any other Search
+    campaign; Performance Max, Video, Display and Demand Gen; any other type as Google Ads names it, and
+    unknown where the campaigns report holds no row of the campaign.
+- name: currency_code
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: The currency of the ad accounts' costs, three letters. Money is never converted, so a chart
+    that adds cost filters on one currency.
+- name: impressions
+  type: INT64
+  kind: measure
+  nullable: false
+  meaning: Times an ad was shown to a person in the place, location type presence alone.
+  unit: impressions
+  sums:
+    over:
+    - campaign_type
+    - currency_code
+    dates: any
+- name: clicks
+  type: INT64
+  kind: measure
+  nullable: false
+  meaning: Clicks on an ad by a person in the place.
+  unit: clicks
+  sums:
+    over:
+    - campaign_type
+    - currency_code
+    dates: any
+- name: cost
+  type: NUMERIC
+  kind: measure
+  nullable: false
+  meaning: The cost in the account's own currency, never converted.
+  unit: the currency in currency_code
+  sums:
+    over:
+    - campaign_type
+    dates: any
+  currency: currency_code
+- name: pulled_at
+  type: TIMESTAMP
+  kind: attribute
+  nullable: false
+  meaning: The latest pulled_at of the fact rows the row was made from.

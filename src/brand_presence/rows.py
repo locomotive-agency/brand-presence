@@ -310,3 +310,10 @@ class PullRow(CleanRow):
         """Whether the vendor sampled this pull. A source whose vendor samples answers from
         its own columns; the run counts it on its operational line."""
         return False
+
+
+OTHER_CITY = "other"
+
+
+
+OTHER_REGION = "other"

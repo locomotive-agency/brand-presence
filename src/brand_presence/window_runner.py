@@ -4,9 +4,10 @@ from __future__ import annotations
 import json
 from collections import Counter
 from collections.abc import Mapping
+from dataclasses import replace
 from datetime import timedelta
 
-from brand_presence import ledger, request_keys, status
+from brand_presence import google_token, ledger, request_keys, status
 from brand_presence.bigquery import raw_prefix
 from brand_presence.errors import UserError
 from brand_presence.http import VendorError
@@ -25,6 +26,7 @@ from brand_presence.sources.base import (
     assembled,
     keyed,
     pages_of,
+    request_of,
     stored_page,
     stored_request,
     with_pages,
@@ -36,6 +38,8 @@ NOTHING_PLANNED = "nothing planned"
 WRONG_WINDOW = "wrong window"
 NOT_ANSWERED = "not answered"
 LOAD_PATHS = 10000
+RECOVERY_FAILURES = 3
+TRANSIENT = (status.CONNECTION, status.TIMEOUT, status.VENDOR_FAULT, status.LIMIT)
 
 
 class _Stop(UserError):
@@ -69,7 +73,8 @@ class WindowRun(_Run):
     def context(self):
         return SendContext(self.world.keys, self.world.http, self.bq, self.started_at,
             self.world.sleep, settings=self.settings, ref=self.ref, run_id=self.run_id,
-            deadline=self.deadline, clock=self.clock)
+            deadline=self.deadline, clock=self.clock,
+            tokens=self.world.tokens or google_token.ApplicationDefault())
 
     def tasks(self):
         self.window_status = self.window()
@@ -85,7 +90,12 @@ class WindowRun(_Run):
         self.sender = source.send(self.context())
         # This run holds the lock and has closed what did not finish, so a row still
         # `sending` is a dead run's. Nothing of that attempt is parsed.
-        left = self.ledger.did_not_finish(self.run_id)
+        left = 0
+        if source.durable_pages:
+            self.restore_collected()
+            self.recover_pages()
+        else:
+            left = self.ledger.did_not_finish(self.run_id)
         if left:
             self.lines.append(f"{left} attempt(s) a run left open were marked failed: "
                               f"{ledger.DID_NOT_FINISH}")
@@ -115,6 +125,57 @@ class WindowRun(_Run):
                           for key in requests
                           if key not in unsent and self.window_answered(key, rows)})
         return self.judge_window()
+
+    def restore_collected(self):
+        for row in self.ledger.of_period(self.period.name):
+            if row.state != ledger.COLLECTED:
+                continue
+            if json.loads(row.request)["snapshot_id"] != self.ref.snapshot_id:
+                continue
+            request = request_of(row.request)
+            for path in self.page_paths(row):
+                raw = self.warehouse.read_raw(self.source.raw_model, path)
+                if raw is not None:
+                    held = json.loads(raw.request)
+                    self.sender.restore(request, held["part"], held["page"],
+                                        json.loads(raw.response))
+
+    def recover_pages(self):
+        self.ledger.orphaned(self.run_id)
+        current = self.sender
+        senders = {self.ref.snapshot_id: current}
+        try:
+            for row in self.ledger.in_state(ledger.UNKNOWN):
+                if self.named and row.period != self.period.name:
+                    continue
+                if self.ended_on is not None or self.time_up():
+                    break
+                request = request_of(row.request)
+                group = self.source.group(request)
+                if group in self.refused:
+                    continue
+                held = json.loads(row.request)
+                ref = self.ref_at(held["load_number"])
+                if ref.snapshot_id not in senders:
+                    senders[ref.snapshot_id] = self.source.send(replace(self.context(), ref=ref))
+                self.sender = senders[ref.snapshot_id]
+                checked = self.check_group(group, [request], recovering=row)
+                if checked is not None:
+                    if group not in self.refused:
+                        self.error(checked[0], status=checked[1])
+                    continue
+                if self.ended_on is not None or self.time_up():
+                    break
+                period = Period(row.period, self.source.window(request)[0])
+                self.pull_request(period, row.request_key, row.attempt, request,
+                                  group, recovering=row)
+                self.load_and_write_pages()
+        finally:
+            self.sender = current
+
+    def time_up(self):
+        self.out_of_time = self.out_of_time or self.clock() >= self.deadline
+        return self.out_of_time
 
     def window_answered(self, key: str, rows: list[LedgerRow]) -> bool:
         """Use the source's freshness rule for both standing and history eligibility."""
@@ -148,7 +209,7 @@ class WindowRun(_Run):
         left is sent, up to the entry's cap, and written under its own period. A request
         of the past that is answered, or out of attempts, is neither sent nor counted."""
         try:
-            count = self.sender.history_periods(self.period, 52)
+            count = self.sender.history_periods(self.period, self.source.history_periods)
         except VendorError as error:
             raise _Stop(None, error.error_class, error_class=error.error_class) from None
         earlier = periods_before(self.period, count)
@@ -191,12 +252,10 @@ class WindowRun(_Run):
                 unsent.add(key)
                 continue
             if history and (identity not in answered or identity in self.stopped
-                            or self.history_sent >= 200):
+                            or self.history_sent >= source.history_requests):
                 unsent.add(key)
                 continue
-            if not self.out_of_time:
-                self.out_of_time = self.clock() >= self.deadline
-            if self.out_of_time:
+            if self.time_up():
                 unsent.add(key)
                 continue
             if group not in checked:
@@ -219,22 +278,37 @@ class WindowRun(_Run):
                     self.stopped.add(identity)
         return unsent
 
-    def check_group(self, group: str, requests: list[Request]) -> tuple[str, int | None] | None:
+    def check_group(self, group: str, requests: list[Request], *,
+                    recovering: LedgerRow | None = None) -> tuple[str, int | None] | None:
         """Ask the source whether a group's requests of one period are held back: the
         class and the status code to hold them back with, or None. A check that ends with
         a class the source names as a refusal refuses the group for the run."""
         try:
+            if recovering is not None:
+                part = self.sender.parts[0]
+                path = page_path(self.source.name, recovering.period, recovering.run_id,
+                                 recovering.request_key, recovering.attempt, part, 1)
+                raw = self.warehouse.read_raw(self.source.raw_model, path)
+                if raw is not None:
+                    self.sender.restore(requests[0], part, 1, json.loads(raw.response))
             held = self.sender.check(group, requests)
         except VendorError as error:
+            if recovering is not None:
+                self.failed_pull(recovering, error.error_class, error.status_code,
+                                 recovering=True, recoverable=error.error_class in TRANSIENT)
             if error.error_class in self.source.refusals:
                 self.refuse(group, error.error_class, error.status_code)
                 self.error(error.error_class, status=error.status_code)
             return error.error_class, error.status_code
         except Exception as error:  # noqa: BLE001 - one group, not the run
+            if recovering is not None:
+                self.failed_pull(recovering, type(error).__name__, recovering=True)
             self.lines.append(f"a group's check raised: {type(error).__name__}")
             return type(error).__name__, None
         finally:
             self.note(self.sender.counts())
+        if held is not None and recovering is not None:
+            self.failed_pull(recovering, held, recovering=True)
         if held in self.source.refusals:
             # A refusal the check gave as its answer is one all the same.
             self.refuse(group, held, None)
@@ -249,20 +323,22 @@ class WindowRun(_Run):
             self.ended_on = error_class
 
     def pull_request(self, period: Period, key: str, attempt: int, request: Request,
-                     group: str) -> str:
+                     group: str, recovering: LedgerRow | None = None) -> str:
         """One attempt at one window request: the `sending` row, then every part and page,
         each stored raw before the next is asked for, then the row's new state, which is
         returned. A request any page of which fails has failed, and is asked again whole."""
         source, sender = self.source, self.sender
-        text = stored_request(request, self.ref.load_number, self.ref.snapshot_id)
-        row = source.ledger_model(
+        text = (recovering.request if recovering else
+                stored_request(request, self.ref.load_number, self.ref.snapshot_id))
+        row = recovering or source.ledger_model(
             request_key=key, period=period.name, attempt=attempt, vendor_task_id=None,
             state=ledger.SENDING, run_id=self.run_id, created_at=self.clock(),
             submitted_at=None, collected_at=None, stored_run_id=None, loaded_at=None,
             written_at=None, error_class=None, vendor_status=None, request=text,
         )
-        self.ledger.add([row])
-        self.counts["requests_sent"] += 1
+        if recovering is None:
+            self.ledger.add([row])
+            self.counts["requests_sent"] += 1
         pages: list[RawRow] = []
         paths: list[str] = []
         stored: list[tuple[str, int]] = []
@@ -275,24 +351,11 @@ class WindowRun(_Run):
                 number = 0
                 while verdict.usable and number < max(1, sender.max_pages):
                     number += 1
-                    page = sender.pull(request, part, number)
-                    verdict = self.verdict_of(page.answer)
-                    raw = source.raw_model(
-                        run_id=self.run_id, request_key=key, period=period.name,
-                        content_date=page.answer.content_date, pulled_at=self.clock(),
-                        request=stored_page(text, part, number),
-                        response=json.dumps(page.answer.response, ensure_ascii=False),
-                        usable=verdict.usable, load_number=self.ref.load_number,
-                        snapshot_id=self.ref.snapshot_id,
-                    )
-                    paths.append(self.warehouse.save_raw(
-                        self.source.name, raw,
-                        request_keys.page_object_name(key, attempt, part, number),
-                        storage_run_id=self.run_id,
-                    ))
+                    raw, path, more = self.read_page(row, request, part, number)
+                    verdict = self.verdict_of(Answer(json.loads(raw.response)))
+                    paths.append(path)
                     pages.append(raw)
-                    self.note(page.answer.counts)
-                    if not page.more:
+                    if not more:
                         break
                 stored.append((part, number))
                 if not verdict.usable:
@@ -302,17 +365,14 @@ class WindowRun(_Run):
             if error.error_class in source.refusals:
                 # Nothing more goes to this group in the run, and the attempt is not counted.
                 self.refuse(group, error.error_class, error.status_code)
-            self.ledger.rewrite([ledger.changed(
-                row, state=ledger.FAILED, error_class=error.error_class,
-                vendor_status=error.status_code,
-            )])
-            return ledger.FAILED
+            return self.failed_pull(row, error.error_class, error.status_code,
+                                    recovering=recovering is not None,
+                                    recoverable=error.error_class in TRANSIENT)
         except Exception as error:  # noqa: BLE001 - one request, not the run
             name = type(error).__name__
             self.error(name)
             self.lines.append(f"a pull could not be made or stored: {name}")
-            self.ledger.rewrite([ledger.changed(row, state=ledger.FAILED, error_class=name)])
-            return ledger.FAILED
+            return self.failed_pull(row, name, recovering=recovering is not None)
         finally:
             self.note(sender.counts())
         complete = with_pages(text, stored)
@@ -331,12 +391,56 @@ class WindowRun(_Run):
             self.error(verdict.rule or ledger.UNUSABLE)
         marked = ledger.changed(
             row, state=ledger.COLLECTED if verdict.usable else ledger.UNUSABLE,
-            collected_at=self.clock(), stored_run_id=self.run_id, request=complete,
+            collected_at=self.clock(), stored_run_id=row.run_id, request=complete,
             error_class=None if verdict.usable else (verdict.rule or ledger.UNUSABLE),
         )
         self.ledger.rewrite([marked])
         self.stored.append((marked, pages, paths))
         return marked.state
+
+    def failed_pull(self, row, error_class, vendor_status=None, *, recovering=False,
+                    recoverable=True):
+        state = ledger.FAILED
+        text = row.request
+        if recovering:
+            held = json.loads(text)
+            failures = held.get("recovery_failures", 0) + 1
+            text = json.dumps({**held, "recovery_failures": failures}, sort_keys=True)
+            if (recoverable and error_class not in self.source.refusals
+                    and failures < RECOVERY_FAILURES):
+                state = ledger.UNKNOWN
+        self.ledger.rewrite([ledger.changed(row, state=state, request=text,
+                                           error_class=error_class, vendor_status=vendor_status)])
+        return state
+
+    def read_page(self, row, request, part, number):
+        path = page_path(self.source.name, row.period, row.run_id, row.request_key,
+                         row.attempt, part, number)
+        if self.source.durable_pages:
+            raw = self.warehouse.read_raw(self.source.raw_model, path)
+            if raw is not None:
+                more = json.loads(raw.request)["more"]
+                self.sender.restore(request, part, number, json.loads(raw.response))
+                return raw, path, more
+        page = self.sender.pull(request, part, number)
+        verdict = self.verdict_of(page.answer)
+        text = stored_page(row.request, part, number)
+        held = json.loads(text)
+        if self.source.durable_pages:
+            text = json.dumps({**held, "more": page.more}, sort_keys=True)
+        raw = self.source.raw_model(
+            run_id=self.run_id, request_key=row.request_key, period=row.period,
+            content_date=page.answer.content_date, pulled_at=self.clock(), request=text,
+            response=json.dumps(page.answer.response, ensure_ascii=False),
+            usable=verdict.usable, load_number=held["load_number"], snapshot_id=held["snapshot_id"],
+        )
+        path = self.warehouse.save_raw(
+            self.source.name, raw,
+            request_keys.page_object_name(row.request_key, row.attempt, part, number),
+            storage_run_id=row.run_id,
+        )
+        self.note(page.answer.counts)
+        return raw, path, page.more
 
     def load_and_write_pages(self) -> None:
         """Load the pages this run stored and has not loaded into the raw table, then
