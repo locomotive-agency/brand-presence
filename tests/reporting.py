@@ -97,10 +97,12 @@ def install_sources(fake, settings):
     from dataclasses import replace
 
     from brand_presence.reports.definition import load
+    from brand_presence.schema import REF_MODELS
     from brand_presence.warehouse import qualify
     from report_sql import run_statement
 
     reports = load()
+    references = tuple(m.table.split('.')[1] for m in REF_MODELS)
 
     def tables_of(bq):
         tables = {}
@@ -111,14 +113,17 @@ def install_sources(fake, settings):
         snapshots = tables.get('ops.config_snapshots', [])
         if snapshots:
             latest = max(r['load_number'] for r in snapshots)
-            for table in ('brands', 'locations', 'benchmark_sets'):
+            for table in references:
                 tables[f'ref.current_{table}'] = [r for r in tables['ref.' + table]
                                                    if r['load_number'] == latest]
             versions = {(r['client_brand_id'], r['country_code'], r['benchmark_version'])
                         for r in tables['ref.current_benchmark_sets']}
-            tables['ref.current_benchmark_prompts'] = [r for r in tables[
-                'ref.benchmark_prompts'] if (r['client_brand_id'], r['country_code'],
-                                           r['benchmark_version']) in versions]
+            for table in ('benchmark_prompts', 'benchmark_keywords', 'benchmark_competitors'):
+                tables[f'ref.current_{table}'] = [r for r in tables['ref.' + table]
+                    if (r['client_brand_id'], r['country_code'],
+                        r['benchmark_version']) in versions]
+        else:
+            tables.update({f'ref.current_{table}': [] for table in references})
         if 'temp._fact_rows' in bq.tables:
             tables['_temp._fact_rows'] = bq.tables['temp._fact_rows'].rows
         return tables
@@ -130,7 +135,7 @@ def install_sources(fake, settings):
                 and table.columns}
         if 'temp._fact_rows' in bq.tables:
             schemas['_temp._fact_rows'] = dict(bq.tables['temp._fact_rows'].columns)
-        for table in ('brands', 'locations', 'benchmark_sets', 'benchmark_prompts'):
+        for table in references:
             schemas[f'ref.current_{table}'] = schemas['ref.' + table]
         return schemas
 
@@ -148,8 +153,15 @@ def install_sources(fake, settings):
             assert 'temp._fact_rows' not in bq.tables, 'fact temporary table already exists'
             statement = sql.split(' AS\n', 1)[1].strip()
             report = next(r for r in reports if qualify(r.statement, settings).strip() == statement)
-            rows = run_statement(report, tables_of(bq), today=date(2026, 3, 2),
-                                 client_time_zone=settings.time_zone, schemas=schemas_of(bq))
+            try:
+                if report.name.startswith(('fct_gsc', 'fct_ga4', 'fct_ads')):
+                    rows = google_fact(report, tables_of(bq), schemas_of(bq))
+                else:
+                    rows = run_statement(report, tables_of(bq), today=date(2026, 3, 2),
+                                         client_time_zone=settings.time_zone,
+                                         schemas=schemas_of(bq))
+            except Exception as error:
+                raise RuntimeError(report.name) from error
             columns = {c['name']: c['type'] for c in report.columns if c['name'] != 'pulled_at'}
             bq.create_table('temp._fact_rows', columns)
             bq.put('temp._fact_rows', rows)
@@ -170,15 +182,46 @@ def install_sources(fake, settings):
                         rows.append(dict(row, pulled_at=parameters['pulled_at']))
             else:
                 rows = run_statement(report, tables_of(bq), today=date(2026, 3, 2),
-                                     client_time_zone=settings.time_zone, schemas=schemas_of(bq))
+                                     client_time_zone=settings.time_zone,
+                                         schemas=schemas_of(bq))
             bq.put(target_name, rows)
             return len(rows)
         report = replace(reports[0], statement=logical_sql(sql))
         return run_statement(report, tables_of(bq), today=date(2026, 3, 2),
                              pulled_at=parameters.get('pulled_at'),
-                             client_time_zone=settings.time_zone, schemas=schemas_of(bq))
+                             client_time_zone=settings.time_zone,
+                                         schemas=schemas_of(bq))
 
     fake.on(r'^DROP TABLE IF EXISTS _fact_rows$', execute)
     fake.on(r'^CREATE TEMP TABLE _fact_rows', execute)
     fake.on(r'^INSERT INTO `[^`]+\.(?:bp_core|bp_mart)\.', execute)
-    fake.on(r'(?s)^SELECT.*(?:bp_core|bp_mart|_fact_rows)', execute)
+    fake.on(r'(?s)^(?:SELECT|WITH).*?(?:bp_core|bp_mart|_fact_rows)', execute)
+
+
+def google_fact(report, tables, schemas):
+    from sqlglot.executor.table import Table as ExecutorTable
+
+    from report_sql import _unnested
+
+    given = {}
+    for name, rows in tables.items():
+        dataset, table = name.split('.')
+        given.setdefault(dataset, {})[table] = rows
+    schemas = dict(schemas)
+    tree = _unnested(sqlglot.parse_one(report.statement, read='bigquery'), given, schemas)
+    sqlite_tables = {f'{d}.{n}': (list(rows[0]) if rows and not isinstance(rows, ExecutorTable)
+                                 else list(schemas[f'{d}.{n}']),
+                                 [] if isinstance(rows, ExecutorTable) else rows)
+                     for d, entries in given.items() for n, rows in entries.items()}
+    rows = evaluate(tree.sql(dialect='bigquery'), sqlite_tables)
+    for row in rows:
+        for column in report.columns:
+            name, kind = column['name'], column['type']
+            if row.get(name) is not None:
+                if kind == 'DATE':
+                    row[name] = date.fromisoformat(row[name])
+                elif kind == 'NUMERIC':
+                    row[name] = Decimal(str(row[name]))
+                elif kind == 'BOOL':
+                    row[name] = bool(row[name])
+    return rows

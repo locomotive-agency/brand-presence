@@ -122,3 +122,26 @@ mention_text_days: 366
 #     google_criterion_id: '1000000'  # Replace with Google's public location criterion.
 # A keyword can optionally set canonical_term to another keyword in the same set.
 # Credentials belong in environment variables, never this file.
+
+# Optional BigQuery export routes. Add either entry to web_properties above.
+# API remains the default when route is omitted.
+#   - web_property_id: example-export-analytics
+#     client_brand_id: aardvark
+#     source: ga4
+#     address: '100000003'  # Invented. Use your GA4 property number.
+#     route: export
+#     project: example-export-project
+#     dataset: example_analytics_export
+#   - web_property_id: example-export-search
+#     client_brand_id: aardvark
+#     source: search-console
+#     address: sc-domain:export.aardvark.example
+#     route: export
+#     project: example-export-project
+#     dataset: example_search_export
+# maximum_bytes_billed: 21474836480  # Per export query, not per run.
+# GA4 exports need setup-geo-targets with a date from Google's official file list.
+# Optional named export pages. API-only projects need no pages list.
+# pages:
+#   - page_path: /pricing
+#     page_group: Commercial

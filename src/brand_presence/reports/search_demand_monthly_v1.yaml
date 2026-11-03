@@ -1,0 +1,161 @@
+chart_group: demand
+grain: One row per month, client brand, country, place, term type and brand of today's set, from January 2024. A brand row holds one brand's brand terms; a category row holds the generic terms, with brand (all).
+key: [month, client_brand_id, country_code, geo_id, term_type, brand]
+reads: [stg.search_console_pulls, core.fct_search_volume_v1, core.fct_gsc_export_v1, core.fct_gsc_v1, ref.current_benchmark_keywords, ref.current_benchmark_competitors, ref.current_locations, ref.current_brands, ref.current_web_properties]
+inputs: []
+checks: [organic_on_national_rows, share_on_brand_rows]
+columns:
+  - name: month
+    type: DATE
+    kind: key
+    nullable: false
+    meaning: The first day of the calendar month.
+  - name: client_brand_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The client brand the row is measured for.
+    holds: client brand
+  - name: country_code
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The country, as a two-letter code.
+    holds: country
+  - name: geo_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The place, by its location ID in today's locations tab. On a national row, the country's own location. A state's row holds the searches of its cities too, so no place's row is added to another's.
+  - name: geo_level
+    type: STRING
+    kind: dimension
+    nullable: false
+    meaning: national, state or city, from the kind of the place in today's locations tab, country, region or city.
+  - name: term_type
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: brand for a row of one brand's terms, the keywords of term type brand or competitor; category for the generic keywords. A reader never adds brand rows to category rows.
+  - name: brand
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: On a brand row, the brand of today's set the terms are about, by its brand ID; a misspelling counts for the brand of the keyword it rolls up to. (all) on a category row.
+  - name: brand_name
+    type: STRING
+    kind: attribute
+    nullable: true
+    meaning: The brand's name in today's brands list. Null on a category row.
+  - name: brand_set_version
+    type: INT64
+    kind: attribute
+    nullable: false
+    meaning: Today's benchmark version of the client brand's set in the country, the same on every row of the set. Share of search is computed with today's set for every month.
+  - name: search_volume
+    type: INT64
+    kind: numerator
+    nullable: true
+    meaning: The searches of the month at the place, summed over every keyword of the row's term set that today's keywords tab asks search volume for, misspellings included, from the latest pull of each keyword and month. Never an average. Null where the vendor gave no figure for any of them.
+    unit: searches in the month, as the vendor estimates them
+    sums:
+      over: [brand]
+      dates: any
+    denominator: brand_set_volume
+  - name: brand_set_volume
+    type: INT64
+    kind: denominator
+    nullable: true
+    meaning: On a brand row, search_volume summed over the brand rows of today's set for the same month and place. Null on a category row.
+    unit: searches in the month, as the vendor estimates them
+    sums:
+      over: []
+      dates: any
+  - name: share_of_search
+    type: FLOAT64
+    kind: ratio
+    nullable: true
+    meaning: The brand's share of its set's searches, search_volume over brand_set_volume. Null on a category row. Over months it is summed search_volume over summed brand_set_volume, never an average of the shares.
+    unit: searches per search of the set
+    numerator: search_volume
+    denominator: brand_set_volume
+  - name: search_volume_year_ago
+    type: INT64
+    kind: measure
+    nullable: true
+    meaning: The same row's search_volume twelve months before. Null where the fact holds none.
+    unit: searches in the month, as the vendor estimates them
+    sums:
+      over: [brand]
+      dates: any
+  - name: search_volume_yoy_change
+    type: FLOAT64
+    kind: change
+    nullable: true
+    meaning: search_volume less search_volume_year_ago, over search_volume_year_ago. Null where there is no year-ago figure or it is zero.
+    unit: fraction of the year-ago searches
+    as: relative
+    value: search_volume
+    prior: search_volume_year_ago
+  - name: organic_clicks
+    type: INT64
+    kind: measure
+    nullable: true
+    meaning: Search Console clicks from web search in the month, on the national row of the client brand's own brand terms and on the national category row alone, from the client brand's web properties in today's tab. Null on every other row, and where Search Console holds none.
+    unit: clicks
+    sums:
+      over: []
+      dates: any
+  - name: organic_impressions
+    type: INT64
+    kind: denominator
+    nullable: true
+    meaning: Search Console impressions from web search in the month, on the same rows as organic_clicks.
+    unit: impressions
+    sums:
+      over: []
+      dates: any
+  - name: organic_position_weighted
+    type: NUMERIC
+    kind: numerator
+    nullable: true
+    meaning: The sum of each day's average position times its impressions, on the same rows as organic_clicks. Over organic_impressions it is the average position, weighted by impressions; 1 is the top.
+    unit: place on the results page times impressions
+    sums:
+      over: []
+      dates: any
+    denominator: organic_impressions
+    weighted_by: organic_impressions
+  - name: organic_avg_position
+    type: FLOAT64
+    kind: ratio
+    nullable: true
+    meaning: organic_position_weighted over organic_impressions, the month's average position weighted by impressions. Lower is better.
+    unit: place on the results page
+    numerator: organic_position_weighted
+    denominator: organic_impressions
+  - name: organic_days_covered
+    type: INT64
+    kind: attribute
+    nullable: true
+    meaning: The fewest days of the month the totals of any of the client brand's web properties hold. Null where the organic columns are.
+  - name: is_complete_month
+    type: BOOL
+    kind: attribute
+    nullable: false
+    meaning: False for the month in progress in the client's time zone, for a row whose organic figures do not cover every day of the month, and for a row whose keywords_found differs from its keywords_expected.
+  - name: pulled_at
+    type: TIMESTAMP
+    kind: attribute
+    nullable: false
+    meaning: The latest pulled_at of the fact rows the row was made from.
+  - name: keywords_expected
+    type: INT64
+    kind: attribute
+    nullable: true
+    meaning: The keywords of the row's term set that today's keywords tab asks search volume for, misspellings included.
+  - name: keywords_found
+    type: INT64
+    kind: attribute
+    nullable: true
+    meaning: Of keywords_expected, those with a search volume figure for the month and place in their latest pull. Where it is less, search_volume and share_of_search are over a part of the set and is_complete_month is false.

@@ -5,7 +5,7 @@ from typing import ClassVar
 
 from pydantic import BaseModel, ConfigDict
 
-from brand_presence import countries, ref_rows
+from brand_presence import countries, geo_targets, ref_rows
 from brand_presence.bigquery import Transaction, query, rows_parameter
 from brand_presence.errors import UserError
 from brand_presence.request_keys import content_hash
@@ -16,6 +16,7 @@ from brand_presence.settings import (
     Keyword,
     MentionFilter,
     Modifier,
+    NamedPage,
     PeecBrand,
     PeecProject,
     Prompt,
@@ -65,6 +66,8 @@ class ClientRef(BaseModel):
     web_properties: tuple[WebProperty, ...] = ()
     ad_accounts: tuple[AdAccount, ...] = ()
     modifiers: tuple[Modifier, ...] = ()
+    pages: tuple[NamedPage, ...] = ()
+    geo_targets_date: str | None = None
 
     def web_properties_of(self, source):
         return tuple(p for p in self.web_properties if p.source == source)
@@ -89,6 +92,7 @@ class Snapshot(Row):
 
 
 def apply(bq, settings: Settings, now: datetime) -> ClientRef:
+    targets_date = geo_targets.validate(settings)
     content = settings.model_dump(
         mode="json",
         include={
@@ -104,8 +108,10 @@ def apply(bq, settings: Settings, now: datetime) -> ClientRef:
             "web_properties",
             "ad_accounts",
             "modifiers",
+            "pages",
         },
     )
+    content["geo_targets_date"] = targets_date
     identity = content_hash(content)
     held = query(bq, "SELECT * FROM ops.config_snapshots ORDER BY load_number DESC")
     if held and held[0]["snapshot_id"] == identity:
@@ -119,7 +125,16 @@ def apply(bq, settings: Settings, now: datetime) -> ClientRef:
             current_items = {getattr(item, field): item for item in getattr(settings, collection)}
             for old in getattr(previous, collection):
                 current = current_items.get(getattr(old, field))
-                if current is not None and current != old:
+                if current is None:
+                    continue
+                if collection == "web_properties":
+                    binding = ("source", "address", "hostname", "client_brand_id")
+                    changed = any(getattr(current, key) != getattr(old, key) for key in binding)
+                    changed |= (current.route == old.route == "export" and
+                                (current.project, current.dataset) != (old.project, old.dataset))
+                else:
+                    changed = current != old
+                if changed:
                     raise UserError(f"{label} ID cannot be rebound; use a new local ID")
         for old in previous.peec_projects:
             for current in settings.peec_projects:
@@ -181,6 +196,8 @@ def apply(bq, settings: Settings, now: datetime) -> ClientRef:
         web_properties=tuple(settings.web_properties),
         ad_accounts=tuple(settings.ad_accounts),
         modifiers=tuple(settings.modifiers),
+        pages=tuple(settings.pages),
+        geo_targets_date=targets_date,
         mention_filters=tuple(settings.mention_filters),
         subreddits=tuple(settings.subreddits),
         locations=tuple(
@@ -257,6 +274,7 @@ def write_refs(transaction, settings, ref, before):
     rows += [ref_rows.WebProperty(load_number=number, **p.model_dump()) for p in ref.web_properties]
     rows += [ref_rows.AdAccount(load_number=number, **a.model_dump()) for a in ref.ad_accounts]
     rows += [ref_rows.Modifier(load_number=number, **m.model_dump()) for m in ref.modifiers]
+    rows += [ref_rows.NamedPage(load_number=number, **p.model_dump()) for p in ref.pages]
     if any(a.client_brand_id is None for a in ref.ad_accounts):
         rows.append(ref_rows.Brand(load_number=number, brand_id="unknown", name="Unknown",
                                    kind="reserved", aliases=[], domains=[]))

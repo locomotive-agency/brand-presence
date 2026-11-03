@@ -210,7 +210,9 @@ columns:
   kind: attribute
   nullable: true
   meaning: 'True when the answer''s metadata says data was cut: a week the service no longer holds,
-    not a week with no traffic. Never false: no answer is said to be uncut on a mark nobody has seen.'
+    not a week with no traffic. Never false: no answer is said to be uncut on a mark nobody has seen.
+    An older row may hold false, which said only that no such mark
+    was seen.'
   null_means: The answer held no such mark.
 - name: cut_start
   type: DATE
@@ -238,17 +240,57 @@ columns:
   meaning: For an engagement_cities pull, the cities listed for ga4 in a country the answer holds rows
     for that no row matched by name. Their traffic is in the other rows.
   null_means: The pull is of another report, or was written before the column.
+- name: listed_states_unmatched
+  type: INT64
+  kind: attribute
+  nullable: true
+  meaning: For an export_engagement pull, the regions listed for ga4 that no row of the months read holds.
+    Their traffic is in their country's national row.
+  null_means: The pull is of the Data API, or was written before the column.
+- name: months_first
+  type: DATE
+  kind: attribute
+  nullable: true
+  meaning: For an export pull, the first day of the first month read.
+  null_means: The pull is of the Data API, or the export held no month to read, or the row was written
+    before the column.
+- name: months_last
+  type: DATE
+  kind: attribute
+  nullable: true
+  meaning: For an export pull, the first day of the last month read.
+  null_means: The pull is of the Data API, or the export held no month to read, or the row was written
+    before the column.
+- name: bytes_billed
+  type: INT64
+  kind: attribute
+  nullable: true
+  unit: bytes
+  meaning: For an export pull, the bytes BigQuery billed the client's project for its statements. Not
+    a cost the run record holds.
+  null_means: The pull is of the Data API, or no statement was billed, or the row was written before the
+    column.
 - name: listed_countries_unmatched
   type: INT64
   kind: attribute
   nullable: true
-  meaning: For an engagement pull, the countries listed in the load that no row of
-    the answer holds.
+  meaning: For an engagement or export_engagement pull, the countries listed in the load that no row of
+    the answer holds. Through the export, a country GA4 names otherwise than the YAML configuration's canonical
+    name is one, and its traffic is under unknown.
   null_means: The pull is of another report, or was written before the column.
 - name: city_days_ambiguous
   type: INT64
   kind: attribute
   nullable: true
-  meaning: For an engagement_cities pull, the listed cities and days on which a city
-    could not be told from another of its name. The Data API folds such a day into the other row.
+  meaning: For an engagement_cities or export_engagement pull, the listed cities and days on which a city
+    could not be told from another of its name. The Data API folds such a day into the other row; the
+    export counts both places under the listed city.
   null_means: The pull is of another report, or was written before the column.
+- name: days_without_table
+  type: INT64
+  kind: attribute
+  nullable: true
+  unit: days
+  meaning: For an export pull, the days from the first day read to the period's last date that the export
+    holds no daily table of. A month's through_date is the last day it holds one of.
+  null_means: The pull is of the Data API, or was written before the column.

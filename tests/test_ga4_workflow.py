@@ -108,7 +108,7 @@ def test_ga4_report_known_result_and_checks(tmp_path, respx_mock):
 
     project, _ = prepared(tmp_path, respx_mock, 'ga4')
     assert run(project, 'ga4').status == 'success'
-    report, = load('ga4')
+    report = load('ga4')[0]
     models = {m.table: m for m in MODELS}
     tables = {}
     for table in report.definition['reads']:

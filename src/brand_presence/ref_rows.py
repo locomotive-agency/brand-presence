@@ -163,6 +163,16 @@ class WebProperty(Row):
     source: str
     address: str = Field(repr=False)
     hostname: str | None = Field(default=None, repr=False)
+    route: str | None = None
+    project: str | None = Field(default=None, repr=False)
+    dataset: str | None = Field(default=None, repr=False)
+
+
+class NamedPage(Row):
+    table: ClassVar[str] = "ref.pages"
+    load_number: int
+    page_path: str
+    page_group: str
 
 
 class AdAccount(Row):

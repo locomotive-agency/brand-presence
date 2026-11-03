@@ -81,6 +81,10 @@ def initialise(bq) -> None:
             "stg.google_ads_search_terms",
         ):
             partition = " PARTITION BY date"
+        if model.table.startswith("stg.search_console_export_"):
+            partition = " PARTITION BY date"
+        if model.table.startswith("stg.ga4_export_"):
+            partition = " PARTITION BY month"
         if model is MentionFact:
             partition = " PARTITION BY match_date"
         if model in (MentionsRaw, MentionText):
@@ -93,6 +97,14 @@ def initialise(bq) -> None:
                   f"(partition_expiration_days = {settings.mention_text_days})")
     for name in ("matches_unlisted", "rate_limit_waits"):
         query(bq, f"ALTER TABLE ops.runs ADD COLUMN IF NOT EXISTS {name} INT64")
+    for table, columns in {
+        "stg.ga4_pulls": {"listed_states_unmatched": "INT64", "months_first": "DATE",
+                          "months_last": "DATE", "bytes_billed": "INT64",
+                          "days_without_table": "INT64"},
+        "ref.web_properties": {"route": "STRING", "project": "STRING", "dataset": "STRING"},
+    }.items():
+        for name, kind in columns.items():
+            query(bq, f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {name} {kind}")
     for model in REF_MODELS:
         if model in (ref_rows.Prompt, ref_rows.Keyword, ref_rows.CompetitorRow):
             sql = (

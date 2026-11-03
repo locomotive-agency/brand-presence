@@ -1,8 +1,8 @@
-"""GA4 API aggregates and their fixed report definitions."""
+"""GA4 API and export aggregates through the shared window runner."""
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 from typing import ClassVar
@@ -11,9 +11,10 @@ from pydantic import field_validator
 
 from brand_presence import google_token, status
 from brand_presence.client_ref import ClientRef, Location
+from brand_presence.geo_targets import name_parts
 from brand_presence.rows import ALL, OTHER_CITY, CleanRow, LedgerRow, PullRow, RawRow
 from brand_presence.runs import Period, window_of
-from brand_presence.sources import ga4_report
+from brand_presence.sources import ga4_export, ga4_report
 from brand_presence.sources.base import (
     WINDOW,
     Answer,
@@ -39,6 +40,7 @@ from brand_presence.sources.ga4_report import (
 from brand_presence.vendors import ga4, google_errors
 
 CITY, COUNTRY_KIND = "city", "country"
+
 ROWS = "rows"
 
 PAGE_ROWS = 100_000
@@ -162,6 +164,57 @@ class Ga4EngagementCity(CleanRow):
         return None if value is None else _fits_the_column(value)
 
 
+class Ga4ExportEngagement(CleanRow):
+    table: ClassVar[str] = "stg.ga4_export_engagement"
+    natural_key: ClassVar[tuple[str, ...]] = (
+        "client_brand_id", "web_property_id", "month", "location_id", "channel_group",
+        "period",
+    )
+
+    web_property_id: str
+
+    month: date
+    through_date: date
+    geo_level: str
+    channel_group: str
+    sessions: int
+    active_users: int
+    total_users: int
+    new_users: int
+    returning_users: int
+    page_views: int
+
+    engagement_seconds: Decimal
+
+    @field_validator("engagement_seconds")
+    @classmethod
+    def _fits(cls, value: Decimal) -> Decimal:
+        return _fits_the_column(value)
+
+
+class Ga4ExportPage(CleanRow):
+    table: ClassVar[str] = "stg.ga4_export_pages"
+    natural_key: ClassVar[tuple[str, ...]] = (
+        "client_brand_id", "web_property_id", "month", "page_path", "period",
+    )
+
+    may_span_every_country: ClassVar[bool] = True
+
+    web_property_id: str
+    month: date
+    through_date: date
+    page_path: str
+    page_views: int
+    users: int
+
+    engagement_seconds: Decimal
+
+    @field_validator("engagement_seconds")
+    @classmethod
+    def _fits(cls, value: Decimal) -> Decimal:
+        return _fits_the_column(value)
+
+
 MODELS: dict[str, type[CleanRow]] = {
     ENGAGEMENT.name: Ga4Engagement, LANDING_PAGES.name: Ga4LandingPage,
     ENGAGEMENT_CITIES.name: Ga4EngagementCity,
@@ -199,6 +252,10 @@ class Ga4Pull(PullRow):
     listed_cities_unmatched: int | None = None
 
 
+    listed_states_unmatched: int | None = None
+    months_first: date | None = None
+    months_last: date | None = None
+    bytes_billed: int | None = None
 
 
     listed_countries_unmatched: int | None = None
@@ -207,6 +264,7 @@ class Ga4Pull(PullRow):
     city_days_ambiguous: int | None = None
 
 
+    days_without_table: int | None = None
 
     def is_sampled(self) -> bool:
         return self.sampled is True
@@ -304,14 +362,26 @@ class Ga4Send(WindowSend):
     parts = (ROWS,)
 
 
-    max_pages = MAX_PAGES
+    max_pages = max(MAX_PAGES, ga4_export.MAX_MONTHS)
 
     def __init__(self, context: SendContext, reports: Mapping[str, Report], token):
         self.context = context
         self.reports = reports
         self.token = token
+        self.export = ga4_export.ExportSend(context)
+
+    def check(self, group: str, requests: Sequence[Request]) -> str | None:
+        exported = [request for request in requests
+                    if request.body["report"] in ga4_export.REPORTS]
+        return self.export.check(exported[0]) if exported else None
+
+    def restore(self, request: Request, part: str, page: int, response: Mapping):
+        if request.body["report"] in ga4_export.REPORTS:
+            self.export.restore(request, response)
 
     def pull(self, request: Request, part: str, page: int) -> Page:
+        if request.body["report"] in ga4_export.REPORTS:
+            return self.export.pull(request, part, page)
         body = request.body
         asked = ga4_report.body(
             self.reports[body["report"]], date.fromisoformat(body["first_date"]),
@@ -326,8 +396,7 @@ class Ga4Send(WindowSend):
         more = bool(said.get("rows")) and count is not None and offset + PAGE_ROWS < count
 
 
-        return Page(Answer(said, content_date=date.fromisoformat(body["first_date"])),
-                    cursor=None, more=more and page < MAX_PAGES)
+        return Page(Answer(said), cursor=None, more=more and page < MAX_PAGES)
 
 
 class Ga4(Source):
@@ -336,9 +405,10 @@ class Ga4(Source):
     durable_pages = True
     history_periods = 104
     history_requests = 500
-    ends_run = ()
+    ends_run: ClassVar[tuple[str, ...]] = ()
     raw_model = Ga4Raw
-    clean_models = (Ga4Engagement, Ga4LandingPage, Ga4EngagementCity, Ga4Pull)
+    clean_models = (Ga4Engagement, Ga4LandingPage, Ga4EngagementCity, Ga4ExportEngagement,
+                    Ga4ExportPage, Ga4Pull)
     ledger_model = Ga4Task
 
 
@@ -347,7 +417,7 @@ class Ga4(Source):
 
     refusals: ClassVar[tuple[str, ...]] = (google_errors.ACCESS, google_errors.LIMIT,
                                            google_errors.REFUSAL_NOT_KNOWN,
-                                           )
+                                           status.STATEMENT_REFUSED)
     scope = google_token.ANALYTICS_READ_ONLY
 
 
@@ -365,7 +435,21 @@ class Ga4(Source):
     def plan(self, settings: ClientRef, period: Period) -> list[Request]:
         first, last = window_of(period)
         requests = []
+        places = None
         for web_property in settings.web_properties_of(self.name):
+            if web_property.bigquery_export is not None:
+                if places is None:
+                    places = ga4_export.places_of(settings, self.name)
+                for report in ga4_export.REPORTS:
+                    body = {"web_property_id": web_property.web_property_id,
+                            "report": report, "export": web_property.bigquery_export,
+                            "hostname": web_property.hostname,
+                            "first_date": first.isoformat(), "last_date": last.isoformat()}
+                    if report == ga4_export.EXPORT_ENGAGEMENT:
+                        body["places"] = places
+                    requests.append(Request(
+                        body, (Target(web_property.client_brand_id, ALL, ALL),)))
+                continue
             for report in self.reports_for(settings):
                 requests.append(Request(
                     {"web_property_id": web_property.web_property_id,
@@ -377,6 +461,9 @@ class Ga4(Source):
                     (Target(web_property.client_brand_id, ALL, ALL),),
                 ))
         return requests
+
+    def reaches_back(self, request: Request) -> bool:
+        return request.body["report"] in ga4_export.REPORTS
 
     def _report(self, name: object) -> Report | None:
         return next((report for report in self.reports if report.name == name), None)
@@ -394,6 +481,11 @@ class Ga4(Source):
 
     def usable(self, answer: Answer) -> Verdict:
         for page in _pages(answer.response):
+            if ga4_export.is_export_page(page):
+                rule = ga4_export.page_rule(page)
+                if rule is not None:
+                    return Verdict(False, rule)
+                continue
             named = _names(page.get("dimensionHeaders"))
             report = next((r for r in self.reports if list(r.dimensions) == named), None)
             rule = _page_rule(page, report)
@@ -402,6 +494,8 @@ class Ga4(Source):
         return Verdict(True)
 
     def complete(self, request: Request, answer: Answer) -> Verdict:
+        if request.body["report"] in ga4_export.REPORTS:
+            return ga4_export.judged(request, answer.response)
         verdict = self.usable(answer)
         if not verdict.usable:
             return verdict
@@ -430,6 +524,8 @@ class Ga4(Source):
         pages = json.loads(raw.response)["parts"][ROWS]
         target, = request.targets
         standard = standard_columns(raw, settings, target)
+        if request.body["report"] in ga4_export.REPORTS:
+            return self._export(standard, settings, request, pages)
         report = self._report(request.body["report"])
         model = MODELS[report.name]
         web_property = request.body["web_property_id"]
@@ -458,6 +554,23 @@ class Ga4(Source):
         rows.append(self._pull_row(standard, request, pages, len(rows),
                                    countries=countries))
         return rows
+
+    def _export(self, standard: dict, settings: ClientRef, request: Request,
+                pages: list[dict]) -> list[CleanRow]:
+        if request.body["report"] == ga4_export.EXPORT_ENGAGEMENT:
+            rows = ga4_export.engagement_rows(Ga4ExportEngagement, standard, settings,
+                                              request, pages)
+        else:
+            rows = ga4_export.page_rows(Ga4ExportPage, standard, request, pages)
+        first, last = self.window(request)
+        pull = Ga4Pull(
+            **standard, web_property_id=request.body["web_property_id"],
+            report=request.body["report"], window_start=first, window_end=last,
+            rows_written=len(rows), pages=len(pages),
+
+            source_time_zone=None, **ga4_export.pull_columns(request, pages),
+        )
+        return [*rows, pull]
 
     def _cities(self, standard: dict, settings: ClientRef, web_property: str,
                 pages: list[dict]) -> tuple[list[CleanRow], int, int]:
@@ -561,7 +674,7 @@ class Ga4(Source):
 
 
 def _city_name(item: Location) -> tuple[str, str | None]:
-    parts = tuple(part.strip().lower() for part in item.canonical_name.split(","))
+    parts = name_parts(item.canonical_name)
     return parts[0], parts[1] if len(parts) == 3 else None
 
 

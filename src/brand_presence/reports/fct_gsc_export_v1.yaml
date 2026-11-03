@@ -1,0 +1,156 @@
+kind: fact
+chart_group: search
+grain: Monthly Search Console bulk export totals and named queries per brand, property, country and
+  search type, each time a build saw a change. Rows of properties no longer current stay; reports read
+  ref.current_web_properties.
+key:
+  - month
+  - client_brand_id
+  - web_property_id
+  - country_code
+  - search_type
+  - row_kind
+  - query
+  - pulled_at
+reads:
+  - stg.search_console_export_queries
+  - stg.search_console_export_totals
+inputs: []
+checks:
+  - first_of_month
+  - total_rows_hold_no_query
+columns:
+  - name: month
+    type: DATE
+    kind: key
+    nullable: false
+    meaning: The first day of the calendar month, of Search Console's own days, counted in Pacific time.
+  - name: client_brand_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The client brand the web property is for.
+    holds: client brand
+  - name: web_property_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The Search Console site, by the ID the YAML configuration gives it. Never its address.
+  - name: country_code
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The country, as a two-letter code, or unknown where the service could not place the searches.
+      Search Console reaches the country and no region or city.
+    holds: country
+  - name: search_type
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The search type asked for, as the service names it.
+  - name: row_kind
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: query for a row of one named query, total for the site's whole figures. A total row holds
+      the clicks of queries the service does not name. A reader never adds query rows to total rows.
+  - name: query
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The search as it was typed, as the service returned it, on a query row; (all) on a total
+      row.
+  - name: term_type
+    type: STRING
+    kind: dimension
+    nullable: true
+    meaning: On a query row, brand, competitor or generic, as the source fixed it when it pulled the
+      query's latest day of the month; (all) on a total row. Null on a query row whose latest day was
+      written before the source gave a term type.
+  - name: subject_brand_id
+    type: STRING
+    kind: dimension
+    nullable: true
+    meaning: On a query row, the brand ID the query names, from the same day as the term type. Null
+      for a generic query and on a total row.
+  - name: clicks
+    type: INT64
+    kind: numerator
+    nullable: false
+    meaning: Clicks from search in the month, from the latest pull of each day.
+    unit: clicks
+    sums:
+      over:
+        - web_property_id
+        - country_code
+        - search_type
+        - query
+      dates: any
+    denominator: impressions
+  - name: impressions
+    type: INT64
+    kind: denominator
+    nullable: false
+    meaning: Times a page of the site was shown in search in the month, from the latest pull of each
+      day.
+    unit: impressions
+    sums:
+      over:
+        - web_property_id
+        - country_code
+        - search_type
+        - query
+      dates: any
+  - name: position_weighted
+    type: NUMERIC
+    kind: numerator
+    nullable: false
+    meaning: The zero-based export position sum plus impressions, summed over the month. Divide by impressions
+      for average position.
+    unit: place on the results page times impressions
+    sums:
+      over:
+        - web_property_id
+        - country_code
+        - search_type
+        - query
+      dates: any
+    denominator: impressions
+    weighted_by: impressions
+  - name: days_covered
+    type: INT64
+    kind: attribute
+    nullable: true
+    meaning: The days of the month for which the web property's totals hold a row for the search type,
+      in any country, from the latest pull of each day. A month is whole when it is the month's number
+      of days. Null where the totals hold no day of the month.
+  - name: anonymized_clicks
+    type: INT64
+    kind: measure
+    nullable: true
+    meaning: The clicks of anonymised queries, already in total rows. Null on query rows.
+    unit: clicks
+    sums:
+      over:
+        - web_property_id
+        - country_code
+        - search_type
+      dates: any
+  - name: anonymized_impressions
+    type: INT64
+    kind: measure
+    nullable: true
+    meaning: The impressions of anonymised queries, already in total rows. Null on query rows.
+    unit: impressions
+    sums:
+      over:
+        - web_property_id
+        - country_code
+        - search_type
+      dates: any
+  - name: pulled_at
+    type: TIMESTAMP
+    kind: key
+    nullable: false
+    meaning: When the fact's build saw the row. The runner gives it; a reader takes the latest per month,
+      client brand, web property, country, search type, row kind and query.

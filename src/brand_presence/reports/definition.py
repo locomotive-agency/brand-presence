@@ -63,12 +63,16 @@ WEEKLY = ("ai_brand_mentions_weekly_v1", "ai_domain_citations_weekly_v1",
 GROUPS["ai-weekly"] = GROUPS["ai-answers"] + GROUPS["peec"] + WEEKLY
 
 
-GROUPS["search-console"] = ("fct_gsc_v1",)
-GROUPS["ga4"] = ("fct_ga4_v1",)
+GROUPS["search-console"] = ("fct_gsc_v1", "fct_gsc_export_v1")
+GROUPS["ga4"] = ("fct_ga4_v1", "fct_ga4_export_v1", "fct_ga4_export_pages_v1",
+                 "engagement_monthly_v1", "page_engagement_monthly_v1")
 GROUPS["google-ads"] = (
     "fct_ads_v1", "fct_ads_keywords_v1", "fct_ads_search_terms_v1", "fct_ads_auction_v1",
     "paid_history_v1", "brand_modifier_monthly_v1",
 )
+GROUPS["search-demand"] = ("fct_search_volume_v1", *GROUPS["search-console"],
+                           "search_demand_monthly_v1", "growth_v1")
+GROUPS["paid"] = (*GROUPS["search-demand"], *GROUPS["google-ads"], "paid_monthly_v1")
 
 
 def load(source=None):

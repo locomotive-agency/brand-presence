@@ -1,10 +1,10 @@
-"""Search Console API weekly totals, queries, pages and devices."""
+"""Search Console API and bulk export windows."""
 from __future__ import annotations
 
 import json
 from collections import Counter
 from collections.abc import Mapping, Sequence
-from datetime import date
+from datetime import date, timedelta
 from decimal import ROUND_HALF_EVEN, Decimal
 from typing import ClassVar
 from zoneinfo import ZoneInfo
@@ -13,6 +13,7 @@ from brand_presence import countries, google_token, status
 from brand_presence.client_ref import Brand, ClientRef
 from brand_presence.rows import ALL, UNKNOWN, CleanRow, LedgerRow, PullRow, RawRow
 from brand_presence.runs import Period, window_of
+from brand_presence.sources import search_console_export as export
 from brand_presence.sources.base import (
     WINDOW,
     Answer,
@@ -167,6 +168,28 @@ class SearchConsoleDevices(CleanRow):
     position: float
 
 
+class SearchConsoleExportTotals(SearchConsoleTotals):
+    table: ClassVar[str] = "stg.search_console_export_totals"
+    position: float | None
+    position_sum: int
+    anonymized_clicks: int
+    anonymized_impressions: int
+
+class SearchConsoleExportQueries(SearchConsoleQueries):
+    table: ClassVar[str] = "stg.search_console_export_queries"
+    position: float | None
+    position_sum: int
+
+class SearchConsoleExportPages(SearchConsolePages):
+    table: ClassVar[str] = "stg.search_console_export_pages"
+    position: float | None
+    position_sum: int
+
+class SearchConsoleExportDevices(SearchConsoleDevices):
+    table: ClassVar[str] = "stg.search_console_export_devices"
+    position: float | None
+    position_sum: int
+
 class SearchConsolePull(PullRow):
     table: ClassVar[str] = "stg.search_console_pulls"
     natural_key: ClassVar[tuple[str, ...]] = ("web_property_id", "search_type", "period")
@@ -198,6 +221,10 @@ MODELS: dict[str, type[CleanRow]] = {
 }
 
 
+EXPORT_MODELS = {
+    TOTALS: SearchConsoleExportTotals, QUERIES: SearchConsoleExportQueries,
+    PAGES: SearchConsoleExportPages, DEVICES: SearchConsoleExportDevices,
+}
 
 
 def page_filter(hostname: str) -> str:
@@ -335,11 +362,30 @@ class SearchConsoleSend(WindowSend):
         self.token = token
         self.page_rows = page_rows
         self.max_pages = max_pages
+        self.export = export.ExportSend(context)
+        self.api_history_start: date | None = None
 
 
         self._unfinished: dict[tuple[str, str], date | str] = {}
 
+    def history_periods(self, period: Period, default: int) -> int:
+        self.api_history_start = period.start - timedelta(weeks=default)
+        if self.context.ref is None:
+            raise ValueError("Search Console history requires its applied setup")
+        planned = SearchConsole().plan(self.context.ref, period)
+        if not any("export" in request.body for request in planned):
+            return default
+        return self.export.history_length(period, planned, default)
+
+    def expand(self, planned: Sequence[Request]) -> Sequence[Request]:
+        eligible = [request for request in planned if "export" in request.body
+                    or self.api_history_start is None
+                    or date.fromisoformat(request.body["first_date"]) >= self.api_history_start]
+        return self.export.expand(eligible)
+
     def check(self, group: str, requests: Sequence[Request]) -> str | None:
+        if "export" in requests[0].body:
+            return self.export.check(group, requests)
         body = requests[0].body
         first, last = date.fromisoformat(body["first_date"]), date.fromisoformat(body["last_date"])
         held = self._unfinished.get((body["address"], body["search_type"]))
@@ -370,6 +416,8 @@ class SearchConsoleSend(WindowSend):
         return unfinished
 
     def pull(self, request: Request, part: str, page: int) -> Page:
+        if "export" in request.body:
+            return self.export.pull(request, part, page)
         body = request.body
         first, last = date.fromisoformat(body["first_date"]), date.fromisoformat(body["last_date"])
 
@@ -394,7 +442,7 @@ class SearchConsole(Source):
     history_requests = 500
     raw_model = SearchConsoleRaw
     clean_models = (SearchConsoleTotals, SearchConsoleQueries, SearchConsolePages,
-                    SearchConsoleDevices, SearchConsolePull)
+                    SearchConsoleDevices, *EXPORT_MODELS.values(), SearchConsolePull)
     ledger_model = SearchConsoleTask
 
 
@@ -403,7 +451,7 @@ class SearchConsole(Source):
 
     refusals: ClassVar[tuple[str, ...]] = (google_errors.ACCESS, google_errors.LIMIT,
                                            google_errors.REFUSAL_NOT_KNOWN, WEEK_CHECK,
-                                           )
+                                           status.STATEMENT_REFUSED)
     ends_run: ClassVar[tuple[str, ...]] = (WEEK_CHECK,)
     scope = google_token.SEARCH_CONSOLE_READ_ONLY
 
@@ -411,6 +459,9 @@ class SearchConsole(Source):
     page_rows: ClassVar[int] = PAGE_ROWS
     max_pages: ClassVar[int] = MAX_PAGES
     day_rows: ClassVar[int] = DAY_ROWS
+
+    def discovers_history(self, settings: ClientRef) -> bool:
+        return any(p.bigquery_export is not None for p in settings.web_properties_of(self.name))
 
     def plan(self, settings: ClientRef, period: Period) -> list[Request]:
         first, last = window_of(period)
@@ -420,12 +471,24 @@ class SearchConsole(Source):
                  "search_type": SEARCH_TYPE, "address": web_property.address,
 
                  "hostname": web_property.hostname,
+                 **({"export": web_property.bigquery_export}
+                    if web_property.bigquery_export is not None else {}),
                  "first_date": first.isoformat(), "last_date": last.isoformat()},
 
                 (Target(web_property.client_brand_id, ALL, ALL),),
             )
             for web_property in settings.web_properties_of(self.name)
         ]
+
+    def identity(self, request: Request) -> Mapping[str, object]:
+        identity = self.history_identity(request)
+        if "export" in request.body and "epoch_version" in request.body:
+            return {**identity, "epoch_version": request.body["epoch_version"]}
+        return identity
+
+    def history_identity(self, request: Request) -> Mapping[str, object]:
+        identity = super().identity(request)
+        return {**identity, "route": "export"} if "export" in request.body else identity
 
     def group(self, request: Request) -> str:
         return request.body["web_property_id"]
@@ -441,7 +504,9 @@ class SearchConsole(Source):
         )
 
     def usable(self, answer: Answer) -> Verdict:
-        rule = _page_rule(answer.response)
+        rule = (export.page_rule(answer.response)
+                if isinstance(answer.response, Mapping) and "export" in answer.response
+                else _page_rule(answer.response))
         return Verdict(rule is None, rule)
 
     def complete(self, request: Request, answer: Answer) -> Verdict:
@@ -458,6 +523,17 @@ class SearchConsole(Source):
         read: dict[str, list[Mapping]] = {}
         repeated = 0
         for part in GROUPING:
+            if "export" in request.body:
+                if len(parts[part]) != 1:
+                    return MISSING
+                for page in parts[part]:
+                    rule = export.page_rule(page)
+                    if rule is not None:
+                        return rule
+                    if page["export"] != part:
+                        return SHAPE
+            elif any("export" in page for page in parts[part]):
+                return SHAPE
             once = _once(part, parts[part], window)
             if isinstance(once, str):
                 return once
@@ -477,7 +553,7 @@ class SearchConsole(Source):
         own = {"web_property_id": request.body["web_property_id"],
                "search_type": request.body["search_type"]}
         rows: list[CleanRow] = []
-        models = MODELS
+        models = EXPORT_MODELS if "export" in request.body else MODELS
         for part, model in models.items():
             split = GROUPING[part][2:]
             for row in held[part]:
@@ -491,6 +567,9 @@ class SearchConsole(Source):
                     labelled = {"term_type": term_type, "subject_brand": subject}
                 rows.append(model(
                     **placed, **own, date=_day(day) or day,
+                    **({name: row[name] for name in ("position_sum", "anonymized_clicks",
+                                                   "anonymized_impressions") if name in row}
+                       if "export" in request.body else {}),
                     **dict(zip(split, rest, strict=True)), **labelled,
                     clicks=_count(row.get("clicks")),
                     impressions=_count(row.get("impressions")),
@@ -514,9 +593,10 @@ class SearchConsole(Source):
         first, last = self.window(request)
         return SearchConsolePull(
             **standard, **own, window_start=first, window_end=last,
-            route="api",
+            route="export" if "export" in request.body else "api",
             rows_written=len(rows), pages=sum(len(held) for held in parts.values()),
-            row_limit_hit=bool(capped or a_day >= self.day_rows),
+            row_limit_hit=(False if "export" in request.body
+                           else bool(capped or a_day >= self.day_rows)),
             source_time_zone=PACIFIC_TIME,
             totals_rows=len(of[TOTALS]), query_rows=len(of[QUERIES]),
             page_rows=len(of[PAGES]), device_rows=len(of[DEVICES]), rows_repeated=repeated,

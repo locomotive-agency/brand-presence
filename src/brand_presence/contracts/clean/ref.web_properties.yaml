@@ -43,3 +43,18 @@ columns:
   meaning: The one hostname whose traffic the source reads for this row, where two client brands share
     the GA4 property or the Search Console site.
   null_means: The row is read whole.
+- name: route
+  type: STRING
+  kind: attribute
+  nullable: true
+  meaning: The configured API or export route. Null on older loads means API.
+- name: project
+  type: STRING
+  kind: attribute
+  nullable: true
+  meaning: The export project, present only on export properties.
+- name: dataset
+  type: STRING
+  kind: attribute
+  nullable: true
+  meaning: The export dataset, present only on export properties.

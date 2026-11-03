@@ -188,3 +188,7 @@ OTHER_CUSTOMER = "another customer"
 PARTIAL_FAILURE = "partial failure"
 
 OTHER = "other"
+
+BYTES_CAP = 'bytes cap'
+STATEMENT_REFUSED = 'statement refused'
+NO_DAILY_TABLE = 'no daily table'

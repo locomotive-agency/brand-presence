@@ -77,7 +77,7 @@ def test_search_console_config_validation(tmp_path, respx_mock, change):
 def test_gsc_report_known_result(tmp_path, respx_mock):
     project, _ = prepared(tmp_path, respx_mock)
     assert run(project).status == 'success'
-    report, = load('search-console')
+    report = load('search-console')[0]
     tables = {name: (list(rows[0]), rows) for name in report.definition['reads']
               if (rows := project.rows(name))}
     rows = evaluate(report.statement, tables)
@@ -93,7 +93,7 @@ def test_gsc_report_known_result(tmp_path, respx_mock):
 def test_search_console_report_checks(tmp_path, respx_mock):
     project, _ = prepared(tmp_path, respx_mock)
     assert run(project).status == 'success'
-    report, = load('search-console')
+    report = load('search-console')[0]
     tables = {name: (list(rows[0]), rows) for name in report.definition['reads']
               if (rows := project.rows(name))}
     rows = [dict(r, pulled_at=project.now) for r in evaluate(report.statement, tables)]

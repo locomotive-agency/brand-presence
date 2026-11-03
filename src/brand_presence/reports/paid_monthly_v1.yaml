@@ -1,0 +1,219 @@
+chart_group: paid media
+grain: One row per month, client brand, country, place, campaign type and currency, from January 2024, of the places today's locations tab lists for google-ads. Delivery is where the person was. No place's row is added to another's.
+key: [month, client_brand_id, country_code, geo_id, campaign_type, currency_code]
+reads: [core.fct_ads_v1, core.fct_ads_keywords_v1, core.fct_ads_auction_v1, ref.current_locations, ref.current_brands, ref.current_benchmark_keywords, ref.current_ad_accounts, stg.google_ads_pulls]
+inputs: [search_demand_monthly_v1]
+checks: [share_on_national_search]
+columns:
+  - name: month
+    type: DATE
+    kind: key
+    nullable: false
+    meaning: The first day of the calendar month, of the account's own days.
+  - name: client_brand_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The client brand of the ad accounts.
+    holds: client brand
+  - name: country_code
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The country, as a two-letter code.
+    holds: country
+  - name: geo_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The place where the person was, by its location ID in today's locations tab. On a national row, the country's own location. A state's row holds its cities, and no place's row is added to another's.
+  - name: geo_level
+    type: STRING
+    kind: dimension
+    nullable: false
+    meaning: national, state or city, from the kind of the place in today's locations tab, country, region or city.
+  - name: campaign_type
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: A label of the campaign's advertising channel type, as of today's rule. Search (brand) for a Search campaign whose keyword impressions in the month name the client brand more than half the time, as whole words, by today's name or an alias or by one of the client brand's brand keywords in today's sheet, of any country, misspellings included; Search (unlabelled) for a Search campaign with no keyword impressions in the month, which nothing labels; Search (category) for any other Search campaign; Performance Max, Video, Display and Demand Gen; any other type as Google Ads names it, and unknown where the campaigns report holds no row of the campaign.
+  - name: currency_code
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The currency of the ad accounts' costs, three letters. Money is never converted, so a chart that adds cost filters on one currency.
+  - name: impressions
+    type: INT64
+    kind: measure
+    nullable: false
+    meaning: Times an ad was shown to a person in the place, location type presence alone.
+    unit: impressions
+    sums:
+      over: [campaign_type, currency_code]
+      dates: any
+  - name: clicks
+    type: INT64
+    kind: denominator
+    nullable: false
+    meaning: Clicks on an ad by a person in the place.
+    unit: clicks
+    sums:
+      over: [campaign_type, currency_code]
+      dates: any
+  - name: cost
+    type: NUMERIC
+    kind: numerator
+    nullable: false
+    meaning: The cost in the account's own currency, never converted.
+    unit: the currency in currency_code
+    sums:
+      over: [campaign_type]
+      dates: any
+    denominator: clicks
+    currency: currency_code
+  - name: avg_cpc
+    type: FLOAT64
+    kind: ratio
+    nullable: true
+    meaning: Cost per click, cost over clicks, in the account's own currency. Null where there was no click.
+    unit: the currency in currency_code per click
+    numerator: cost
+    denominator: clicks
+    currency: currency_code
+  - name: conversions
+    type: NUMERIC
+    kind: measure
+    nullable: false
+    meaning: Conversions counted on the day of the click, as the platform reports them.
+    unit: conversions
+    sums:
+      over: [campaign_type, currency_code]
+      dates: any
+  - name: auction_impressions
+    type: INT64
+    kind: numerator
+    nullable: true
+    meaning: On national Search rows alone, the impressions of the days the campaigns had eligible impressions, as the campaign view counts them. Null on every other row, and where no day holds a figure.
+    unit: impressions
+    sums:
+      over: [campaign_type, currency_code]
+      dates: any
+    denominator: eligible_impressions
+  - name: eligible_impressions
+    type: INT64
+    kind: denominator
+    nullable: true
+    meaning: The same rows, the search impressions the campaigns were eligible for.
+    unit: impressions
+    sums:
+      over: [campaign_type, currency_code]
+      dates: any
+  - name: impression_share
+    type: FLOAT64
+    kind: ratio
+    nullable: true
+    meaning: auction_impressions over eligible_impressions.
+    unit: impressions per eligible impression
+    numerator: auction_impressions
+    denominator: eligible_impressions
+  - name: absolute_top_impressions
+    type: INT64
+    kind: numerator
+    nullable: true
+    meaning: The same rows, the impressions shown as the very first ad above the organic results, of the days the campaigns had absolute top eligible impressions.
+    unit: impressions
+    sums:
+      over: [campaign_type, currency_code]
+      dates: any
+    denominator: absolute_top_eligible_impressions
+  - name: absolute_top_eligible_impressions
+    type: INT64
+    kind: denominator
+    nullable: true
+    meaning: The same rows, the impressions the campaigns were eligible for at the absolute top.
+    unit: impressions
+    sums:
+      over: [campaign_type, currency_code]
+      dates: any
+  - name: absolute_top_impression_share
+    type: FLOAT64
+    kind: ratio
+    nullable: true
+    meaning: absolute_top_impressions over absolute_top_eligible_impressions.
+    unit: impressions per eligible impression
+    numerator: absolute_top_impressions
+    denominator: absolute_top_eligible_impressions
+  - name: rank_lost_impressions
+    type: INT64
+    kind: numerator
+    nullable: true
+    meaning: The same rows, the eligible impressions lost to ad rank.
+    unit: impressions
+    sums:
+      over: [campaign_type, currency_code]
+      dates: any
+    denominator: rank_lost_eligible_impressions
+  - name: rank_lost_eligible_impressions
+    type: INT64
+    kind: denominator
+    nullable: true
+    meaning: The same rows, the eligible impressions of the days that hold the impressions lost to ad rank.
+    unit: impressions
+    sums:
+      over: [campaign_type, currency_code]
+      dates: any
+  - name: rank_lost_impression_share
+    type: FLOAT64
+    kind: ratio
+    nullable: true
+    meaning: rank_lost_impressions over rank_lost_eligible_impressions.
+    unit: impressions per eligible impression
+    numerator: rank_lost_impressions
+    denominator: rank_lost_eligible_impressions
+  - name: budget_lost_impressions
+    type: INT64
+    kind: numerator
+    nullable: true
+    meaning: The same rows, the eligible impressions lost to budget.
+    unit: impressions
+    sums:
+      over: [campaign_type, currency_code]
+      dates: any
+    denominator: budget_lost_eligible_impressions
+  - name: budget_lost_eligible_impressions
+    type: INT64
+    kind: denominator
+    nullable: true
+    meaning: The same rows, the eligible impressions of the days that hold the impressions lost to budget.
+    unit: impressions
+    sums:
+      over: [campaign_type, currency_code]
+      dates: any
+  - name: budget_lost_impression_share
+    type: FLOAT64
+    kind: ratio
+    nullable: true
+    meaning: budget_lost_impressions over budget_lost_eligible_impressions.
+    unit: impressions per eligible impression
+    numerator: budget_lost_impressions
+    denominator: budget_lost_eligible_impressions
+  - name: impression_share_bounded
+    type: BOOL
+    kind: attribute
+    nullable: true
+    meaning: The same rows, true where a day had a share at a bound Google reports instead of the figure, 0.0999 or 0.9001, so the counts are a bound and not an estimate. Null on every other row.
+  - name: exceeds_brand_volume
+    type: BOOL
+    kind: attribute
+    nullable: true
+    meaning: On Search (brand) rows alone, true where the impressions were more than the client brand's own brand search volume of the month and place, a sign of a matching fault. Null on every other row, and where there is no search volume.
+  - name: is_complete_month
+    type: BOOL
+    kind: attribute
+    nullable: false
+    meaning: False for the month in progress in the client's time zone, and for a month whose days the report of the place's level was not pulled for, each of them, for an account of the client brand in today's ad accounts tab or an account the row was made from.
+  - name: pulled_at
+    type: TIMESTAMP
+    kind: attribute
+    nullable: false
+    meaning: The latest pulled_at of the fact rows the row was made from.

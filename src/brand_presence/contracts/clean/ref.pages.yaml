@@ -1,0 +1,24 @@
+table: ref.pages
+owner: setup-loader
+version: 1
+grain: One row per load and named page, as the YAML configuration's pages list gave it. Rows are only added.
+key:
+- load_number
+- page_path
+columns:
+- name: load_number
+  type: INT64
+  kind: key
+  nullable: false
+  meaning: The number of the load that wrote the row.
+- name: page_path
+  type: STRING
+  kind: key
+  nullable: false
+  meaning: A named page's path, a slash first, with no query string and no fragment, as the GA4
+    export's page rows give it. Matched exactly.
+- name: page_group
+  type: STRING
+  kind: dimension
+  nullable: false
+  meaning: The group the page is reported under.

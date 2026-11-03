@@ -1,0 +1,191 @@
+chart_group: demand
+grain: One row per period type, period start, client brand, country, place, term type and brand, for each period the input holds a month of.
+key: [period_type, period_start, client_brand_id, country_code, geo_id, term_type, brand]
+reads: []
+inputs: [search_demand_monthly_v1]
+checks: [period_bounds, partial_label]
+columns:
+  - name: period_type
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: month, quarter, half or year for a calendar period; rolling_3, rolling_6 or rolling_12 for the 3, 6 or 12 months to period_end. A reader filters on one period type.
+  - name: period_start
+    type: DATE
+    kind: key
+    nullable: false
+    meaning: The first day of the period's first month.
+  - name: period_end
+    type: DATE
+    kind: attribute
+    nullable: false
+    meaning: The first day of the period's last month.
+  - name: period_label
+    type: STRING
+    kind: attribute
+    nullable: false
+    meaning: The period's name for a chart, such as Mar 2026, Q2 2026, H1 2026, 2026 or 3 months to Mar 2026, with " (partial)" after it when is_partial is true.
+  - name: client_brand_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The client brand the row is measured for.
+    holds: client brand
+  - name: country_code
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The country, as a two-letter code.
+    holds: country
+  - name: geo_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The place, as search_demand_monthly_v1 holds it. No place's row is added to another's.
+  - name: geo_level
+    type: STRING
+    kind: dimension
+    nullable: false
+    meaning: national, state or city, as search_demand_monthly_v1 holds it.
+  - name: term_type
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: brand or category, as search_demand_monthly_v1 holds it. A reader never adds brand rows to category rows.
+  - name: brand
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The brand of today's set by its brand ID on a brand row, (all) on a category row.
+  - name: brand_name
+    type: STRING
+    kind: attribute
+    nullable: true
+    meaning: The brand's name in today's brands list. Null on a category row.
+  - name: months_in_period
+    type: INT64
+    kind: attribute
+    nullable: false
+    meaning: The months of the period the input holds for the row. A monthly mean is a figure over it.
+  - name: search_volume
+    type: INT64
+    kind: numerator
+    nullable: true
+    meaning: The row's searches summed over the period's months. Never an average.
+    unit: searches in the period, as the vendor estimates them
+    sums:
+      over: [brand]
+      dates: none
+    denominator: brand_set_volume
+  - name: brand_set_volume
+    type: INT64
+    kind: denominator
+    nullable: true
+    meaning: On a brand row, the set's searches summed over the period's months. Null on a category row.
+    unit: searches in the period, as the vendor estimates them
+    sums:
+      over: []
+      dates: none
+  - name: share_of_search
+    type: FLOAT64
+    kind: ratio
+    nullable: true
+    meaning: search_volume over brand_set_volume, summed brand volume over summed set volume, which weights each month by its volume. Null on a category row.
+    unit: searches per search of the set
+    numerator: search_volume
+    denominator: brand_set_volume
+  - name: prior_search_volume
+    type: INT64
+    kind: numerator
+    nullable: true
+    meaning: search_volume of the period before, of the same type, the month, quarter, half or year before, or the same number of months before a rolling period. Null where the input holds none of it.
+    unit: searches in the period, as the vendor estimates them
+    sums:
+      over: [brand]
+      dates: none
+    denominator: prior_brand_set_volume
+  - name: prior_brand_set_volume
+    type: INT64
+    kind: denominator
+    nullable: true
+    meaning: brand_set_volume of the period before, of the same type.
+    unit: searches in the period, as the vendor estimates them
+    sums:
+      over: []
+      dates: none
+  - name: prior_share_of_search
+    type: FLOAT64
+    kind: ratio
+    nullable: true
+    meaning: share_of_search of the period before, of the same type.
+    unit: searches per search of the set
+    numerator: prior_search_volume
+    denominator: prior_brand_set_volume
+  - name: year_ago_search_volume
+    type: INT64
+    kind: numerator
+    nullable: true
+    meaning: search_volume of the period of the same type that starts twelve months earlier. Null where the input holds none of it. The input's rows start in January 2024, so it is null for every period that ends before January 2025, and a year-ago period that starts before January 2024 is summed over the months of it the input holds. The monthly year-ago figure of a 2024 month is search_volume_year_ago in search_demand_monthly_v1.
+    unit: searches in the period, as the vendor estimates them
+    sums:
+      over: [brand]
+      dates: none
+    denominator: year_ago_brand_set_volume
+  - name: year_ago_brand_set_volume
+    type: INT64
+    kind: denominator
+    nullable: true
+    meaning: brand_set_volume of the period of the same type that starts twelve months earlier. Null for every period that ends before January 2025, as the input's rows start in January 2024.
+    unit: searches in the period, as the vendor estimates them
+    sums:
+      over: []
+      dates: none
+  - name: year_ago_share_of_search
+    type: FLOAT64
+    kind: ratio
+    nullable: true
+    meaning: share_of_search of the period of the same type that starts twelve months earlier. Null for every period that ends before January 2025, as the input's rows start in January 2024.
+    unit: searches per search of the set
+    numerator: year_ago_search_volume
+    denominator: year_ago_brand_set_volume
+  - name: search_volume_pop_change
+    type: FLOAT64
+    kind: change
+    nullable: true
+    meaning: search_volume less prior_search_volume, over prior_search_volume. Where the two periods hold the same number of months it is also the change of the monthly mean.
+    unit: fraction of the prior period's searches
+    as: relative
+    value: search_volume
+    prior: prior_search_volume
+  - name: search_volume_yoy_change
+    type: FLOAT64
+    kind: change
+    nullable: true
+    meaning: search_volume less year_ago_search_volume, over year_ago_search_volume. Null for every period that ends before January 2025, with year_ago_search_volume; the monthly change of a 2024 month is search_volume_yoy_change in search_demand_monthly_v1.
+    unit: fraction of the year-ago period's searches
+    as: relative
+    value: search_volume
+    prior: year_ago_search_volume
+  - name: share_of_search_pop_change
+    type: FLOAT64
+    kind: change
+    nullable: true
+    meaning: share_of_search less prior_share_of_search, a difference of two shares, where 0.05 is 5 points.
+    unit: searches per search of the set
+    as: points
+    value: share_of_search
+    prior: prior_share_of_search
+  - name: share_of_search_yoy_change
+    type: FLOAT64
+    kind: change
+    nullable: true
+    meaning: share_of_search less year_ago_share_of_search, a difference of two shares. Null for every period that ends before January 2025, with year_ago_share_of_search.
+    unit: searches per search of the set
+    as: points
+    value: share_of_search
+    prior: year_ago_share_of_search
+  - name: is_partial
+    type: BOOL
+    kind: attribute
+    nullable: false
+    meaning: True where the input holds fewer of the period's months than it has, or where one of them is not complete.

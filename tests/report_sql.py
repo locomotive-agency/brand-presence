@@ -195,7 +195,9 @@ def run_statement(
         given.setdefault(dataset, {})[name] = (
             ExecutorTable(list(columns), []) if columns and not rows else [dict(r) for r in rows]
         )
-    tree = _unnested(tree, given).transform(_sorted_array_agg).transform(_null_list).transform(lazy)
+    schemas = dict(schemas or {})
+    tree = _unnested(tree, given, schemas).transform(_sorted_array_agg).transform(_null_list)
+    tree = tree.transform(lazy)
     # The executor infers columns from row zero. Empty external label tables still
     # have their migrated schema, so supply it explicitly alongside the sample rows.
     inferred = {}
@@ -260,7 +262,8 @@ def _sorted_array_agg(node: exp.Expression) -> exp.Expression:
     )
 
 
-def _unnested(tree: exp.Expression, given: dict[str, dict[str, list[dict]]]) -> exp.Expression:
+def _unnested(tree: exp.Expression, given: dict[str, dict[str, list[dict]]],
+              schemas=None) -> exp.Expression:
     """Each select that reads one given table and joins UNNEST of one of its arrays, read
     instead from a table the stand-in makes: one row per element, with the element as a
     column named by the UNNEST's alias."""
@@ -304,6 +307,21 @@ def _unnested(tree: exp.Expression, given: dict[str, dict[str, list[dict]]]) -> 
             for r in rows
             for index, value in enumerate(_elements(r, columns))
         ]
+        source_columns = (schemas or {}).get(f'{table.db}.{table.name}')
+        if source_columns is None and rows:
+            source_columns = {
+                column: annotate_types(exp.convert(value), dialect='bigquery').type
+                for column, value in rows[0].items()
+            }
+        if schemas is not None and source_columns:
+            expanded_columns = {**source_columns,
+                                element: 'DATE' if isinstance(array, exp.GenerateDateArray)
+                                else 'STRING'}
+            if unnest.args.get('offset'):
+                expanded_columns[unnest.args['offset'].name] = 'INT64'
+            schemas[f'standin.{name}'] = expanded_columns
+            if not given['standin'][name]:
+                given['standin'][name] = ExecutorTable(list(expanded_columns), [])
         table.replace(
             exp.Table(
                 this=exp.to_identifier(name),

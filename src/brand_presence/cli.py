@@ -22,6 +22,35 @@ app.add_typer(reports, name="reports")
 Config = Annotated[Path, typer.Option("--config", "-c", help="YAML configuration file.")]
 
 
+@app.command("setup-geo-targets")
+def setup_geo_targets(dated: Annotated[str, typer.Option("--date")],
+                      config: Config = Path("config.yaml")):
+    """Download a dated official geo targets file into local state."""
+    from brand_presence import geo_targets
+
+    settings = load(config)
+    with locked(settings.state_path), httpx.Client(timeout=60, follow_redirects=False) as http:
+        held = geo_targets.download(settings, dated, http)
+    typer.echo(f"Geo targets ready: {held.date}, {held.header.rows} rows.")
+
+
+@app.command("check-access")
+def check_access(config: Config = Path("config.yaml")):
+    """Check export metadata access and required columns without reading rows."""
+    from brand_presence import access_check
+
+    settings = load(config)
+    if not any(p.route == "export" for p in settings.web_properties):
+        typer.echo("No export properties configured.")
+        return
+    checks = access_check.run(connect(settings), settings)
+    for check in checks:
+        typer.echo(check.line())
+    typer.echo("Metadata check only. Query jobs also need Job User on the billing project.")
+    if not all(check.ok for check in checks):
+        raise typer.Exit(1)
+
+
 @app.command("init")
 def initialise(config: Config = Path("config.yaml")):
     """Create datasets and tables in the configured project."""

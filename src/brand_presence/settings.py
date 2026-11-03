@@ -17,6 +17,9 @@ from brand_presence.errors import UserError
 Id = Annotated[str, Field(pattern=r"^[a-z][a-z0-9_-]{0,63}$")]
 Text = Annotated[str, Field(min_length=1, max_length=255)]
 Dataset = Annotated[str, Field(pattern=r"^[A-Za-z_][A-Za-z0-9_]{0,1023}$")]
+PROJECT = r"[a-z][a-z0-9-]{4,28}[a-z0-9]"
+BIGQUERY_EXPORT = PROJECT + r"\.[A-Za-z_][A-Za-z0-9_]{0,1023}"
+Project = Annotated[str, Field(pattern="^" + PROJECT + "$")]
 
 
 class Model(BaseModel):
@@ -159,11 +162,22 @@ class WebProperty(Model):
     source: Literal["search-console", "ga4"]
     address: Text = Field(repr=False)
     hostname: str | None = Field(default=None, repr=False)
+    route: Literal["api", "export"] = "api"
+    project: Project | None = Field(default=None, repr=False)
+    dataset: Dataset | None = Field(default=None, repr=False)
+
+    @property
+    def bigquery_export(self) -> str | None:
+        return f"{self.project}.{self.dataset}" if self.route == "export" else None
 
     @model_validator(mode="after")
     def address_for_source(self):
         from urllib.parse import urlsplit
 
+        if self.route == "export" and not (self.project and self.dataset):
+            raise ValueError("export route needs project and dataset")
+        if self.route == "api" and (self.project is not None or self.dataset is not None):
+            raise ValueError("project and dataset require route: export")
         host_pattern = r"(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}"
         if self.hostname is not None and not re.fullmatch(host_pattern, self.hostname):
             raise ValueError("hostname must be a lowercase bare domain, without a path")
@@ -193,6 +207,11 @@ class Modifier(Model):
     match_order: Annotated[int, Field(ge=1)]
 
 
+class NamedPage(Model):
+    page_path: Annotated[str, Field(pattern=r"^/[^?#]*$")]
+    page_group: Text
+
+
 class Settings(Model):
     project_id: Annotated[str, Field(pattern=r"^[a-z][a-z0-9-]{4,28}[a-z0-9]$")]
     client_id: Id
@@ -212,6 +231,8 @@ class Settings(Model):
     web_properties: list[WebProperty] = Field(default_factory=list)
     ad_accounts: list[AdAccount] = Field(default_factory=list)
     modifiers: list[Modifier] = Field(default_factory=list)
+    pages: list[NamedPage] = Field(default_factory=list)
+    maximum_bytes_billed: Annotated[int, Field(strict=True, gt=0, le=2**63-1)] = 20 * 1024**3
 
     @field_validator("client_id")
     @classmethod
@@ -231,6 +252,8 @@ class Settings(Model):
 
     @model_validator(mode="after")
     def references(self):
+        if len({p.page_path for p in self.pages}) != len(self.pages):
+            raise ValueError("page paths must be unique")
         brands = {b.brand_id for b in self.brands}
         countries = {c.country_code for c in self.countries}
         sets = {(s.client_brand_id, s.country_code) for s in self.benchmark_sets}

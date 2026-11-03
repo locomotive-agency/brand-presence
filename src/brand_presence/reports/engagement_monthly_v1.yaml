@@ -1,0 +1,146 @@
+chart_group: engagement
+grain: One row per month, client brand, country, web property, place and channel group, with channel group (all) for each place's total, read from the fact of the property's route alone. Only the ga4 properties of today's web properties list, read through ref.current_web_properties, and the places today's locations tab lists for ga4 have rows. The rows of a web property that is no longer current stay in the facts and are not shown here.
+key: [month, client_brand_id, country_code, web_property_id, geo_id, channel_group]
+reads: [core.fct_ga4_export_v1, core.fct_ga4_v1, stg.ga4_pulls, ref.current_web_properties, ref.current_locations]
+inputs: []
+checks: [users_only_on_export, one_route_per_property]
+columns:
+  - name: month
+    type: DATE
+    kind: key
+    nullable: false
+    meaning: The first day of the month, of the GA4 property's own days. Rows start in January 2024.
+  - name: client_brand_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The client brand the web property is for.
+    holds: client brand
+  - name: country_code
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The place's country, as a two-letter code.
+    holds: country
+  - name: web_property_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The GA4 property, by the ID the YAML configuration gives it. Never its number.
+  - name: geo_id
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The place, by its location ID in the locations tab, a country, region or city the tab lists for ga4. On a national row, the country's own location. Geography is derived from the visitor's IP address by GA4 and is approximate.
+  - name: geo_level
+    type: STRING
+    kind: dimension
+    nullable: false
+    meaning: national, state or city, from the location's kind country, region or city. A state row holds its cities' traffic, and a national row its states'. States come on the export route alone.
+  - name: channel_group
+    type: STRING
+    kind: key
+    nullable: false
+    meaning: The session default channel group as GA4 names it, or (all) for every channel of the place together. On the export route, (not set) where the export names none, as it does for every session before mid October 2024. On the Data API route a city row is (all) alone.
+  - name: ga4_route
+    type: STRING
+    kind: dimension
+    nullable: false
+    meaning: export where the property is read from its GA4 BigQuery export, data_api where it is read through the Data API. The route of the property's latest pull, the same on every row of the property. The two routes' figures are never one series.
+  - name: sessions
+    type: NUMERIC
+    kind: denominator
+    nullable: false
+    meaning: Sessions in the month. Added over channel groups only without the (all) row, and never over places that hold each other.
+    unit: sessions
+    sums:
+      over: [month, web_property_id]
+      dates: any
+  - name: page_views
+    type: NUMERIC
+    kind: numerator
+    nullable: false
+    meaning: Page views, page_view events, in the month. Added as sessions are. Over sessions it is the pages per session.
+    unit: views
+    sums:
+      over: [month, web_property_id]
+      dates: any
+    denominator: sessions
+  - name: pages_per_session
+    type: FLOAT64
+    kind: ratio
+    nullable: true
+    meaning: Page views over sessions. Null where the row has no session. Over several rows, summed page views over summed sessions, never an average of this column.
+    unit: views per session
+    numerator: page_views
+    denominator: sessions
+  - name: engagement_duration_sec
+    type: NUMERIC
+    kind: numerator
+    nullable: false
+    meaning: User engagement duration in the month, in seconds, summed over the sessions. Added as sessions are.
+    unit: seconds
+    sums:
+      over: [month, web_property_id]
+      dates: any
+    denominator: total_users
+  - name: active_users
+    type: INT64
+    kind: measure
+    nullable: true
+    meaning: Distinct users with an engaged session in the month, place and channel group. Never added across rows, places or months; read the (all) row for a place's users. Null on the Data API route. Over active users, sessions is the frequency, a field of the dashboard.
+    unit: users
+    sums:
+      over: []
+      dates: none
+  - name: total_users
+    type: INT64
+    kind: denominator
+    nullable: true
+    meaning: Distinct users of the month, place and channel group. Never added across rows, places or months; read the (all) row for a place's users. Null on the Data API route.
+    unit: users
+    sums:
+      over: []
+      dates: none
+  - name: returning_users
+    type: INT64
+    kind: numerator
+    nullable: true
+    meaning: Distinct users with a session in the month, place and channel group that is not their first. Not total users less new users, since a new user who comes back is in both. Never added across rows, places or months. Null on the Data API route.
+    unit: users
+    sums:
+      over: []
+      dates: none
+    denominator: total_users
+  - name: time_on_site_sec
+    type: FLOAT64
+    kind: ratio
+    nullable: true
+    meaning: Engagement seconds over total users, the engagement time per user. Null on the Data API route and where the row has no user.
+    unit: seconds per user
+    numerator: engagement_duration_sec
+    denominator: total_users
+  - name: return_visit_rate
+    type: FLOAT64
+    kind: ratio
+    nullable: true
+    meaning: Returning users over total users. Null on the Data API route and where the row has no user.
+    unit: returning users per user
+    numerator: returning_users
+    denominator: total_users
+  - name: sampled
+    type: BOOL
+    kind: attribute
+    nullable: false
+    meaning: True where a Data API pull a row of the month was made from said its answer was sampled, as fct_ga4_v1 marks it, never false for a mark that is missing. False on every export row, since the export is never sampled.
+    sampled: true
+  - name: is_complete_month
+    type: BOOL
+    kind: attribute
+    nullable: false
+    meaning: False for the month in progress in the client's time zone, and for a month the fact does not cover to its last day.
+  - name: pulled_at
+    type: TIMESTAMP
+    kind: attribute
+    nullable: false
+    meaning: The latest pulled_at of the fact rows the row was made from.

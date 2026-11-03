@@ -13,6 +13,9 @@ come from environment variables or Application Default Credentials. Raw storage 
 - A load is an immutable configuration snapshot used to plan and parse requests.
 - A window is an ended week of a source report or a set of Peec chats.
 - A web property binds a local ID to a GA4 property or Search Console site.
+- A route selects the API or BigQuery export for a web property. Reports use one recorded route across its dates.
+- An export binding identifies the source BigQuery project and dataset. Query jobs use the user's billing project.
+- Geo targets map GA4 export geography through a dated, locally downloaded Google reference file.
 - An ad account binds a local ID to a Google Ads customer and optional client brand.
 - A mapping binds a Peec project to a benchmark set. Peec owns its prompts.
 - A cursor records Syften's durable progress. A resume point continues a partial pull.

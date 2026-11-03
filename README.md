@@ -1,8 +1,8 @@
 # Brand Presence
 
 Collect search volume, AI answers, brand mentions and Google marketing data into your
-own BigQuery project. DataForSEO, Cloro, Syften, Peec, Search Console API, GA4 API and
-Google Ads are available. CRM is deferred. Setup is YAML. Credentials use environment
+own BigQuery project. DataForSEO, Cloro, Syften, Peec, Search Console, GA4 and Google Ads are available.
+Search Console and GA4 use their APIs by default, with optional BigQuery export routes. CRM is deferred. Setup is YAML. Credentials use environment
 variables or Application Default Credentials. Raw responses stay on your disk and in your BigQuery project.
 
 ## Setup
@@ -320,8 +320,8 @@ engine stay separate. Countries and locations are combined within the project.
 Only observed weeks appear. Keyword groups without a label are `unknown`.
 No-overview observations are counted separately from answered prompts.
 
-`freshness_v2` is excluded. It requires unported Trends, search results, exports,
-and CRM tables. The two Reddit reports and the Syften archive backfill
+`freshness_v2` is excluded. It requires unported Trends, search results,
+CRM and source-freshness tables. The two Reddit reports and the Syften archive backfill
 are also excluded, as described above.
 
 ## Search Console API
@@ -380,8 +380,8 @@ under the original request and configuration. If the process died before a respo
 reached disk, that read may repeat and consume quota. A saved page is never requested
 again during crash recovery. Clean rows are replaced transactionally by request key.
 
-`fct_gsc_export_v1` and `search_demand_monthly_v1` are excluded. They require
-unported export tables. The search-demand statement combines API and export figures.
+`fct_gsc_export_v1` is built alongside the API fact. It is empty without export data.
+The `search-demand` report group combines recorded API and export routes.
 
 ## GA4 API
 
@@ -432,8 +432,8 @@ cover tokens per property per day and hour, tokens per project and property per 
 concurrent requests, server errors, and potentially thresholded requests. Complex reports
 consume more tokens. BigQuery storage and queries are billed separately.
 
-`fct_ga4_export_v1`, `fct_ga4_export_pages_v1`, `engagement_monthly_v1` and
-`page_engagement_monthly_v1` are excluded because they require BigQuery exports.
+The `ga4` report group also builds both export facts, `engagement_monthly_v1`
+and `page_engagement_monthly_v1`. These builds accept empty export tables.
 No pages reference table is needed by the API-only report group.
 
 ## Google Ads API
@@ -527,24 +527,150 @@ and Standard has no daily operation cap. Test access only reaches test accounts.
 [Service limits and throttling](https://developers.google.com/google-ads/api/docs/best-practices/quotas)
 still apply. BigQuery storage and queries cost separately. These reads do not buy ads.
 
-`paid_monthly_v1` is excluded because it reads `search_demand_monthly_v1`, which needs
-Search Console exports. `freshness_v2` also needs exports, CRM, Trends and search results.
-The export, CRM, Ads Transparency, search-results and Trends source reports remain out
-of scope. Nothing provisions or reads those sources.
+The `paid` report group builds `paid_monthly_v1` after its search-demand and Ads inputs.
+It works without either export configured. Missing source data stays empty or null.
 
 Reports left out of this kit are listed below. Their statements were not split or
 rewritten to hide missing dependencies.
 
 | Reports | Missing dependency |
 | --- | --- |
-| `fct_gsc_export_v1`, `search_demand_monthly_v1`, `growth_v1` | Search Console export, directly or through search demand |
-| `paid_monthly_v1` | Search demand, which needs Search Console export |
-| `fct_ga4_export_v1`, `fct_ga4_export_pages_v1`, `engagement_monthly_v1`, `page_engagement_monthly_v1` | GA4 export |
 | `fct_crm_leads_v1`, `fct_crm_deals_v1`, `pipeline_monthly_v1` | CRM |
-| `correlation_v1` | Search demand and CRM pipeline reports |
+| `correlation_v1` | CRM pipeline reports |
 | `competitor_ads_history_v1` | Ads Transparency |
 | `fct_serp_v1`, `serp_history_v1`, `serp_presence_monthly_v1` | Search results and paid search-result ads |
 | `competitor_ads_v1` | Search-result facts and ad labels |
 | `fct_trends_v1`, `search_trends_history_v1` | Trends |
-| `freshness_v2` | Exports, CRM, Trends, search results and source-freshness data |
+| `freshness_v2` | CRM, Trends, search results and source-freshness data |
 | `reddit_mentions_v1`, `reddit_mentions_v2` | External mention labels, as before this port |
+
+## API or export
+
+Keep the API route if you have no export. It is the default for every web property.
+Existing API configuration, collection and reports keep working. You do not need an
+export dataset, export permissions or a geo targets download for an API-only setup.
+`init` creates empty clean export tables so combined reports can read them safely.
+Run `init` again when upgrading an existing installation.
+
+Choose the export route when the property already exports to BigQuery and you need
+its retained history or fuller aggregates. Choose separately for each property.
+A project can contain API and export properties. There is no automatic fallback.
+Reports select one recorded route per property for all dates. They never fill gaps
+in an export with API figures.
+
+For GA4, follow Google's [BigQuery Export setup](https://support.google.com/analytics/answer/9823238).
+Create a BigQuery link in GA4 Admin and enable daily event export. The kit reads
+`events_YYYYMMDD` tables. It does not read intraday or user export tables.
+For Search Console, follow Google's
+[bulk data export setup](https://support.google.com/webmasters/answer/12918484).
+Use the dataset containing `searchdata_site_impression`, `searchdata_url_impression`
+and `ExportLog`. These exports do not recreate data from before export was enabled.
+
+Add these keys to the relevant `web_properties` entry. Use your own project and dataset:
+
+```yaml
+route: export
+project: example-export-project
+dataset: example_export
+```
+
+Keep the property's `address`, local ID and optional `hostname`. Project and dataset
+names are validated before SQL is built. Omitting `route` means `api`; an API property
+cannot specify export project or dataset. An existing API property may switch to export
+with the same local ID. Its source, address, hostname and client brand remain fixed.
+Once an export dataset has been recorded, changing its binding needs a new local ID.
+Reports change route after a successful pull records the new route. With several
+properties, collect each configured route before rebuilding the reports.
+
+The person running the kit uses Application Default Credentials. Grant that principal
+BigQuery Data Viewer (`roles/bigquery.dataViewer`) on each export dataset and BigQuery
+Job User (`roles/bigquery.jobUser`) on the kit's billing project, `project_id`.
+The normal write permissions on the kit's own datasets still apply.
+The export service's write permissions from Google's setup are separate from these read grants.
+An export-only property does not use its API OAuth scopes or call its API.
+
+```sh
+uv run brand-presence check-access --config config.yaml
+```
+
+This command lists export tables and checks required columns and types. It reads no
+export rows and submits no queries. It checks the newest GA4 daily table and all three
+Search Console tables. Missing tables, columns and access are reported by local property
+ID. It cannot prove Job User access or validate every historical daily schema.
+
+Each query runs in the export dataset's location and is billed to `project_id`.
+Only aggregate results are read into Python, saved locally, then written through the
+shared framework to your own datasets. The locations may differ. Export storage and
+query scans have BigQuery costs. See [BigQuery pricing](https://cloud.google.com/bigquery/pricing).
+The top-level YAML setting `maximum_bytes_billed` limits each export query:
+
+```yaml
+maximum_bytes_billed: 21474836480  # 20 GiB per statement, the default.
+```
+
+A query exceeding the cap fails before execution. The cap is per statement, not per run.
+History can issue many statements. A crash before a result is saved may repeat a query
+and incur another scan. Saved pages resume without repeating their queries.
+GA4 pull rows record billed bytes. Neither route reports a monetary cost.
+
+GA4 export collection needs Google's geo targets for the listed country names and
+GA4 region and city mappings. This kit does not ship Google's CSV. Choose a dated file
+listed on the [official geo targets page](https://developers.google.com/google-ads/api/data/geotargets),
+then run this setup command with that file's date:
+
+```sh
+uv run brand-presence setup-geo-targets --date YYYY-MM-DD --config config.yaml
+```
+
+Setup downloads the official archive into memory, validates its columns and target rows,
+and saves a filtered CSV under `state_dir/<project_id>/<ops_dataset>/geo-targets/`.
+Its metadata records the file date, URL, row count and download and CSV checksums.
+An invalid download leaves the previous copy active. Refresh explicitly when Google's
+names change. Collection does not download anything. Each configuration load records
+the date used for validation. API-only and Search Console export setups need no copy.
+
+The following report groups include their prerequisites and checks in one transaction:
+
+| Command suffix after `reports run` | New reports |
+| --- | --- |
+| `--source search-console` | `core.fct_gsc_export_v1`, beside the API fact |
+| `--source ga4` | `core.fct_ga4_export_v1`, `core.fct_ga4_export_pages_v1`, `mart.engagement_monthly_v1`, `mart.page_engagement_monthly_v1` |
+| `--source search-demand` | `mart.search_demand_monthly_v1`, `mart.growth_v1`, after search volume and both Search Console facts |
+| `--source paid` | `mart.paid_monthly_v1`, after search-demand and Google Ads reports |
+
+Search demand starts from configured keyword volume. Collect search volume to give it
+rows. Growth aggregates those months. Paid media can build with no search-demand rows;
+its volume comparisons then remain null. Engagement combines property routes.
+Its session and page-view columns use NUMERIC to preserve the existing API fact types.
+SQL calculations and the source report checks are unchanged.
+The page report only shows export pages listed in optional YAML `pages`:
+
+```yaml
+pages:
+  - page_path: /pricing
+    page_group: Commercial
+```
+
+The page report is empty for API-only properties. API landing-page sessions are a
+different measure from export page views and users, so they are not substituted.
+An empty page list also gives an empty page report. Export facts retain unlisted paths.
+
+GA4's first export pull reads all available months, up to 120. Later weeks reread the
+current and previous month, or from the latest collected month if older. Each month
+is read through its latest daily table up to the requested week's end. The last daily
+table is awaited for three days. Later gaps are counted on pull rows. A span with no
+daily table is unusable. Distinct users cannot be summed across channels, places,
+pages or months. Use each place's `(all)` channel row. The top 10,000 page paths retain
+separate rows; the rest form `(other)`. Channel grouping depends on export schema
+availability. Older tables without the required nested fields can be refused.
+
+Search Console export reads complete weeks confirmed by both `ExportLog` namespaces.
+It discovers retained history, with at most 500 historical requests per run. The API
+route keeps its 65-week history. When the highest epoch version in a week rises, that
+week is collected again. An unchanged maximum skips a completed week. An incomplete
+first week remains unavailable. Totals include anonymized queries and expose their
+counts; named query rows exclude them. Position uses the export's zero-based sum plus
+one, and stays null when impressions are zero.
+
+No live export was accessed during this port. Tests use invented rows, the BigQuery
+stand-in and local SQL execution. They do not replace acceptance checks on your own export.
