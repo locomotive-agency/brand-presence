@@ -46,7 +46,7 @@ def run(bq, settings, *, clock=lambda: datetime.now(UTC), out=print, source="sea
             with Transaction(bq) as transaction:
                 for report in reports:
                     if report.fact:
-                        transaction.run("DROP TABLE IF EXISTS _fact_rows")
+                        transaction.run("DROP TABLE IF EXISTS _SESSION._fact_rows")
                         transaction.run(fact_rows_statement(report), given)
                         check_rows(
                             transaction,

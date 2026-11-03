@@ -75,7 +75,7 @@ def install(fake):
         bq.tables.pop("temp._fact_rows", None)
         return 0
 
-    fake.on(r"^DROP TABLE IF EXISTS _fact_rows$", drop)
+    fake.on(r"^DROP TABLE IF EXISTS _SESSION\._fact_rows$", drop)
     fake.on(r"^CREATE TEMP TABLE _fact_rows", execute)
     fake.on(r"^INSERT INTO `[^`]+\.(?:bp_core|bp_mart)\.", execute)
     fake.on(r"(?s)^SELECT.*(?:bp_core|bp_mart|_fact_rows)", execute)
@@ -148,7 +148,7 @@ def install_sources(fake, settings):
     def execute(bq, sql, parameters):
         tree = sqlglot.parse_one(sql, read='bigquery')
         for table in tree.find_all(exp.Table):
-            if table.db and (table.catalog != settings.project_id
+            if table.db and table.db != '_SESSION' and (table.catalog != settings.project_id
                              or table.db not in settings.datasets.model_dump().values()):
                 raise ValueError(f'unqualified report table: {table.sql()}')
         if isinstance(tree, exp.Drop):
@@ -197,7 +197,7 @@ def install_sources(fake, settings):
                              client_time_zone=settings.time_zone,
                                          schemas=schemas_of(bq))
 
-    fake.on(r'^DROP TABLE IF EXISTS _fact_rows$', execute)
+    fake.on(r'^DROP TABLE IF EXISTS _SESSION\._fact_rows$', execute)
     fake.on(r'^CREATE TEMP TABLE _fact_rows', execute)
     fake.on(r'^INSERT INTO `[^`]+\.(?:bp_core|bp_mart)\.', execute)
     fake.on(r'(?s)^(?:SELECT|WITH).*?(?:bp_core|bp_mart|_fact_rows)', execute)
