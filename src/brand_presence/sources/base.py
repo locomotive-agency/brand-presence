@@ -56,8 +56,7 @@ class Source(ABC):
 
     def reaches_back(self, request: Request) -> bool:
         """Whether a window request reads dates before its period's first date, up to its
-        period's last date (source-framework "A window request may read further back than
-        its period"). Such a request is planned, keyed, stored and written under the period
+        period's last date. Such a request is planned, keyed, stored and written under the period
         it was planned for, as any other, and is never sent as history: what it reads is the
         sender's to work out, so a past period's would read the same dates again. Left as
         it is, no request reaches back."""

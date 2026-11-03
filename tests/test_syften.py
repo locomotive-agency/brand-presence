@@ -1,6 +1,5 @@
-"""The Syften call, on a mocked vendor (mentions "The author of a post is never stored", the
-vendor's half; "A run cut short is not a success", the wait a rate limit names;
-source-framework "Logs and errors hold no vendor text, query value or key")."""
+"""Mocked Syften calls omit post authors, preserve interrupted-run status, respect
+rate-limit waits, and keep vendor text, query values and keys out of logs and errors."""
 from __future__ import annotations
 
 import json

@@ -376,9 +376,11 @@ uv run brand-presence run search-console --config config.yaml --period 2026-W09
 uv run brand-presence reports run --source search-console --config config.yaml
 ```
 
-The cloud-platform scope lets the same ADC credentials write to BigQuery. The
-webmasters.readonly scope reads Search Console. Google documents the custom OAuth client
-requirement for [ADC scopes outside Google Cloud](https://docs.cloud.google.com/docs/authentication/application-default-credentials).
+gcloud requires cloud-platform in the ADC login scopes, while the kit itself requests
+only read-only property API scopes plus the BigQuery scope.
+User ADC scopes are fixed at login, so google-auth does not narrow those credentials
+when the kit requests a scope. The webmasters.readonly scope reads Search Console.
+Google documents the custom OAuth client requirement for [ADC scopes outside Google Cloud](https://docs.cloud.google.com/docs/authentication/application-default-credentials).
 Alternatively, set `GOOGLE_APPLICATION_CREDENTIALS` to a service account JSON file outside
 this repository. Give that account access to the property and to your BigQuery project.
 No credential belongs in YAML.

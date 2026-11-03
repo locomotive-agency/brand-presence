@@ -39,3 +39,21 @@ def test_offline_executor_rejects_unqualified_report_references(tmp_path, respx_
            f'({", ".join(report.returned)})\n{report.statement}')
     with pytest.raises(ValueError, match='unqualified report table'):
         project.fake.query(sql).result()
+
+
+def test_bigquery_requests_only_its_api_scope(monkeypatch):
+    import google.auth
+    from google.auth.credentials import AnonymousCredentials
+
+    from brand_presence.warehouse import connect
+
+    asked = []
+
+    def default(*, scopes, **kwargs):
+        asked.append(scopes)
+        return AnonymousCredentials(), "example-project"
+
+    monkeypatch.setattr(google.auth, "default", default)
+    client = connect(Settings.model_validate(configuration()))
+    assert asked == [["https://www.googleapis.com/auth/bigquery"]]
+    client.client.close()

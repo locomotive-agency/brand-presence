@@ -1,6 +1,5 @@
-"""The Cloro calls, on a mocked vendor (ai-answers "Task IDs are saved as soon as the vendor
-returns them", the vendor's half; source-framework "Retries are bounded and never repeat a
-billable request blindly", "Logs and errors hold no vendor text, query value or key")."""
+"""Mocked Cloro calls preserve task IDs, bound retries without blindly repeating
+billable requests, and keep vendor text, query values and keys out of logs and errors."""
 from __future__ import annotations
 
 import json
@@ -232,5 +231,5 @@ def test_the_state_of_a_task():
     assert cloro.status_of({"task": {"status": "PROCESSING"}}) == cloro.PROCESSING
     assert cloro.status_of({"task": {}}) is None and cloro.status_of({}) is None
     assert cloro.FINISHED == (cloro.COMPLETED, cloro.FAILED)
-    # Credits are not read (ai-answers "Credits are not read").
+    # Credits are not read.
     assert not hasattr(cloro, "credits_of")

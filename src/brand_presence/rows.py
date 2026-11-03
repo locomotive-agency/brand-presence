@@ -283,14 +283,13 @@ class ResumingCursorRow(CursorRow):
 
 class PullRow(CleanRow):
     """The base of a row of `stg.<source>_pulls`: one pull of a window source, which is one
-    request in one period (source-framework "Every window source records each pull"). It is
+    request in one period. It is
     a clean row: it carries the standard columns, has a natural key that holds the period,
     and is written in the transaction of the request's other clean rows. An answer with no
     rows still gives one. A source's own model adds what its vendor says of a pull.
 
     The pull of a request for every country carries the reserved `all` as its country and
-    its location, and a null benchmark version; its key then holds no country (data-model
-    "Rows of every country join ref")."""
+    its location, and a null benchmark version; its key then holds no country."""
 
     may_span_every_country: ClassVar[bool] = True
 

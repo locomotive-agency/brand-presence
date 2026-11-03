@@ -1,8 +1,5 @@
-"""The rules that judge an AI answer, each on a sample that trips it (ai-answers "Error pages
-and captchas are not counted as answers", the scenarios "A completed task with a real
-answer" and "Every rule has a sample that trips it"; "No overview shown is an answer", the
-scenarios "A results page without an overview" and "An overview key that holds no
-overview")."""
+"""AI answer rules distinguish real answers, error pages, captchas and missing overviews.
+Each rule has a sample that exercises it."""
 from __future__ import annotations
 
 import json

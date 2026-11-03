@@ -40,7 +40,7 @@ def test_package_has_no_private_identifiers_or_services():
         "add-" + "serving-tables",
         "canonical-" + "google-sources", "brand-presence-" + "reporting",
         "add-" + "google-sources", "secret" + " manager", "cloud" + " run",
-        "terra" + "form",
+        "terra" + "form", "source-" + "framework", "data-" + 'model "',
     )
     tracked = [
         str(p.relative_to(ROOT))
@@ -60,6 +60,7 @@ def test_package_has_no_private_identifiers_or_services():
         if path.is_file():
             text = path.read_text()
             assert not any(marker in text.casefold() for marker in private), name
+            assert not re.search(r"\(D[0-9]+\)", text), name
             assert not re.search(r"[\w.+-]+@[\w.-]+\.[a-z]{2,}", text), name
             assert not re.search(
                 r"google.cloud.(storage|secretmanager)|open" + "telemetry", text

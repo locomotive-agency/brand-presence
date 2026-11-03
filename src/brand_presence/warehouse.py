@@ -37,5 +37,8 @@ class Client:
 
 
 def connect(settings: Settings) -> Client:
-    client = bigquery.Client(project=settings.project_id, location=settings.location)
+    client = bigquery.Client(
+        project=settings.project_id, location=settings.location,
+        client_options={"scopes": ["https://www.googleapis.com/auth/bigquery"]},
+    )
     return Client(client, settings)

@@ -3,8 +3,6 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-CLOUD_PLATFORM = "https://www.googleapis.com/auth/cloud-platform"
-
 ANALYTICS_READ_ONLY = "https://www.googleapis.com/auth/analytics.readonly"
 SEARCH_CONSOLE_READ_ONLY = "https://www.googleapis.com/auth/webmasters.readonly"
 
@@ -30,7 +28,7 @@ class ApplicationDefault:
 
         credentials = self._held.get(scope)
         if credentials is None:
-            credentials, _ = google.auth.default(scopes=[scope, CLOUD_PLATFORM])
+            credentials, _ = google.auth.default(scopes=[scope])
             self._held[scope] = credentials
         if not credentials.valid:
             credentials.refresh(Request())
