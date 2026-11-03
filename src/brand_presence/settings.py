@@ -19,6 +19,7 @@ Text = Annotated[str, Field(min_length=1, max_length=255)]
 Dataset = Annotated[str, Field(pattern=r"^[A-Za-z_][A-Za-z0-9_]{0,1023}$")]
 PROJECT = r"[a-z][a-z0-9-]{4,28}[a-z0-9]"
 BIGQUERY_EXPORT = PROJECT + r"\.[A-Za-z_][A-Za-z0-9_]{0,1023}"
+GA4_EXPORT = PROJECT + r"\.analytics_[1-9][0-9]*"
 Project = Annotated[str, Field(pattern="^" + PROJECT + "$")]
 
 
@@ -184,6 +185,9 @@ class WebProperty(Model):
         if self.source == "ga4":
             if not re.fullmatch(r"[1-9][0-9]*", self.address):
                 raise ValueError("GA4 address must be the numeric property ID")
+            if self.route == "export" and self.dataset != f"analytics_{self.address}":
+                raise ValueError(f"GA4 property {self.web_property_id} requires export dataset "
+                                 f"analytics_{self.address}")
         elif self.address.startswith("sc-domain:"):
             if not re.fullmatch(host_pattern, self.address.removeprefix("sc-domain:")):
                 raise ValueError("Search Console domain address must be sc-domain:domain")

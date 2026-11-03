@@ -11,7 +11,7 @@ from brand_presence.sources import search_console_export as gsc
 from google_project import prepared as google_project
 from test_geo_targets_setup import archive
 
-DATASET = 'example-export.fixture_export'
+DATASET = 'example-export.analytics_100000001'
 DAYS = ['events_20260131', 'events_20260228', 'events_20260301']
 
 
@@ -23,7 +23,7 @@ def prepared(tmp_path, router, source='ga4', mixed=False):
         config['web_properties'].append(dict(prop, web_property_id='api-site',
                                              address='100000002' if source == 'ga4' else
                                              'sc-domain:badger.example'))
-    prop.update(route='export', project='example-export', dataset='fixture_export')
+    prop.update(route='export', project='example-export', dataset='analytics_100000001')
     config['pages'] = [dict(page_path='/example', page_group='Example')]
     project.settings = Settings.model_validate(config)
     project.bq.settings = project.settings

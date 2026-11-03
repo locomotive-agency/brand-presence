@@ -28,7 +28,7 @@ def test_setup_downloads_validates_and_dates_official_copy(tmp_path, respx_mock)
     import httpx
 
     settings = Settings.model_validate(configured(route='export', project='example-export',
-                                                  dataset='events'))
+                                                  dataset='analytics_123456'))
     settings.state_dir = tmp_path
     url = geo_targets.FILES + 'geotargets-2026-01-01.csv.zip'
     respx_mock.get(url).respond(content=archive())

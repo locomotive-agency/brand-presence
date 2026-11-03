@@ -26,12 +26,12 @@ columns:
     type: STRING
     kind: key
     nullable: false
-    meaning: The place, by its location ID in today's locations tab. On a national row, the country's own location. A state's row holds the searches of its cities too, so no place's row is added to another's.
+    meaning: The place, by its location ID in the current YAML locations configuration. On a national row, the country's own location. A state's row holds the searches of its cities too, so no place's row is added to another's.
   - name: geo_level
     type: STRING
     kind: dimension
     nullable: false
-    meaning: national, state or city, from the kind of the place in today's locations tab, country, region or city.
+    meaning: national, state or city, from the kind of the place in the current YAML locations configuration, country, region or city.
   - name: term_type
     type: STRING
     kind: key
@@ -56,7 +56,7 @@ columns:
     type: INT64
     kind: numerator
     nullable: true
-    meaning: The searches of the month at the place, summed over every keyword of the row's term set that today's keywords tab asks search volume for, misspellings included, from the latest pull of each keyword and month. Never an average. Null where the vendor gave no figure for any of them.
+    meaning: The searches of the month at the place, summed over every keyword of the row's term set that the current YAML keywords configuration asks search volume for, misspellings included, from the latest pull of each keyword and month. Never an average. Null where the vendor gave no figure for any of them.
     unit: searches in the month, as the vendor estimates them
     sums:
       over: [brand]
@@ -101,7 +101,7 @@ columns:
     type: INT64
     kind: measure
     nullable: true
-    meaning: Search Console clicks from web search in the month, on the national row of the client brand's own brand terms and on the national category row alone, from the client brand's web properties in today's tab. Null on every other row, and where Search Console holds none.
+    meaning: Search Console clicks from web search in the month, on the national row of the client brand's own brand terms and on the national category row alone, from the client brand's web properties in the current YAML configuration. Null on every other row, and where Search Console holds none.
     unit: clicks
     sums:
       over: []
@@ -153,7 +153,7 @@ columns:
     type: INT64
     kind: attribute
     nullable: true
-    meaning: The keywords of the row's term set that today's keywords tab asks search volume for, misspellings included.
+    meaning: The keywords of the row's term set that the current YAML keywords configuration asks search volume for, misspellings included.
   - name: keywords_found
     type: INT64
     kind: attribute

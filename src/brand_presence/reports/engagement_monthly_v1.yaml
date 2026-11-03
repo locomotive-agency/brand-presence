@@ -1,5 +1,5 @@
 chart_group: engagement
-grain: One row per month, client brand, country, web property, place and channel group, with channel group (all) for each place's total, read from the fact of the property's route alone. Only the ga4 properties of today's web properties list, read through ref.current_web_properties, and the places today's locations tab lists for ga4 have rows. The rows of a web property that is no longer current stay in the facts and are not shown here.
+grain: One row per month, client brand, country, web property, place and channel group, with channel group (all) for each place's total, read from the fact of the property's route alone. Only the ga4 properties of today's web properties list, read through ref.current_web_properties, and the places the current YAML locations configuration lists for ga4 have rows. The rows of a web property that is no longer current stay in the facts and are not shown here.
 key: [month, client_brand_id, country_code, web_property_id, geo_id, channel_group]
 reads: [core.fct_ga4_export_v1, core.fct_ga4_v1, stg.ga4_pulls, ref.current_web_properties, ref.current_locations]
 inputs: []
@@ -31,7 +31,7 @@ columns:
     type: STRING
     kind: key
     nullable: false
-    meaning: The place, by its location ID in the locations tab, a country, region or city the tab lists for ga4. On a national row, the country's own location. Geography is derived from the visitor's IP address by GA4 and is approximate.
+    meaning: The place, by its location ID in the YAML locations configuration, a country, region or city the YAML configuration lists for ga4. On a national row, the country's own location. Geography is derived from the visitor's IP address by GA4 and is approximate.
   - name: geo_level
     type: STRING
     kind: dimension
@@ -48,7 +48,7 @@ columns:
     nullable: false
     meaning: export where the property is read from its GA4 BigQuery export, data_api where it is read through the Data API. The route of the property's latest pull, the same on every row of the property. The two routes' figures are never one series.
   - name: sessions
-    type: NUMERIC
+    type: INT64
     kind: denominator
     nullable: false
     meaning: Sessions in the month. Added over channel groups only without the (all) row, and never over places that hold each other.
@@ -57,7 +57,7 @@ columns:
       over: [month, web_property_id]
       dates: any
   - name: page_views
-    type: NUMERIC
+    type: INT64
     kind: numerator
     nullable: false
     meaning: Page views, page_view events, in the month. Added as sessions are. Over sessions it is the pages per session.

@@ -35,6 +35,11 @@ def test_combined_reports_build_for_every_route_and_repeat(tmp_path, respx_mock,
                             clock=lambda: project.now, out=lambda _: None)
     before = {table: project.rows(table) for table in built}
     assert before['mart.engagement_monthly_v1']
+    engagement = project.fake.tables['bp_mart.engagement_monthly_v1']
+    assert {name: engagement.columns[name] for name in ('sessions', 'page_views')} == {
+        'sessions': 'INT64', 'page_views': 'INT64'}
+    assert all(type(row[name]) is int for row in engagement.rows
+               for name in ('sessions', 'page_views'))
     assert before['mart.search_demand_monthly_v1']
     assert before['mart.growth_v1']
     if route == 'api':

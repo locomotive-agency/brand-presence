@@ -232,7 +232,7 @@
     {
       "address": "100000001",
       "client_brand_id": "aardvark",
-      "dataset": "fixture_export",
+      "dataset": "analytics_100000001",
       "hostname": null,
       "load_number": 1,
       "project": "example-export",

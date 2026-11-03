@@ -33,7 +33,7 @@ def test_access_names_missing_tables_and_columns(tmp_path, respx_mock, source):
     project, _ = prepared(tmp_path, respx_mock, source)
     expected = schemas(project, source)
     table = next(iter(expected))
-    project.fake.tables['fixture_export.' + table].columns.pop('event_name' if source == 'ga4'
+    project.fake.tables['analytics_100000001.' + table].columns.pop('event_name' if source == 'ga4'
                                                               else 'country')
     checks = access_check.run(project.bq, project.settings)
     assert any('missing column' in c.line() for c in checks)

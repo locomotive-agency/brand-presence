@@ -21,9 +21,9 @@ copy and checksums in local state. Apply the source's country and location valid
 only when GA4 export matching needs it. Record its date with configuration snapshots.
 
 Build empty export tables during init so combined reports work without exports.
-Preserve report SQL calculations. Widen the new engagement report's sessions and
-page_views columns to NUMERIC to match the existing API fact. The page report retains
-its export-only meaning and optional configured page list.
+Preserve report SQL calculations. Keep the engagement report's sessions and
+page_views columns as INT64, matching its casts and the source contract. The page
+report retains its export-only meaning and optional configured page list.
 
 Tests observe configuration, metadata calls, capped query calls, durable raw and clean
 writes, resumed reads, route selection and report results. No credentials or network

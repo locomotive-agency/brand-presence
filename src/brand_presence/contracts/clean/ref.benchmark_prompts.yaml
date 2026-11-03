@@ -57,7 +57,7 @@ columns:
   type: STRING
   kind: dimension
   nullable: true
-  meaning: The keyword the prompt stands for in reports, as the prompts tab gives it.
+  meaning: The keyword the prompt stands for in reports, as the YAML prompts configuration gives it.
   null_means: The prompt names no keyword, or the value was not captured.
 - name: keyword_group
   type: STRING

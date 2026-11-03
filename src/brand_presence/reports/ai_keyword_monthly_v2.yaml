@@ -36,7 +36,7 @@ columns:
     type: STRING
     kind: key
     nullable: false
-    meaning: The keyword the prompts stand for, from today's prompts tab; (none) for the prompts that name no keyword or that today's set no longer holds.
+    meaning: The keyword the prompts stand for, from the current YAML prompts configuration; (none) for the prompts that name no keyword or that today's set no longer holds.
   - name: brand
     type: STRING
     kind: key
@@ -46,12 +46,12 @@ columns:
     type: STRING
     kind: dimension
     nullable: true
-    meaning: The keyword's group, from today's prompts tab. Null on the keyword (none).
+    meaning: The keyword's group, from the current YAML prompts configuration. Null on the keyword (none).
   - name: intent
     type: STRING
     kind: dimension
     nullable: true
-    meaning: 'The keyword''s intent, from today''s prompts tab: informational, comparison or transactional. Null on the keyword (none).'
+    meaning: 'The keyword''s intent, from the current YAML prompts configuration: informational, comparison or transactional. Null on the keyword (none).'
   - name: prompts_run
     type: INT64
     kind: denominator

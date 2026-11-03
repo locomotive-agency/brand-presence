@@ -1,5 +1,5 @@
 chart_group: paid media
-grain: One row per month, client brand, country, place, campaign type and currency, from January 2024, of the places today's locations tab lists for google-ads. Delivery is where the person was. No place's row is added to another's.
+grain: One row per month, client brand, country, place, campaign type and currency, from January 2024, of the places the current YAML locations configuration lists for google-ads. Delivery is where the person was. No place's row is added to another's.
 key: [month, client_brand_id, country_code, geo_id, campaign_type, currency_code]
 reads: [core.fct_ads_v1, core.fct_ads_keywords_v1, core.fct_ads_auction_v1, ref.current_locations, ref.current_brands, ref.current_benchmark_keywords, ref.current_ad_accounts, stg.google_ads_pulls]
 inputs: [search_demand_monthly_v1]
@@ -26,17 +26,17 @@ columns:
     type: STRING
     kind: key
     nullable: false
-    meaning: The place where the person was, by its location ID in today's locations tab. On a national row, the country's own location. A state's row holds its cities, and no place's row is added to another's.
+    meaning: The place where the person was, by its location ID in the current YAML locations configuration. On a national row, the country's own location. A state's row holds its cities, and no place's row is added to another's.
   - name: geo_level
     type: STRING
     kind: dimension
     nullable: false
-    meaning: national, state or city, from the kind of the place in today's locations tab, country, region or city.
+    meaning: national, state or city, from the kind of the place in the current YAML locations configuration, country, region or city.
   - name: campaign_type
     type: STRING
     kind: key
     nullable: false
-    meaning: A label of the campaign's advertising channel type, as of today's rule. Search (brand) for a Search campaign whose keyword impressions in the month name the client brand more than half the time, as whole words, by today's name or an alias or by one of the client brand's brand keywords in today's sheet, of any country, misspellings included; Search (unlabelled) for a Search campaign with no keyword impressions in the month, which nothing labels; Search (category) for any other Search campaign; Performance Max, Video, Display and Demand Gen; any other type as Google Ads names it, and unknown where the campaigns report holds no row of the campaign.
+    meaning: A label of the campaign's advertising channel type, as of today's rule. Search (brand) for a Search campaign whose keyword impressions in the month name the client brand more than half the time, as whole words, by today's name or an alias or by one of the client brand's brand keywords in the current YAML configuration, of any country, misspellings included; Search (unlabelled) for a Search campaign with no keyword impressions in the month, which nothing labels; Search (category) for any other Search campaign; Performance Max, Video, Display and Demand Gen; any other type as Google Ads names it, and unknown where the campaigns report holds no row of the campaign.
   - name: currency_code
     type: STRING
     kind: key
@@ -211,7 +211,7 @@ columns:
     type: BOOL
     kind: attribute
     nullable: false
-    meaning: False for the month in progress in the client's time zone, and for a month whose days the report of the place's level was not pulled for, each of them, for an account of the client brand in today's ad accounts tab or an account the row was made from.
+    meaning: False for the month in progress in the client's time zone, and for a month whose days the report of the place's level was not pulled for, each of them, for an account of the client brand in the current YAML ad_accounts configuration or an account the row was made from.
   - name: pulled_at
     type: TIMESTAMP
     kind: attribute

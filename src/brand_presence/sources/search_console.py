@@ -460,9 +460,6 @@ class SearchConsole(Source):
     max_pages: ClassVar[int] = MAX_PAGES
     day_rows: ClassVar[int] = DAY_ROWS
 
-    def discovers_history(self, settings: ClientRef) -> bool:
-        return any(p.bigquery_export is not None for p in settings.web_properties_of(self.name))
-
     def plan(self, settings: ClientRef, period: Period) -> list[Request]:
         first, last = window_of(period)
         return [

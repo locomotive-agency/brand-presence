@@ -41,17 +41,17 @@ columns:
     type: STRING
     kind: dimension
     nullable: true
-    meaning: The keyword the prompt stands for, from today's prompts tab. Null where today's set no longer holds the prompt or the prompt names no keyword.
+    meaning: The keyword the prompt stands for, from the current YAML prompts configuration. Null where today's set no longer holds the prompt or the prompt names no keyword.
   - name: keyword_group
     type: STRING
     kind: dimension
     nullable: true
-    meaning: The group of keywords the prompt is reported under, from today's prompts tab. Null exactly where keyword is null.
+    meaning: The group of keywords the prompt is reported under, from the current YAML prompts configuration. Null exactly where keyword is null.
   - name: intent
     type: STRING
     kind: dimension
     nullable: true
-    meaning: 'What the prompt asks for, from today''s prompts tab: informational, comparison or transactional. Null exactly where keyword is null.'
+    meaning: 'What the prompt asks for, from the current YAML prompts configuration: informational, comparison or transactional. Null exactly where keyword is null.'
   - name: engine
     type: STRING
     kind: key
@@ -66,7 +66,7 @@ columns:
     type: STRING
     kind: dimension
     nullable: false
-    meaning: national, state or city, from the kind of the place in today's locations tab, country, region or city. Only the places the tab lists for ai-answers have rows.
+    meaning: national, state or city, from the kind of the place in the current YAML locations configuration, country, region or city. Only the places the YAML configuration lists for ai-answers have rows.
   - name: brand
     type: STRING
     kind: key
@@ -76,7 +76,7 @@ columns:
     type: STRING
     kind: attribute
     nullable: true
-    meaning: The brand's name, from today's brands tab. Null where today's tab no longer lists the brand.
+    meaning: The brand's name, from the current YAML brands configuration. Null where the current YAML configuration no longer lists the brand.
   - name: brand_set_version
     type: INT64
     kind: attribute

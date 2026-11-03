@@ -1,7 +1,7 @@
 table: ref.subreddits
 owner: setup-loader
 version: 1
-grain: One row per load and subreddit, as the YAML configuration's subreddits tab gave it. Rows are only added.
+grain: One row per load and subreddit, as the YAML subreddits configuration gave it. Rows are only added.
 key:
 - load_number
 - subreddit

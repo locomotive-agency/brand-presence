@@ -1,5 +1,6 @@
 """Execute report SQL locally. The source fake still owns transactions and row types."""
 import json
+import re
 import sqlite3
 from datetime import date, datetime
 from decimal import Decimal
@@ -99,7 +100,6 @@ def install_sources(fake, settings):
     from brand_presence.example._offline.report_sql import run_statement
     from brand_presence.reports.definition import load
     from brand_presence.schema import REF_MODELS
-    from brand_presence.warehouse import qualify
 
     reports = load()
     references = tuple(m.table.split('.')[1] for m in REF_MODELS)
@@ -141,18 +141,23 @@ def install_sources(fake, settings):
 
     def logical_sql(sql):
         for logical, physical in settings.datasets.model_dump().items():
-            sql = sql.replace(f'`{settings.project_id}.{physical}.', f'`{logical}.')
+            sql = re.sub(r'`' + re.escape(f'{settings.project_id}.{physical}.')
+                         + r'([A-Za-z_][A-Za-z0-9_]*)`', rf'{logical}.\1', sql)
         return sql.replace('_fact_rows', '_temp._fact_rows')
 
     def execute(bq, sql, parameters):
         tree = sqlglot.parse_one(sql, read='bigquery')
+        for table in tree.find_all(exp.Table):
+            if table.db and (table.catalog != settings.project_id
+                             or table.db not in settings.datasets.model_dump().values()):
+                raise ValueError(f'unqualified report table: {table.sql()}')
         if isinstance(tree, exp.Drop):
             bq.tables.pop('temp._fact_rows', None)
             return 0
         if isinstance(tree, exp.Create):
             assert 'temp._fact_rows' not in bq.tables, 'fact temporary table already exists'
             statement = sql.split(' AS\n', 1)[1].strip()
-            report = next(r for r in reports if qualify(r.statement, settings).strip() == statement)
+            report = next(r for r in reports if r.statement.strip() == logical_sql(statement))
             try:
                 if report.name.startswith(('fct_gsc', 'fct_ga4', 'fct_ads')):
                     rows = google_fact(report, tables_of(bq), schemas_of(bq))

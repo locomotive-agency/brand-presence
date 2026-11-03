@@ -65,7 +65,7 @@ def ai_fact(name: str, answers: list[dict], brands: list[dict] | None = None, *,
 def ai_tables(answers: list[dict], brands: list[dict], **given: list[dict]
               ) -> dict[str, list[dict]]:
     """The tables ai_prompt_results_v2 reads: the two facts built from the source rows given,
-    the set of version 2 and today's tabs."""
+    the set of version 2 and the current YAML configuration."""
     tables = {
         "core.fct_ai_answers_v1": ai_fact("fct_ai_answers_v1", answers, brands),
         "core.fct_ai_cited_links_v1": ai_fact("fct_ai_cited_links_v1", answers),

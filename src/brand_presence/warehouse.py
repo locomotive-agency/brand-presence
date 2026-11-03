@@ -6,8 +6,9 @@ from google.cloud import bigquery
 from brand_presence.settings import Settings
 
 TABLE = re.compile(
-    r"`[^`]*`|'(?:[^'\\]|\\.|'')*'|"
-    r"(?<![\w.])(?P<logical>(?:ops|raw|stg|core|mart|ref)\.[A-Za-z_][A-Za-z0-9_]*)"
+    r"--[^\n]*|/\*.*?\*/|`[^`]*`|'(?:[^'\\]|\\.|'')*'|"
+    r"(?<![\w.])(?P<logical>(?:ops|raw|stg|core|mart|ref)\.[A-Za-z_][A-Za-z0-9_]*)",
+    re.DOTALL,
 )
 
 

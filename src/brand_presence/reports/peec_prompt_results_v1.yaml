@@ -87,7 +87,7 @@ columns:
   type: STRING
   kind: dimension
   nullable: false
-  meaning: National. Peec supports country locations only, listed for peec in the locations tab.
+  meaning: National. Peec supports country locations only, listed for peec in the YAML locations configuration.
 - name: brand
   type: STRING
   kind: key
@@ -98,7 +98,7 @@ columns:
   type: STRING
   kind: attribute
   nullable: true
-  meaning: The brand's name, from today's brands tab. Null where today's tab no longer lists the brand.
+  meaning: The brand's name, from the current YAML brands configuration. Null where the current YAML configuration no longer lists the brand.
 - name: brand_set_version
   type: INT64
   kind: attribute

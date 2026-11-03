@@ -198,13 +198,12 @@ def run_statement(
     schemas = dict(schemas or {})
     tree = _unnested(tree, given, schemas).transform(_sorted_array_agg).transform(_null_list)
     tree = tree.transform(lazy)
-    # The executor infers columns from row zero. Empty external label tables still
-    # have their migrated schema, so supply it explicitly alongside the sample rows.
+    # Use declared types: an integral Decimal sample still comes from a NUMERIC column.
     inferred = {}
     for dataset, entries in given.items():
         for name, values in entries.items():
             columns = (schemas or {}).get(f"{dataset}.{name}")
-            if columns and isinstance(values, ExecutorTable):
+            if columns:
                 inferred.setdefault(dataset, {})[name] = columns
                 continue
             if not values:

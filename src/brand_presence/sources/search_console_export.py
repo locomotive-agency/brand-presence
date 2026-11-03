@@ -142,6 +142,12 @@ class ExportSend(WindowSend):
                 counts.append(default)
                 continue
             dataset = dataset_of(request.body["export"])
+            try:
+                location = self._location(dataset)
+            except VendorError as error:
+                if error.error_class == status.ACCESS:
+                    continue
+                raise
             sql = f"""SELECT MIN(data_date) AS first_date
 FROM `{dataset}.ExportLog`
 WHERE agenda = 'SEARCHDATA'
@@ -152,7 +158,7 @@ WHERE agenda = 'SEARCHDATA'
                     "last_date", "DATE", request.body["last_date"])],
                     maximum_bytes_billed=self.context.settings.maximum_bytes_billed)
                 rows = list(self.context.bq.query(
-                    sql, job_config=config, location=self._location(dataset)).result())
+                    sql, job_config=config, location=location).result())
             except GoogleAPICallError as error:
                 raise vendor_error(error) from None
             if len(rows) != 1 or type(rows[0].get("first_date")) is not date:
@@ -173,7 +179,13 @@ WHERE agenda = 'SEARCHDATA'
             if (body["export"] in self.starts
                     and date.fromisoformat(body["last_date"]) < self.starts[body["export"]]):
                 continue
-            held, epoch = self._readiness(request)
+            try:
+                held, epoch = self._readiness(request)
+            except VendorError as error:
+                if error.error_class == status.ACCESS:
+                    expanded.append(request)
+                    continue
+                raise
             if held == status.FINISHED_WEEK_CHECK:
                 raise VendorError(held)
             expanded.append(replace(request, body={**body, "epoch_version": epoch}))
@@ -181,7 +193,10 @@ WHERE agenda = 'SEARCHDATA'
 
     def _location(self, dataset: str) -> str:
         if dataset not in self.locations:
-            location = self.context.bq.get_dataset(dataset).location
+            try:
+                location = self.context.bq.get_dataset(dataset).location
+            except GoogleAPICallError as error:
+                raise vendor_error(error) from None
             if not isinstance(location, str) or not location:
                 raise VendorError(status.FINISHED_WEEK_CHECK)
             self.locations[dataset] = location

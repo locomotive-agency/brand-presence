@@ -564,7 +564,9 @@ Keep the API route if you have no export. It is the default for every web proper
 Existing API configuration, collection and reports keep working. You do not need an
 export dataset, export permissions or a geo targets download for an API-only setup.
 `init` creates empty clean export tables so combined reports can read them safely.
-Run `init` again when upgrading an existing installation.
+Run `init` again when upgrading an existing installation. The first run after this
+upgrade writes one new configuration snapshot because the snapshot includes the new
+export settings. This is harmless, including for API-only installations.
 
 Choose the export route when the property already exports to BigQuery and you need
 its retained history or fuller aggregates. Choose separately for each property.
@@ -585,12 +587,16 @@ Add these keys to the relevant `web_properties` entry. Use your own project and 
 ```yaml
 route: export
 project: example-export-project
-dataset: example_export
+dataset: analytics_100000001
 ```
 
+For GA4, the dataset must be `analytics_<property ID>`, with the number matching
+the property's `address`. Search Console can use a custom dataset name.
+
 Keep the property's `address`, local ID and optional `hostname`. Project and dataset
-names are validated before SQL is built. Omitting `route` means `api`; an API property
-cannot specify export project or dataset. An existing API property may switch to export
+names are validated before SQL is built. Domain-scoped project IDs such as
+`example.com:proj` are not supported for `project_id` or export projects. Omitting
+`route` means `api`; an API property cannot specify export project or dataset. An existing API property may switch to export
 with the same local ID. Its source, address, hostname and client brand remain fixed.
 Once an export dataset has been recorded, changing its binding needs a new local ID.
 Reports change route after a successful pull records the new route. With several
@@ -655,7 +661,7 @@ The following report groups include their prerequisites and checks in one transa
 Search demand starts from configured keyword volume. Collect search volume to give it
 rows. Growth aggregates those months. Paid media can build with no search-demand rows;
 its volume comparisons then remain null. Engagement combines property routes.
-Its session and page-view columns use NUMERIC to preserve the existing API fact types.
+Its session and page-view columns use INT64, matching the report's casts.
 SQL calculations and the source report checks are unchanged.
 The page report only shows export pages listed in optional YAML `pages`:
 

@@ -79,7 +79,7 @@ def test_ga4_saved_month_span_survives_new_daily_tables(tmp_path, respx_mock, mo
         patch.setattr(Warehouse, 'save_raw', killed)
         with pytest.raises(Killed):
             run(project, 'ga4')
-    project.fake.add_dataset('example-export.fixture_export', location='EU',
+    project.fake.add_dataset('example-export.analytics_100000001', location='EU',
                              tables=['events_20251231', *DAYS])
     project.later()
     result = run(project, 'ga4')
@@ -148,7 +148,7 @@ def test_export_dataset_cannot_rebind_a_recorded_property(tmp_path, respx_mock, 
     project, _ = prepared(tmp_path, respx_mock, source)
     assert run(project, source).status == 'success'
     config = project.settings.model_dump()
-    config['web_properties'][0].update(dataset='different_export')
+    config['web_properties'][0].update(project='different-export')
     project.settings = Settings.model_validate(config)
     result = run(project, source)
     assert result.status == 'error'
@@ -200,10 +200,47 @@ def test_export_statement_keeps_qualified_identifier(source, ending):
     from brand_presence.warehouse import qualify
     from project import configuration
 
-    dataset = f'example-{ending}.fixture_export'
+    dataset = f'example-{ending}.analytics_100000001'
     if source == 'ga4':
         sql = ga4_export.statement('export_pages', ga4_export.export_of(dataset),
                                    date(2026, 2, 1), date(2026, 2, 28))
     else:
         sql = gsc.statement(dataset, 'totals')
     assert qualify(sql, Settings.model_validate(configuration())) == sql
+
+
+@pytest.mark.parametrize('source', ['ga4', 'search-console'])
+def test_export_binding_survives_an_intervening_api_load(tmp_path, respx_mock, source):
+    from brand_presence import client_ref
+    from brand_presence.errors import UserError
+
+    project, _ = prepared(tmp_path, respx_mock, source)
+    exported = project.settings
+    first = client_ref.apply(project.bq, exported, project.now)
+    config = exported.model_dump()
+    config['web_properties'][0].update(route='api', project=None, dataset=None)
+    api = Settings.model_validate(config)
+    second = client_ref.apply(project.bq, api, project.now)
+    assert second.load_number == first.load_number + 1
+    config = exported.model_dump()
+    config['web_properties'][0]['project'] = 'different-export'
+    with pytest.raises(UserError, match='cannot be rebound'):
+        client_ref.apply(project.bq, Settings.model_validate(config), project.now)
+    assert len(project.rows('ops.config_snapshots')) == 2
+    third = client_ref.apply(project.bq, exported, project.now)
+    assert third.load_number == second.load_number + 1
+
+
+@pytest.mark.parametrize('period', ['2026-W09', None])
+def test_revoked_search_console_dataset_only_fails_export_property(tmp_path, respx_mock, period):
+    project, api = prepared(tmp_path, respx_mock, 'search-console', mixed=True)
+    project.fake.refuse('get_dataset')
+    api.empty = True
+    result = run(project, period=period)
+    assert result.status == 'partial'
+    assert result.error_class == 'access'
+    assert api.calls
+    assert project.rows('stg.search_console_totals') == []
+    pulls = project.rows('stg.search_console_pulls')
+    assert pulls and {row['web_property_id'] for row in pulls} == {'api-site'}
+    assert project.rows('stg.search_console_export_totals') == []

@@ -23,7 +23,7 @@ from brand_presence.client_ref import ClientRef, InconsistentRef
 from brand_presence.geo_targets import country_name, name_parts
 from brand_presence.http import VendorError
 from brand_presence.rows import ALL, UNKNOWN, CleanRow
-from brand_presence.settings import BIGQUERY_EXPORT
+from brand_presence.settings import GA4_EXPORT
 from brand_presence.sources.base import (
     Answer,
     Page,
@@ -101,7 +101,7 @@ class Export:
 
 
 def export_of(value: object) -> Export:
-    named = re.fullmatch(BIGQUERY_EXPORT, value) if isinstance(value, str) else None
+    named = re.fullmatch(GA4_EXPORT, value) if isinstance(value, str) else None
     if named is None:
         raise NotAnExport()
     project, dataset = value.split(".")
