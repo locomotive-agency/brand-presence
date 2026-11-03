@@ -1,7 +1,9 @@
 [project]
 name = "brand-presence"
 version = "0.1.0"
-description = "Search volume reporting in your own BigQuery project"
+description = "Brand presence data in your own BigQuery project"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 requires-python = ">=3.12"
 dependencies = [
   "typer>=0.12", "httpx>=0.27", "pydantic>=2.7", "tenacity>=8.3",

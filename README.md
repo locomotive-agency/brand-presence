@@ -155,7 +155,7 @@ uv run pytest
 Register future task sources in `src/brand_presence/sources/registry.py`.
 Keep recovery, raw storage and clean writes in the shared runner.
 The clean contract is in `src/brand_presence/contracts/clean/`.
-No license has been selected yet.
+Licensed under the Apache License 2.0. See `LICENSE`.
 
 ## Cloro AI answers
 
