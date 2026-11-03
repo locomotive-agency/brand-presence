@@ -1,0 +1,3 @@
+month,client_brand_id,web_property_id,country_code,search_type,row_kind,query,term_type,subject_brand_id,clicks,impressions,position_weighted,days_covered,anonymized_clicks,anonymized_impressions,pulled_at
+2026-02-01,aardvark,example-site-gsc,NL,web,query,Aardvark,generic,,10,80,240,1,,,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,example-site-gsc,NL,web,total,(all),(all),,12,100,300,1,2,20,2026-03-02T14:00:00+00:00

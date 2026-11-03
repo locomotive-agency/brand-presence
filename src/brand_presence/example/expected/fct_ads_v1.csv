@@ -1,0 +1,4 @@
+month,client_brand_id,ad_account_id,campaign_id,country_code,geo_level,location_id,location_type,currency_code,channel_type,impressions,clicks,cost_micros,conversions,days_covered,pulled_at
+2026-02-01,aardvark,example-ads,101,NL,country,nl,interest,EUR,SEARCH,311,13,1820000,2,6,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,example-ads,101,NL,country,nl,presence,EUR,SEARCH,300,12,1730000,1,6,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,example-ads,101,PT,country,pt,presence,EUR,SEARCH,322,14,1910000,3,6,2026-03-02T14:00:00+00:00

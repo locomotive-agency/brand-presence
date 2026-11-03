@@ -1,0 +1,5 @@
+month,client_brand_id,country_code,level,domain,url,citations,rank,is_client_domain,is_competitor_domain,engine_count,prompt_count,pulled_at
+2026-03-01,aardvark,NL,domain,capybara.example,(all),1,1,false,true,1,1,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,NL,domain,voorbeeld-gids.example,(all),1,1,false,false,1,1,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,NL,page,capybara.example,https://www.capybara.example/theepotten,1,1,false,true,1,1,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,NL,page,voorbeeld-gids.example,https://voorbeeld-gids.example/theepot-test,1,1,false,false,1,1,2026-03-02T14:00:00+00:00

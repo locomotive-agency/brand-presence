@@ -1,0 +1,3 @@
+month,client_brand_id,ad_account_id,campaign_id,currency_code,channel_type,impressions,auction_impressions,eligible_impressions,absolute_top_impressions,absolute_top_eligible_impressions,rank_lost_impressions,rank_lost_eligible_impressions,budget_lost_impressions,budget_lost_eligible_impressions,impression_share_bounded,pulled_at
+2026-02-01,aardvark,example-ads,101,EUR,SEARCH,3222,3222,7488,930,6304,1875,4937,988,4937,true,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,example-ads,102,EUR,SEARCH,3333,,,,,,,,,false,2026-03-02T14:00:00+00:00

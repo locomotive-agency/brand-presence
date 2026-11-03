@@ -1,0 +1,7 @@
+week_start,source,engine,keyword_group,brand,prompts_total,prompts_mentioned,mention_rate,cited_rate,avg_mention_position
+2026-02-23,peec,chatgpt,unknown,aardvark,1,1,1,1,1
+2026-02-23,peec,chatgpt,unknown,capybara,1,0,0,0,
+2026-03-02,cloro,ai-overview,kettles,aardvark,1,0,0,0,
+2026-03-02,cloro,ai-overview,kettles,capybara,1,0,0,0,
+2026-03-02,cloro,chatgpt,kettles,aardvark,2,1,0.5,0,1
+2026-03-02,cloro,chatgpt,kettles,capybara,2,1,0.5,0.5,2

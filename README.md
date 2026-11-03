@@ -1,13 +1,51 @@
 # Brand Presence
 
 Collect search volume, AI answers, brand mentions and Google marketing data into your
-own BigQuery project. DataForSEO, Cloro, Syften, Peec, Search Console, GA4 and Google Ads are available.
-Search Console and GA4 use their APIs by default, with optional BigQuery export routes. CRM is deferred. Setup is YAML. Credentials use environment
-variables or Application Default Credentials. Raw responses stay on your disk and in your BigQuery project.
+own BigQuery project. The kit provides clean tables and 32 versioned reports for
+analysts and marketing teams who manage their own data.
 
-## Setup
+Use the BigQuery tables in Looker Studio or give Claude access through your chosen
+BigQuery connection. You manage that connection and its permissions. The kit collects
+and prepares data; it does not include a dashboard service or a Claude integration.
+Configuration is YAML. Raw responses stay on your disk and in your BigQuery project.
 
-Use Python 3.12, uv, and macOS or Linux. Install the Google Cloud CLI separately.
+## Try it without credentials
+
+From the repository directory, after the one-time install below:
+
+```sh
+uv run brand-presence example --output example-output
+```
+
+On a clean macOS or Linux machine, install [uv](https://docs.astral.sh/uv/getting-started/installation/)
+and Git. Clone this public repository, or download and unpack its ZIP from GitHub.
+Open a terminal in the unpacked directory, then run:
+
+```sh
+uv python install 3.12
+uv sync --locked
+uv run brand-presence example --output example-output
+```
+
+Installation downloads Python and packages. Once installed, the example itself runs
+without network access, Google Cloud, credentials, configuration or vendor accounts.
+Open `example-output/report.html` in your browser. It reads the generated CSVs at build
+time and contains three views: search volume trend, AI answer brand share and mentions
+by week. It has no scripts, external assets or browser server requirement.
+
+The example runs every ported report against bundled invented observations for
+Aardvark Sample and Capybara Sample. It prints each report's name, row count and CSV
+path. Choose a new or empty output directory; existing files are never overwritten.
+This is a preview of the BigQuery data before paying for collection.
+
+[Example inputs and expected outputs](src/brand_presence/example/README.md) describe
+the fixed dates, known figures and CSV rounding. Tests compare every report CSV exactly.
+The offline SQL support is shared with the tests. It covers these reports, not arbitrary
+BigQuery SQL, and does not replace a live BigQuery acceptance check.
+
+## Run it on your own project
+
+After trying the example, install the [Google Cloud CLI](https://cloud.google.com/sdk/docs/install).
 Your Google Cloud project needs billing and the BigQuery API enabled.
 Your signed-in user needs permission to create datasets, run query jobs, and read and
 write the tables. For an initial project, BigQuery User plus BigQuery Data Editor at
@@ -15,7 +53,6 @@ project scope provide these capabilities. Dataset policies can further restrict 
 See [BigQuery roles](https://docs.cloud.google.com/bigquery/docs/access-control).
 
 ```sh
-uv sync --locked
 cp example.yaml config.yaml
 gcloud auth application-default login
 ```
@@ -33,11 +70,11 @@ Regional forms such as `zh-TW` are accepted structurally and passed through unch
 the vendor decides whether a language is available for the endpoint and location.
 A keyword is `brand`, `competitor` or `generic`. Brand and competitor keywords need a
 listed `brand_id`. Each keyword has a `search_volume` flag, defaulting to `true`.
-Set it to `false` to exclude that keyword from collection. The search-volume command needs at least one enabled keyword. Other sources can
-use benchmark sets without keywords.
+Set it to `false` to exclude that keyword from collection. The search-volume command
+needs at least one enabled keyword. Other sources can use benchmark sets without keywords.
 
-Set `DATAFORSEO_LOGIN` and `DATAFORSEO_PASSWORD` in your shell environment. Use your
-DataForSEO API login and API password. Do not put them in the YAML file.
+Start with one source. For DataForSEO, set `DATAFORSEO_LOGIN` and `DATAFORSEO_PASSWORD`
+in your shell environment. Use your DataForSEO API login and API password. Do not put them in the YAML file.
 
 ```sh
 export DATAFORSEO_LOGIN='example-login'
@@ -48,27 +85,76 @@ uv run brand-presence reports run --config config.yaml
 ```
 
 `init` can be repeated. It creates missing datasets and tables without deleting data.
-It adds the two mentions counters to an older `ops.runs` table and sets mention
-text partition expiry. It does not grant permissions, enable APIs, or repair other
+It also adds supported upgrade columns to run, property and GA4 pull tables, and sets
+mention text expiry. It does not grant permissions, enable APIs, or repair other
 incompatible existing schemas.
 Dataset names are configurable under `datasets` in the YAML file.
 
-The default period is the last complete month in `time_zone`. Each run asks for the
-three months ending with that period. It also asks once for up to 48 months of history
+For search volume, the default period is the last complete month in `time_zone`.
+Each run asks for the three months ending with that period. It also asks once for up to 48 months of history
 for each new keyword and country. The vendor decides which months are available.
 Use `--period YYYY-MM` to resume a specific ended month. Keep the original period when
 resuming after a month boundary. Very old periods can exceed the vendor's history range.
 
-## Cost and waiting
+For another source, use its `run` command from the table below after configuring it.
+Then build its report group with `reports run --source SOURCE --config config.yaml`.
+Collection and report builds are separate commands. Neither command schedules future runs.
+API sources need the extra scopes and account access described in their sections.
+
+## Sources
+
+Commands below follow `uv run brand-presence`. All real source runs also need
+BigQuery Application Default Credentials (ADC) and can incur BigQuery storage and
+query costs. The detailed sections explain configuration, access and recovery.
+Supported means implemented and tested offline. It does not mean verified against
+every live account. `reports run` defaults to `search-volume`.
+
+| Source | Collection command | Credentials | Cost or quota | Reports (`reports run --source`) | Status |
+| --- | --- | --- | --- | --- | --- |
+| DataForSEO | `run search-volume` | `DATAFORSEO_LOGIN`, `DATAFORSEO_PASSWORD` | Paid Standard queue tasks; see costs below | `search-volume`: monthly volume facts and history | Supported |
+| Cloro | `run ai-answers` | `CLORO_API_KEY` | Paid credits per task; account limits | `ai-answers`: prompt results, monthly brand counts and citations | Supported |
+| Syften | `run mentions` | `SYFTEN_API_KEY` | Subscription and account limits | `mentions`: mention facts | Supported |
+| Peec | `run peec` | `PEEC_API_KEY` | Tracking subscription; GET reads create no paid tasks | `peec`: stored prompt results, monthly counts and citations | Supported |
+| Search Console API | `run search-console` | ADC with `webmasters.readonly` and site access | Free API; load and request quotas | `search-console`: monthly totals and query facts | Supported |
+| Search Console export | `run search-console` with `route: export` | ADC with export dataset read access | BigQuery scans, capped per query | `search-console`: export facts; `search-demand`: search demand and growth | Supported |
+| GA4 API | `run ga4` | ADC with `analytics.readonly` and property access | Token and concurrency quotas | `ga4`: monthly facts and engagement | Supported |
+| GA4 export | `run ga4` with `route: export` | ADC with export dataset read access | BigQuery scans, capped per query | `ga4`: export facts, engagement and configured page reports | Supported |
+| Google Ads | `run google-ads` | `GOOGLE_ADS_CLIENT_ID`, `GOOGLE_ADS_CLIENT_SECRET`, `GOOGLE_ADS_REFRESH_TOKEN`; optional manager ID and legacy developer token | Free API; project operation quotas | `google-ads`: delivery, keywords, terms, auction, history and modifiers; `paid`: monthly comparisons | Supported |
+| Cloro + Peec | Collect either source above | Their credentials | Report queries only | `ai-weekly`: weekly brand mentions, domain citations and AI overview presence | Supported |
+| CRM | None | Not applicable | Not applicable | CRM facts, pipeline and correlation | Deferred |
+| Syften archive backfill | None | Not applicable | Not applicable | Historical archive collection | Deferred |
+| Reddit reports | None | External mention labels missing | Not applicable | `reddit_mentions_v1`, `reddit_mentions_v2` | Deferred |
+| Ads Transparency, search results and Trends | None | Not applicable | Not applicable | Reports listed below, including freshness | Deferred |
+
+`search-demand` combines search volume and Search Console. `paid` adds Google Ads.
+These groups include prerequisite report builds. The API and export routes use the
+same collection command, selected separately for each configured property.
+
+Reports left out of this kit are listed below. Their statements were not split or
+rewritten to hide missing dependencies.
+
+| Reports | Missing dependency |
+| --- | --- |
+| `fct_crm_leads_v1`, `fct_crm_deals_v1`, `pipeline_monthly_v1` | CRM |
+| `correlation_v1` | CRM pipeline reports |
+| `competitor_ads_history_v1` | Ads Transparency |
+| `fct_serp_v1`, `serp_history_v1`, `serp_presence_monthly_v1` | Search results and paid search-result ads |
+| `competitor_ads_v1` | Search-result facts and ad labels |
+| `fct_trends_v1`, `search_trends_history_v1` | Trends |
+| `freshness_v2` | CRM, Trends, search results and source-freshness data |
+| `reddit_mentions_v1`, `reddit_mentions_v2` | External mention labels, as before this port |
+
+## DataForSEO costs and waiting
 
 DataForSEO lists Standard queue tasks at **US$0.06 per task**, with up to 1,000 keywords
 per task. This kit uses that mode. A single HTTP POST can contain several billed tasks.
-The two-keyword, one-country example sends two tasks on its first run, about **US$0.12**.
+A live `run search-volume` with the two keywords and one country in `example.yaml`
+sends two tasks on its first run, about **US$0.12**. The offline `example` command is free.
 A later month normally needs one task, about **US$0.06**. Shared keywords are grouped
 by country and language. Additional countries, keyword batches, configuration changes,
 and retries of rejected or unusable tasks can add cost. Check the
 [current vendor price](https://dataforseo.com/pricing/keywords-data/google-ads).
-Prices were checked on 2 November 2026. BigQuery storage and queries have separate costs.
+Prices were checked on 3 November 2026. BigQuery storage and queries have separate costs.
 
 The vendor lists a typical queue wait of one to three hours. The command polls for up
 to 40 minutes. If tasks remain pending, run the same command again later. Known task
@@ -78,9 +164,9 @@ Exit codes are `0` for success, `3` for partial completion, `1` when nothing com
 or an error occurred, and `2` for invalid command usage. Read the request counts in
 the output. A pending task is not a successful measurement.
 
-## Reports
+## Search volume reports
 
-With the default dataset names, `reports run` builds:
+With the default dataset names, `reports run --source search-volume` builds:
 
 | Table | Contents |
 | --- | --- |
@@ -94,68 +180,10 @@ The history table is replaced as a whole. A failed build rolls both tables back.
 
 The clean table `bp_stg.search_volume` keeps each collection period separately.
 Do not sum its overlapping pulls. Use the history report for analysis.
-Search volume is a vendor estimate. These reports do not calculate share of search,
-revenue, organic clicks, or advertising spend. Bid and CPC fields remain in clean data
+Search volume is a vendor estimate. These two reports do not calculate share of search,
+revenue, organic clicks, or advertising spend. Use `search-demand` and `paid` for
+cross-source comparisons once their inputs have been collected. Bid and CPC fields remain in clean data
 but are excluded from the reports.
-
-## Recovery and local state
-
-Raw responses are saved under `state_dir/<project_id>/<ops_dataset>/raw/` before any
-clean rows are written. The default state directory is `.brand-presence`, relative
-to the config file. Back it up and keep it with the configuration.
-It contains research terms and vendor responses, so treat it as private data.
-Raw rows are also stored in BigQuery. Configuration snapshots in BigQuery preserve
-the settings needed to parse an older task.
-
-The BigQuery run record is also a lock. A process lock protects local state. After
-an abrupt process death, the next run closes the abandoned record once it is one
-hour old. Until then, another run is refused. Use one host and one state directory
-for a project and dataset set. Do not delete ledger rows or state to force a rerun.
-
-For DataForSEO, a task left `sending` becomes `unknown` and is looked up by its tag. If the ready
-list does not contain it, it stays unknown. A timeout or server error on a paid POST
-is never blindly retried. Unknown and expired paid tasks are not submitted again in
-their original period.
-
-Unresolved history from an earlier period reserves its keyword and location pairs
-until an `unknown` or `expired` attempt is older than DataForSEO's 30-day result
-retention. Age starts at submission, or creation if submission was never recorded.
-After that, a later-period run can request the history again. This also releases a
-request left in the ledger by a crash before the POST. **This can pay once more for
-a request that the vendor may have run.** It does not resolve the old attempt's
-outcome. Each run's planning output lists the reserved pair count and up to five
-pairs, including zero when none remain. Stored answers awaiting clean writes keep
-their reservations regardless of age.
-
-Recover promptly and investigate unresolved tasks with the vendor. Missing local raw
-files stop clean recovery rather than paying again. Requests never sent because the
-run's deadline passed, or because the vendor took nothing, count as pending rather
-than failed.
-
-Clean writes delete by request key and by natural key, then insert
-in one transaction. If a process stops after the commit, repeating the write is safe.
-Task and window natural keys include their period. Mention IDs are unique across
-periods. Malformed rows stay raw and are reported as parse errors.
-
-## Limits and development
-
-The CLI has no scheduler or dashboard. Search volume is national and monthly.
-Cloro supports countries and configured regions. Peec maps one project to one
-country. Mentions use the country assigned to each filter. Country names and
-languages are structurally validated offline; vendor acceptance is checked on the task.
-Production APIs have not been called for this port. Tests use invented fixtures and
-the source BigQuery fake. Report SQL is also executed locally through SQLGlot and SQLite.
-Those tests do not replace a real BigQuery acceptance run.
-
-```sh
-uv run ruff check .
-uv run pytest
-```
-
-Register future task sources in `src/brand_presence/sources/registry.py`.
-Keep recovery, raw storage and clean writes in the shared runner.
-The clean contract is in `src/brand_presence/contracts/clean/`.
-Licensed under the Apache License 2.0. See `LICENSE`.
 
 ## Cloro AI answers
 
@@ -404,7 +432,7 @@ uv run brand-presence reports run --source ga4 --config config.yaml
 ```
 
 A service account selected by `GOOGLE_APPLICATION_CREDENTIALS` also works when it has
-GA4 Viewer access and the BigQuery permissions from Setup. ADC quota projects need
+GA4 Viewer access and the BigQuery permissions from Run it on your own project. ADC quota projects need
 Service Usage Consumer permission. The client sends ADC's quota project with API calls.
 
 GA4 writes `stg.ga4_engagement`, `stg.ga4_landing_pages` and `stg.ga4_pulls`.
@@ -529,20 +557,6 @@ still apply. BigQuery storage and queries cost separately. These reads do not bu
 
 The `paid` report group builds `paid_monthly_v1` after its search-demand and Ads inputs.
 It works without either export configured. Missing source data stays empty or null.
-
-Reports left out of this kit are listed below. Their statements were not split or
-rewritten to hide missing dependencies.
-
-| Reports | Missing dependency |
-| --- | --- |
-| `fct_crm_leads_v1`, `fct_crm_deals_v1`, `pipeline_monthly_v1` | CRM |
-| `correlation_v1` | CRM pipeline reports |
-| `competitor_ads_history_v1` | Ads Transparency |
-| `fct_serp_v1`, `serp_history_v1`, `serp_presence_monthly_v1` | Search results and paid search-result ads |
-| `competitor_ads_v1` | Search-result facts and ad labels |
-| `fct_trends_v1`, `search_trends_history_v1` | Trends |
-| `freshness_v2` | CRM, Trends, search results and source-freshness data |
-| `reddit_mentions_v1`, `reddit_mentions_v2` | External mention labels, as before this port |
 
 ## API or export
 
@@ -674,3 +688,66 @@ one, and stays null when impressions are zero.
 
 No live export was accessed during this port. Tests use invented rows, the BigQuery
 stand-in and local SQL execution. They do not replace acceptance checks on your own export.
+
+## Recovery and local state
+
+Raw responses are saved under `state_dir/<project_id>/<ops_dataset>/raw/` before any
+clean rows are written. The default state directory is `.brand-presence`, relative
+to the config file. Back it up and keep it with the configuration.
+It contains research terms and vendor responses, so treat it as private data.
+Raw rows are also stored in BigQuery. Configuration snapshots in BigQuery preserve
+the settings needed to parse an older task.
+
+The BigQuery run record is also a lock. A process lock protects local state. After
+an abrupt process death, the next run closes the abandoned record once it is one
+hour old. Until then, another run is refused. Use one host and one state directory
+for a project and dataset set. Do not delete ledger rows or state to force a rerun.
+
+For DataForSEO, a task left `sending` becomes `unknown` and is looked up by its tag. If the ready
+list does not contain it, it stays unknown. A timeout or server error on a paid POST
+is never blindly retried. Unknown and expired paid tasks are not submitted again in
+their original period.
+
+Unresolved history from an earlier period reserves its keyword and location pairs
+until an `unknown` or `expired` attempt is older than DataForSEO's 30-day result
+retention. Age starts at submission, or creation if submission was never recorded.
+After that, a later-period run can request the history again. This also releases a
+request left in the ledger by a crash before the POST. **This can pay once more for
+a request that the vendor may have run.** It does not resolve the old attempt's
+outcome. Each run's planning output lists the reserved pair count and up to five
+pairs, including zero when none remain. Stored answers awaiting clean writes keep
+their reservations regardless of age.
+
+Recover promptly and investigate unresolved tasks with the vendor. Missing local raw
+files stop clean recovery rather than paying again. Requests never sent because the
+run's deadline passed, or because the vendor took nothing, count as pending rather
+than failed.
+
+Clean writes delete by request key and by natural key, then insert
+in one transaction. If a process stops after the commit, repeating the write is safe.
+Task and window natural keys include their period. Mention IDs are unique across
+periods. Malformed rows stay raw and are reported as parse errors.
+
+## Limitations
+
+The CLI has no scheduler or dashboard. Search volume is national and monthly.
+Cloro supports countries and configured regions. Peec maps one project to one
+country. Mentions use the country assigned to each filter. Country names and
+languages are structurally validated offline; vendor acceptance is checked on the task.
+Production APIs have not been called for this port. Tests use invented fixtures and
+the source BigQuery fake. Report SQL is also executed locally through SQLGlot and SQLite.
+Those tests do not replace a real BigQuery acceptance run.
+
+Successful weekly API and Peec windows are not automatically refreshed. Export routes
+have their own refresh rules in the API or export section. Missing data can produce empty tables or nulls.
+An empty report does not prove that a brand had no activity. Sentiment and recommendation
+labels are not inferred. Distinct users and ratios cannot be added across report rows.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, tests and style.
+
+## Licence and support
+
+Licensed under [Apache-2.0](LICENSE). Report bugs and request features through this
+repository's GitHub Issues tab. Include the command, package version and a redacted
+error. Do not attach credentials, account IDs, raw responses or private configuration.
+For vulnerabilities, follow [SECURITY.md](SECURITY.md).

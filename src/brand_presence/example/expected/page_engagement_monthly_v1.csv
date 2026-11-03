@@ -1,0 +1,4 @@
+month,client_brand_id,web_property_id,page_path,page_group,ga4_route,page_views,users,engagement_duration_sec,avg_engagement_sec,is_complete_month,pulled_at
+2026-01-01,aardvark,example-site,/example,Example,export,80,50,250,5,true,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,example-site,/example,Example,export,80,50,250,5,true,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,example-site,/example,Example,export,80,50,250,5,false,2026-03-02T14:00:00+00:00

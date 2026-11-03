@@ -1,0 +1,7 @@
+month,client_brand_id,country_code,geo_id,geo_level,term_type,brand,brand_name,brand_set_version,search_volume,brand_set_volume,share_of_search,search_volume_year_ago,search_volume_yoy_change,organic_clicks,organic_impressions,organic_position_weighted,organic_avg_position,organic_days_covered,is_complete_month,pulled_at,keywords_expected,keywords_found
+2025-12-01,aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,1,410,410,1,,,,,,,,true,2026-03-02T14:00:00+00:00,1,1
+2025-12-01,aardvark,NL,nl,national,category,(all),,1,2400,,,,,,,,,,true,2026-03-02T14:00:00+00:00,1,1
+2026-01-01,aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,1,290,290,1,,,,,,,,true,2026-03-02T14:00:00+00:00,1,1
+2026-01-01,aardvark,NL,nl,national,category,(all),,1,1600,,,,,,,,,,true,2026-03-02T14:00:00+00:00,1,1
+2026-02-01,aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,1,320,320,1,,,,,,,,true,2026-03-02T14:00:00+00:00,1,1
+2026-02-01,aardvark,NL,nl,national,category,(all),,1,1900,,,,,,,,,,true,2026-03-02T14:00:00+00:00,1,1

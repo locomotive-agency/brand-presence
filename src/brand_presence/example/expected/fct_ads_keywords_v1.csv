@@ -1,0 +1,4 @@
+month,client_brand_id,ad_account_id,campaign_id,keyword_text,match_type,impressions,pulled_at
+2026-02-01,aardvark,example-ads,102,aardvark boots,PHRASE,129,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,example-ads,102,aardvark shoes,EXACT,120,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,example-ads,102,sample walking shoes,BROAD,138,2026-03-02T14:00:00+00:00

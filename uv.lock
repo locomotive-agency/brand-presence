@@ -46,6 +46,7 @@ dependencies = [
     { name = "httpx" },
     { name = "pydantic" },
     { name = "pyyaml" },
+    { name = "sqlglot" },
     { name = "tenacity" },
     { name = "typer" },
 ]
@@ -55,7 +56,6 @@ dev = [
     { name = "pytest" },
     { name = "respx" },
     { name = "ruff" },
-    { name = "sqlglot" },
 ]
 
 [package.metadata]
@@ -64,6 +64,7 @@ requires-dist = [
     { name = "httpx", specifier = ">=0.27" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pyyaml", specifier = ">=6.0" },
+    { name = "sqlglot", specifier = ">=30.22" },
     { name = "tenacity", specifier = ">=8.3" },
     { name = "typer", specifier = ">=0.12" },
 ]
@@ -73,7 +74,6 @@ dev = [
     { name = "pytest", specifier = ">=8.2" },
     { name = "respx", specifier = ">=0.21" },
     { name = "ruff", specifier = ">=0.5" },
-    { name = "sqlglot", specifier = ">=30.22" },
 ]
 
 [[package]]

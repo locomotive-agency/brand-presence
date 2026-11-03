@@ -1,0 +1,3 @@
+month,client_brand_id,country_code,location_id,prompt_id,engine,period,link,period_start,source_pulled_at,pulled_at
+2026-03-01,aardvark,NL,nl,example-prompt,chatgpt,2026-W10,https://voorbeeld-gids.example/theepot-test,2026-03-02,2026-03-02T12:00:00+00:00,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,NL,nl,example-prompt,chatgpt,2026-W10,https://www.capybara.example/theepotten,2026-03-02,2026-03-02T12:00:00+00:00,2026-03-02T14:00:00+00:00

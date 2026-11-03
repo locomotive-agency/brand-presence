@@ -1,0 +1,5 @@
+month,client_brand_id,match_id,country_code,location_id,match_date,community,sub_community,item_type,mention_class,subject_brand_id,keyword_group,source_pulled_at,pulled_at,accepted
+2026-02-01,aardvark,example-match-0,NL,nl,2026-02-23,sample-forum,theepotten,post,brand,aardvark,kettles,2026-03-02T12:00:00+00:00,2026-03-02T14:00:00+00:00,true
+2026-03-01,aardvark,example-match-1,NL,nl,2026-03-02,sample-forum,theepotten,post,brand,aardvark,kettles,2026-03-02T12:00:00+00:00,2026-03-02T14:00:00+00:00,true
+2026-03-01,aardvark,example-match-2,NL,nl,2026-03-02,sample-forum,theepotten,post,brand,aardvark,kettles,2026-03-02T12:00:00+00:00,2026-03-02T14:00:00+00:00,true
+2026-03-01,aardvark,match-0009,NL,nl,2026-03-01,sample-forum,theepotten,post,brand,aardvark,kettles,2026-03-02T12:00:00+00:00,2026-03-02T14:00:00+00:00,true

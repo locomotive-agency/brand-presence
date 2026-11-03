@@ -29,3 +29,9 @@ raw files, BigQuery transactional writes, and report SQL results. They use no
 credentials or network. Interruption tests cover submission or read, raw storage,
 raw load, clean commit, cursors and history. Configuration tests cover references
 and source-specific validation. Report assertions use explicit known figures.
+
+The credential-free example shares the tests' offline report executor. Its public
+seams are the CLI, all report CSVs and the static HTML summary. Tests compare bundled
+expected CSVs exactly after rounding numbers to six decimal places, and assert known
+headline figures independently. The example uses only synthetic clean and reference
+inputs. It previews the BigQuery reports without collecting data.

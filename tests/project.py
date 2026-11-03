@@ -6,7 +6,6 @@ from pathlib import Path
 
 import httpx
 import yaml
-from google.cloud import bigquery
 
 from brand_presence import runner, schema
 from brand_presence.runs import Period, period_start
@@ -29,15 +28,7 @@ class Killed(BaseException):
     pass
 
 
-class BigQuery(FakeBigQuery):
-    def create_dataset(self, dataset, exists_ok=False):
-        identity = f"{dataset.project}.{dataset.dataset_id}"
-        if identity not in self._datasets:
-            self.add_dataset(identity, location=dataset.location)
-        found = bigquery.Dataset(identity)
-        found.location = self._datasets[identity][0]
-        return found
-
+BigQuery = FakeBigQuery
 
 class Vendor:
     def __init__(self, router):

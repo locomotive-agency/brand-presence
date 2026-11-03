@@ -51,7 +51,7 @@ from functools import cache
 
 from google.api_core.exceptions import BadRequest, Conflict, NotFound
 
-from fakes.journal import Misuse
+from brand_presence.example._offline.fakes.journal import Misuse
 
 
 class NotUnderstood(Misuse):

@@ -1,0 +1,37 @@
+period_type,period_start,period_end,period_label,client_brand_id,country_code,geo_id,geo_level,term_type,brand,brand_name,months_in_period,search_volume,brand_set_volume,share_of_search,prior_search_volume,prior_brand_set_volume,prior_share_of_search,year_ago_search_volume,year_ago_brand_set_volume,year_ago_share_of_search,search_volume_pop_change,search_volume_yoy_change,share_of_search_pop_change,share_of_search_yoy_change,is_partial
+half,2025-07-01,2025-12-01,H2 2025 (partial),aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,1,410,410,1,,,,,,,,,,,true
+half,2025-07-01,2025-12-01,H2 2025 (partial),aardvark,NL,nl,national,category,(all),,1,2400,,,,,,,,,,,,,true
+half,2026-01-01,2026-06-01,H1 2026 (partial),aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,2,610,610,1,410,410,1,,,,0.487805,,0,,true
+half,2026-01-01,2026-06-01,H1 2026 (partial),aardvark,NL,nl,national,category,(all),,2,3500,,,2400,,,,,,0.458333,,,,true
+month,2025-12-01,2025-12-01,Dec 2025,aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,1,410,410,1,,,,,,,,,,,false
+month,2025-12-01,2025-12-01,Dec 2025,aardvark,NL,nl,national,category,(all),,1,2400,,,,,,,,,,,,,false
+month,2026-01-01,2026-01-01,Jan 2026,aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,1,290,290,1,410,410,1,,,,-0.292683,,0,,false
+month,2026-01-01,2026-01-01,Jan 2026,aardvark,NL,nl,national,category,(all),,1,1600,,,2400,,,,,,-0.333333,,,,false
+month,2026-02-01,2026-02-01,Feb 2026,aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,1,320,320,1,290,290,1,,,,0.103448,,0,,false
+month,2026-02-01,2026-02-01,Feb 2026,aardvark,NL,nl,national,category,(all),,1,1900,,,1600,,,,,,0.1875,,,,false
+quarter,2025-10-01,2025-12-01,Q4 2025 (partial),aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,1,410,410,1,,,,,,,,,,,true
+quarter,2025-10-01,2025-12-01,Q4 2025 (partial),aardvark,NL,nl,national,category,(all),,1,2400,,,,,,,,,,,,,true
+quarter,2026-01-01,2026-03-01,Q1 2026 (partial),aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,2,610,610,1,410,410,1,,,,0.487805,,0,,true
+quarter,2026-01-01,2026-03-01,Q1 2026 (partial),aardvark,NL,nl,national,category,(all),,2,3500,,,2400,,,,,,0.458333,,,,true
+rolling_12,2025-01-01,2025-12-01,12 months to Dec 2025 (partial),aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,1,410,410,1,,,,,,,,,,,true
+rolling_12,2025-01-01,2025-12-01,12 months to Dec 2025 (partial),aardvark,NL,nl,national,category,(all),,1,2400,,,,,,,,,,,,,true
+rolling_12,2025-02-01,2026-01-01,12 months to Jan 2026 (partial),aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,2,700,700,1,,,,,,,,,,,true
+rolling_12,2025-02-01,2026-01-01,12 months to Jan 2026 (partial),aardvark,NL,nl,national,category,(all),,2,4000,,,,,,,,,,,,,true
+rolling_12,2025-03-01,2026-02-01,12 months to Feb 2026 (partial),aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,3,1020,1020,1,,,,,,,,,,,true
+rolling_12,2025-03-01,2026-02-01,12 months to Feb 2026 (partial),aardvark,NL,nl,national,category,(all),,3,5900,,,,,,,,,,,,,true
+rolling_3,2025-10-01,2025-12-01,3 months to Dec 2025 (partial),aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,1,410,410,1,,,,,,,,,,,true
+rolling_3,2025-10-01,2025-12-01,3 months to Dec 2025 (partial),aardvark,NL,nl,national,category,(all),,1,2400,,,,,,,,,,,,,true
+rolling_3,2025-11-01,2026-01-01,3 months to Jan 2026 (partial),aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,2,700,700,1,,,,,,,,,,,true
+rolling_3,2025-11-01,2026-01-01,3 months to Jan 2026 (partial),aardvark,NL,nl,national,category,(all),,2,4000,,,,,,,,,,,,,true
+rolling_3,2025-12-01,2026-02-01,3 months to Feb 2026,aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,3,1020,1020,1,,,,,,,,,,,false
+rolling_3,2025-12-01,2026-02-01,3 months to Feb 2026,aardvark,NL,nl,national,category,(all),,3,5900,,,,,,,,,,,,,false
+rolling_6,2025-07-01,2025-12-01,6 months to Dec 2025 (partial),aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,1,410,410,1,,,,,,,,,,,true
+rolling_6,2025-07-01,2025-12-01,6 months to Dec 2025 (partial),aardvark,NL,nl,national,category,(all),,1,2400,,,,,,,,,,,,,true
+rolling_6,2025-08-01,2026-01-01,6 months to Jan 2026 (partial),aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,2,700,700,1,,,,,,,,,,,true
+rolling_6,2025-08-01,2026-01-01,6 months to Jan 2026 (partial),aardvark,NL,nl,national,category,(all),,2,4000,,,,,,,,,,,,,true
+rolling_6,2025-09-01,2026-02-01,6 months to Feb 2026 (partial),aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,3,1020,1020,1,,,,,,,,,,,true
+rolling_6,2025-09-01,2026-02-01,6 months to Feb 2026 (partial),aardvark,NL,nl,national,category,(all),,3,5900,,,,,,,,,,,,,true
+year,2025-01-01,2025-12-01,2025 (partial),aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,1,410,410,1,,,,,,,,,,,true
+year,2025-01-01,2025-12-01,2025 (partial),aardvark,NL,nl,national,category,(all),,1,2400,,,,,,,,,,,,,true
+year,2026-01-01,2026-12-01,2026 (partial),aardvark,NL,nl,national,brand,aardvark,Aardvark Sample,2,610,610,1,410,410,1,410,410,1,0.487805,0.487805,0,0,true
+year,2026-01-01,2026-12-01,2026 (partial),aardvark,NL,nl,national,category,(all),,2,3500,,,2400,,,2400,,,0.458333,0.458333,,,true

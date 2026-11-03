@@ -1,0 +1,4 @@
+month,client_brand_id,web_property_id,country_code,geo_level,location_id,channel_group,through_date,period_start,sessions,page_views,engagement_seconds,active_users,total_users,new_users,returning_users,pulled_at
+2026-01-01,aardvark,example-site,NL,national,nl,(all),2026-01-31,2026-02-23,120,240,4810.25,80,95,60,40,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,example-site,NL,national,nl,(all),2026-02-28,2026-02-23,120,240,4810.25,80,95,60,40,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,example-site,NL,national,nl,(all),2026-03-01,2026-02-23,120,240,4810.25,80,95,60,40,2026-03-02T14:00:00+00:00

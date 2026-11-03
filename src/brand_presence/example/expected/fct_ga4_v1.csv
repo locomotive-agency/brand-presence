@@ -1,0 +1,13 @@
+month,client_brand_id,web_property_id,country_code,geo_level,location_id,channel_group,sessions,engaged_sessions,engagement_seconds,event_count,key_events,page_views,days_covered,sampled,pulled_at
+2026-02-01,aardvark,api-site,NL,country,nl,Direct,285,216,15780,2595,26,870,6,false,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,api-site,NL,country,nl,Organic Search,585,441,32280,5295,56,1770,6,false,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,api-site,NL,country,nl,Referral,117,90,6540,1083,9,366,6,false,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,api-site,PT,country,pt,Direct,141,106,7890,1296,12,435,6,false,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,api-site,PT,country,pt,Organic Search,291,219,16140,2646,26,885,6,false,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,api-site,PT,country,pt,Referral,57,44,3270,540,3,183,6,false,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,api-site,NL,country,nl,Direct,58,44,3232,534,5,180,1,false,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,api-site,NL,country,nl,Organic Search,108,81,5982,984,10,330,1,false,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,api-site,NL,country,nl,Referral,30,23,1692,282,3,96,1,false,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,api-site,PT,country,pt,Direct,29,22,1616,267,2,90,1,false,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,api-site,PT,country,pt,Organic Search,54,40,2991,492,5,165,1,false,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,api-site,PT,country,pt,Referral,15,11,846,141,1,48,1,false,2026-03-02T14:00:00+00:00

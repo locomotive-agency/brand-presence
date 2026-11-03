@@ -1,0 +1,2 @@
+month,client_brand_id,country_code,location_id,prompt_id,engine,period,link,period_start,source_pulled_at,mapping,answer_key,request_key,observation_date,pulled_at
+2026-02-01,aardvark,NL,nl,0850605c9780e114e149,chatgpt,2026-W09,https://aardvark.example/kettle,2026-02-23,2026-03-02T12:00:00+00:00,example,example-answer-key-1,example-request-key-11,2026-02-23,2026-03-02T14:00:00+00:00

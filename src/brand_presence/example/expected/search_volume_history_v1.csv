@@ -1,0 +1,7 @@
+month,client_brand_id,country_code,location_id,keyword,term_type,subject_brand_id,benchmark_version,search_volume,pulled_at
+2025-12-01,aardvark,NL,nl,sample aardvark theepot,brand,aardvark,1,410,2026-03-02T14:00:00+00:00
+2025-12-01,aardvark,NL,nl,voorbeeld theepot kopen,generic,,1,2400,2026-03-02T14:00:00+00:00
+2026-01-01,aardvark,NL,nl,sample aardvark theepot,brand,aardvark,1,290,2026-03-02T14:00:00+00:00
+2026-01-01,aardvark,NL,nl,voorbeeld theepot kopen,generic,,1,1600,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,NL,nl,sample aardvark theepot,brand,aardvark,1,320,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,NL,nl,voorbeeld theepot kopen,generic,,1,1900,2026-03-02T14:00:00+00:00

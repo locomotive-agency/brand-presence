@@ -1,0 +1,2 @@
+month,client_brand_id,modifier,search_terms,impressions,clicks,conversions,conversion_rate,is_complete_month,pulled_at
+2026-02-01,aardvark,brand only,2,740,46,3,0.065217,false,2026-03-02T14:00:00+00:00

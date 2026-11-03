@@ -1,0 +1,9 @@
+month,client_brand_id,web_property_id,country_code,search_type,row_kind,query,term_type,subject_brand_id,clicks,impressions,position_weighted,days_covered,pulled_at
+2026-02-01,aardvark,api-site-gsc,NL,web,query,theepot kopen,generic,,45,750,3937.5,6,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,api-site-gsc,NL,web,query,theepot rood aardewerk,generic,,24,480,3840,6,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,api-site-gsc,NL,web,query,voorbeeld theepot,generic,,90,1200,3000,6,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,api-site-gsc,NL,web,total,(all),(all),,218,5100,23177.5,6,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,api-site-gsc,NL,web,query,theepot kopen,generic,,10,150,787.5,1,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,api-site-gsc,NL,web,query,theepot rood aardewerk,generic,,6,120,960,1,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,api-site-gsc,NL,web,query,voorbeeld theepot,generic,,20,300,750,1,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,api-site-gsc,NL,web,total,(all),(all),,42,900,4500,1,2026-03-02T14:00:00+00:00

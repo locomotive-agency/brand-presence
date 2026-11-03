@@ -1,0 +1,12 @@
+month,client_brand_id,country_code,web_property_id,geo_id,geo_level,channel_group,ga4_route,sessions,page_views,pages_per_session,engagement_duration_sec,active_users,total_users,returning_users,time_on_site_sec,return_visit_rate,sampled,is_complete_month,pulled_at
+2026-01-01,aardvark,NL,example-site,nl,national,(all),export,120,240,2,4810.25,80,95,40,50.634211,0.421053,false,true,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,NL,api-site,nl,national,(all),data_api,987,3006,3.045593,54600,,,,,,false,false,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,NL,api-site,nl,national,Direct,data_api,285,870,3.052632,15780,,,,,,false,false,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,NL,api-site,nl,national,Organic Search,data_api,585,1770,3.025641,32280,,,,,,false,false,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,NL,api-site,nl,national,Referral,data_api,117,366,3.128205,6540,,,,,,false,false,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,NL,example-site,nl,national,(all),export,120,240,2,4810.25,80,95,40,50.634211,0.421053,false,true,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,NL,api-site,nl,national,(all),data_api,196,606,3.091837,10906,,,,,,false,false,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,NL,api-site,nl,national,Direct,data_api,58,180,3.103448,3232,,,,,,false,false,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,NL,api-site,nl,national,Organic Search,data_api,108,330,3.055556,5982,,,,,,false,false,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,NL,api-site,nl,national,Referral,data_api,30,96,3.2,1692,,,,,,false,false,2026-03-02T14:00:00+00:00
+2026-03-01,aardvark,NL,example-site,nl,national,(all),export,120,240,2,4810.25,80,95,40,50.634211,0.421053,false,false,2026-03-02T14:00:00+00:00

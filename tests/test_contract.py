@@ -48,10 +48,13 @@ def test_package_has_no_private_identifiers_or_services():
         for p in (ROOT / root).rglob("*")
         if p.is_file()
         and "__pycache__" not in p.parts
-        and p.suffix in (".py", ".sql", ".yaml", ".json", ".md")
+        and p.suffix in (".py", ".sql", ".yaml", ".json", ".md", ".csv", ".html")
     ]
-    tracked += ["README.md", "example.yaml", "pyproject.toml", "CONTEXT.md"]
+    tracked += ["README.md", "example.yaml", "pyproject.toml", "CONTEXT.md",
+                "CONTRIBUTING.md", "SECURITY.md"]
     assert any(name.startswith("src/") for name in tracked)
+    assert "src/brand_presence/example/inputs.json" in tracked
+    assert "src/brand_presence/example/expected/fct_search_volume_v1.csv" in tracked
     for name in filter(None, tracked):
         path = ROOT / name
         if path.is_file():

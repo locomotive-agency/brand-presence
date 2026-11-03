@@ -1,0 +1,3 @@
+month,client_brand_id,country_code,geo_id,geo_level,campaign_type,currency_code,impressions,clicks,cost,pulled_at
+2026-02-01,aardvark,NL,nl,national,Search (unlabelled),EUR,300,12,1.73,2026-03-02T14:00:00+00:00
+2026-02-01,aardvark,PT,pt,national,Search (unlabelled),EUR,322,14,1.91,2026-03-02T14:00:00+00:00

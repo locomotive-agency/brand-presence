@@ -22,6 +22,15 @@ app.add_typer(reports, name="reports")
 Config = Annotated[Path, typer.Option("--config", "-c", help="YAML configuration file.")]
 
 
+@app.command("example")
+def example(output: Annotated[Path, typer.Option(help="New or empty output directory.")]
+            = Path("brand-presence-example")):
+    """Build all reports and an HTML preview from bundled synthetic data, entirely offline."""
+    from brand_presence.example.runner import run
+
+    run(output, out=typer.echo)
+
+
 @app.command("setup-geo-targets")
 def setup_geo_targets(dated: Annotated[str, typer.Option("--date")],
                       config: Config = Path("config.yaml")):

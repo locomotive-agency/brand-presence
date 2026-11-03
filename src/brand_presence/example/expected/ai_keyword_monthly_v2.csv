@@ -1,0 +1,5 @@
+month,client_brand_id,country_code,engine,geo_id,keyword,brand,keyword_group,intent,prompts_run,prompts_no_text,prompts_mentioned,share_of_voice,first_mention_count,mention_rank_total,recommended_count,positive_count,neutral_count,negative_count,client_cited_count,gap_count,prompt_set_version
+2026-03-01,aardvark,NL,ai-overview,nl,voorbeeld theepot kopen,aardvark,kettles,comparison,1,0,0,0,0,0,,,,,0,0,1
+2026-03-01,aardvark,NL,ai-overview,nl,voorbeeld theepot kopen,capybara,kettles,comparison,1,0,0,0,0,0,,,,,0,,1
+2026-03-01,aardvark,NL,chatgpt,nl,voorbeeld theepot kopen,aardvark,kettles,comparison,2,0,1,0.5,1,1,,,,,0,0,1
+2026-03-01,aardvark,NL,chatgpt,nl,voorbeeld theepot kopen,capybara,kettles,comparison,2,0,1,0.5,0,2,,,,,0,,1

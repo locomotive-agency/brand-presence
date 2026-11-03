@@ -94,7 +94,7 @@ from google.api_core.exceptions import (
 )
 from google.cloud import bigquery
 
-from fakes.journal import (
+from brand_presence.example._offline.fakes.journal import (
     FAILED,
     NOT_UNDERSTOOD,
     REFUSED,
@@ -103,7 +103,7 @@ from fakes.journal import (
     StandIn,
     at_the_end,
 )
-from fakes.sql import (
+from brand_presence.example._offline.fakes.sql import (
     API_NAMES,
     Engine,
     FakeTable,
@@ -396,6 +396,14 @@ class FakeBigQuery(StandIn):
         table.last_changed_time = self.clock()
         self.tables[table.name] = table
         return table
+
+    def create_dataset(self, dataset, exists_ok=False):
+        identity = f"{dataset.project}.{dataset.dataset_id}"
+        if identity not in self._datasets:
+            self.add_dataset(identity, location=dataset.location)
+        found = bigquery.Dataset(identity)
+        found.location = self._datasets[identity][0]
+        return found
 
     def add_dataset(self, dataset_id: str, *, location: str,
                     tables: list[str] | tuple[str, ...] = ()) -> None:
