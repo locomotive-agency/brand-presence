@@ -33,8 +33,11 @@ Malformed rows stay raw and are reported as parse errors.
 ## Locks
 
 The BigQuery run record is a lock, and a local process lock protects the state folder.
+Only one collection or report build runs at a time per project and dataset set.
+
 After a process dies, the next run closes the abandoned record once it is one hour old.
-Until then, another run is refused.
+Until then, every collection and report build is refused with "another run is in
+flight". Wait, then run the same command. Saved pages are not requested again.
 
 ## Pending is not failed
 

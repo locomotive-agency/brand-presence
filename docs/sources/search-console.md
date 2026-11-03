@@ -47,6 +47,9 @@ uv run brand-presence reports run --source search-console --config config.yaml
   500 history requests per run.
 - Before reading, the run asks Google for its first incomplete date. Unfinished weeks
   wait. If Google cannot name that date, the run stops.
+- Each week is saved in its own BigQuery transaction, which takes a few minutes per
+  week. A full first history can take several hours. To check your setup quickly, run
+  one week first with `--period`, then let the history run without it.
 
 ## Cost and quotas
 

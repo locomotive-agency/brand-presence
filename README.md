@@ -122,8 +122,10 @@ Search Console and GA4 read their APIs by default. If a property already exports
 BigQuery, you can read that export instead, per property. See
 [API or BigQuery export](docs/bigquery-export.md).
 
-"Supported" means implemented and tested offline with invented data. Each source still
-needs a first check against your own account.
+Every source is tested offline with invented data. In November 2026 each source except
+Peec was also run against live accounts and BigQuery, with all report groups built.
+Peec and the BigQuery export routes are tested offline only. Check your first run
+against your own account.
 
 **Not included yet:** CRM sources, the Syften archive backfill, and reports that depend
 on Ads Transparency, search results, Trends or Reddit labels. The full list is in
@@ -182,7 +184,9 @@ Exit codes:
 - An empty report does not prove a brand had no activity.
 - Sentiment and recommendation labels are not inferred.
 - Distinct users and ratios cannot be added across report rows.
-- Tests run report SQL locally. They do not replace a first live BigQuery check.
+- First runs are slow on large accounts. Search Console history takes a few minutes per
+  week, and Syften reads every filter in your account.
+- Peec and the BigQuery export routes have not been run against live accounts yet.
 
 ## Documentation
 

@@ -31,7 +31,10 @@ A local ID cannot change its customer or client brand. Use a new ID.
 ### Google Cloud access
 
 1. Enable the Google Ads API in the project that owns your OAuth client.
-2. Apply for production access on that project's Google Ads API Overview page.
+2. Apply for production access on that project's Google Ads API Overview page. Until it
+   is approved, Google answers `CLOUD_PROJECT_NOT_APPROVED_FOR_PRODUCTION` for real
+   accounts. If another project of yours already has access, create the desktop OAuth
+   client there instead. The kit uses the OAuth client's project for Ads calls.
 3. Give your Google user access to each ad account, directly or through a manager.
 4. Add the `adwords` scope to the OAuth consent screen.
 

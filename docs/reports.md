@@ -79,5 +79,6 @@ These need data the kit does not collect yet. Their SQL was left out whole, not 
 
 ## Testing
 
-Report SQL runs in tests through a local SQL engine against invented data. Those tests
-do not replace a first check on real BigQuery.
+Report SQL runs in tests through a local SQL engine against invented data. Every
+report group was also built twice on real BigQuery in November 2026, with no duplicate
+revisions on the second build.

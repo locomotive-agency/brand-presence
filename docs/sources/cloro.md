@@ -65,6 +65,13 @@ and cap before running. The kit does not read charged credits from responses.
 The default is the current ISO week. `--period YYYY-Www` resumes a week. An older week
 only collects known tasks and finishes saved answers. It never creates new paid tasks.
 
+## Unavailable engines
+
+If an engine is not enabled on your Cloro account, Cloro refuses the request without
+creating a task, and the run ends as partial (exit code `3`). The refusal does not use
+up one of the request's three attempts, so each later run asks again in case the engine
+was turned on. To stop this, remove the engine from the prompt's `engines`.
+
 ## Recovery
 
 - A timeout is retried only with the same Cloro idempotency key.

@@ -53,6 +53,10 @@ uv run brand-presence reports run --source mentions --config config.yaml
 
 ## How a run reads
 
+- The API returns matches for every filter in your Syften account, not only the mapped
+  tags. The first run therefore pages through the whole account history. On an account
+  with many filters this can take most of an hour and end as partial when Syften rate
+  limits it. Run the command again to continue. Unmapped matches are only counted.
 - Reads use POST, up to 100 matches per page. They create no paid tasks.
 - Each page is saved before the next. Saved pages recover before a new pull.
 - A match ID is written once across runs.

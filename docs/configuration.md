@@ -96,4 +96,7 @@ uv run brand-presence init --config config.yaml
 - sets mention text expiry.
 
 It does not grant permissions, enable APIs or repair other incompatible schemas. Run it
-again after upgrading the kit.
+again after upgrading the kit, and after changing `mention_text_days`.
+
+`init` checks more than 100 tables one by one. Expect it to take from a few minutes to
+about fifteen.
