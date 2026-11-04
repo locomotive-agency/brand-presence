@@ -1,12 +1,9 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/hero-dark.svg">
-  <img alt="Brand Presence: seven sources flow into your own BigQuery project, then to Looker Studio or Claude" src="docs/images/hero-light.svg" width="100%">
-</picture>
+<img alt="Brand Presence: seven sources flow into your own BigQuery project, then to Looker Studio or Claude" src="docs/images/hero.svg" width="100%">
 
 <p align="center">
-  <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-blue"></a>
-  <img alt="Python 3.12+" src="https://img.shields.io/badge/python-3.12%2B-blue">
-  <img alt="BigQuery" src="https://img.shields.io/badge/storage-BigQuery-4285F4">
+  <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-6e29f6"></a>
+  <img alt="Python 3.12+" src="https://img.shields.io/badge/python-3.12%2B-000000">
+  <img alt="BigQuery" src="https://img.shields.io/badge/storage-BigQuery-a6eddd">
 </p>
 
 <p align="center">
@@ -24,10 +21,10 @@ project, the data and the credentials.
 
 <table>
   <tr>
-    <td width="25%" valign="top"><strong>🗄️ Your project</strong><br>Everything lands in datasets in your own Google Cloud project.</td>
-    <td width="25%" valign="top"><strong>💸 Pay once</strong><br>Raw responses are saved first, so an interrupted run resumes without paying twice.</td>
-    <td width="25%" valign="top"><strong>📝 Plain setup</strong><br>One YAML file. Credentials come only from environment variables.</td>
-    <td width="25%" valign="top"><strong>🧪 Try first</strong><br>A built-in example runs every report on invented data, offline.</td>
+    <td width="25%" valign="top"><strong>Your project</strong><br>Everything lands in datasets in your own Google Cloud project.</td>
+    <td width="25%" valign="top"><strong>Pay once</strong><br>Raw responses are saved first, so an interrupted run resumes without paying twice.</td>
+    <td width="25%" valign="top"><strong>Plain setup</strong><br>One YAML file. Credentials come only from environment variables.</td>
+    <td width="25%" valign="top"><strong>Try first</strong><br>A built-in example runs every report on invented data, offline.</td>
   </tr>
 </table>
 
@@ -120,15 +117,15 @@ Every command starts with `uv run brand-presence`. Every live run also needs Big
 access through Application Default Credentials (ADC). BigQuery bills storage and
 queries separately.
 
-| | Source | Collect | Credentials | Cost |
-| --- | --- | --- | --- | --- |
-| 🔎 | [DataForSEO](docs/sources/dataforseo.md) | `run search-volume` | `DATAFORSEO_LOGIN`, `DATAFORSEO_PASSWORD` | US$0.06 per task |
-| 🤖 | [Cloro](docs/sources/cloro.md) | `run ai-answers` | `CLORO_API_KEY` | Credits per task |
-| 💬 | [Syften](docs/sources/syften.md) | `run mentions` | `SYFTEN_API_KEY` | Subscription |
-| 🤖 | [Peec](docs/sources/peec.md) | `run peec` | `PEEC_API_KEY` | Subscription, reads are free |
-| 📈 | [Search Console](docs/sources/search-console.md) | `run search-console` | ADC | Free API, quotas apply |
-| 📊 | [GA4](docs/sources/ga4.md) | `run ga4` | ADC | Free API, quotas apply |
-| 📣 | [Google Ads](docs/sources/google-ads.md) | `run google-ads` | `GOOGLE_ADS_*` variables | Free API, quotas apply |
+| Source | Collect | Credentials | Cost |
+| --- | --- | --- | --- |
+| [DataForSEO](docs/sources/dataforseo.md) | `run search-volume` | `DATAFORSEO_LOGIN`, `DATAFORSEO_PASSWORD` | US$0.06 per task |
+| [Cloro](docs/sources/cloro.md) | `run ai-answers` | `CLORO_API_KEY` | Credits per task |
+| [Syften](docs/sources/syften.md) | `run mentions` | `SYFTEN_API_KEY` | Subscription |
+| [Peec](docs/sources/peec.md) | `run peec` | `PEEC_API_KEY` | Subscription, reads are free |
+| [Search Console](docs/sources/search-console.md) | `run search-console` | ADC | Free API, quotas apply |
+| [GA4](docs/sources/ga4.md) | `run ga4` | ADC | Free API, quotas apply |
+| [Google Ads](docs/sources/google-ads.md) | `run google-ads` | `GOOGLE_ADS_*` variables | Free API, quotas apply |
 
 Search Console and GA4 read their APIs by default. If a property already exports to
 BigQuery, you can read that export instead, per property. See
@@ -149,6 +146,7 @@ uv run brand-presence reports run --source ai-answers --config config.yaml
 Most groups read one source. Three combine others:
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#000000', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#6e29f6', 'lineColor': '#6e29f6', 'fontFamily': 'Plus Jakarta Sans, sans-serif'}}}%%
 flowchart LR
     SV[search-volume] --> SD[search-demand]
     GSC[search-console] --> SD
@@ -177,6 +175,7 @@ back. Table names and caveats are in [reports](docs/reports.md).
 ## How a run works
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#000000', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#6e29f6', 'lineColor': '#6e29f6', 'fontFamily': 'Plus Jakarta Sans, sans-serif'}}}%%
 flowchart LR
     P["Plan<br/>requests for the period"] --> R["Save raw<br/>local disk + BigQuery"]
     R --> C["Write clean rows<br/>one transaction"]
