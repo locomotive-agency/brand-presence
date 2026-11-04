@@ -155,8 +155,3 @@ something different from export page views. Export facts keep unlisted paths.
 
 Run `init` again after upgrading. The first run after the upgrade writes one new config
 snapshot, because the snapshot now includes export settings. This is expected.
-
-## Not yet checked live
-
-No live export was read while building this route. Tests use invented rows and local
-SQL. Check the first run against your own export.

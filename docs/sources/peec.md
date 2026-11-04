@@ -80,8 +80,7 @@ Notes:
 
 Also see [weekly AI reports](../reports.md#weekly-ai-reports).
 
-## Check against your account
+## Engine channels
 
-Account access, retention, observation time zone and late weekly updates have not been
-checked against a live account. Missing or inactive engine channels stop collection,
-and no substitute channel is chosen.
+Missing or inactive engine channels stop collection, and no substitute channel is
+chosen.

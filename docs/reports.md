@@ -76,9 +76,3 @@ These need data the kit does not collect yet. Their SQL was left out whole, not 
 | `fct_trends_v1`, `search_trends_history_v1` | Trends |
 | `freshness_v2` | CRM, Trends, search results and source-freshness data |
 | `reddit_mentions_v1`, `reddit_mentions_v2` | External mention labels |
-
-## Testing
-
-Report SQL runs in tests through a local SQL engine against invented data. Every
-report group was also built twice on real BigQuery in November 2026, with no duplicate
-revisions on the second build.

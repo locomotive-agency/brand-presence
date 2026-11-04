@@ -120,24 +120,19 @@ Every command starts with `uv run brand-presence`. Every live run also needs Big
 access through Application Default Credentials (ADC). BigQuery bills storage and
 queries separately.
 
-| | Source | Collect | Credentials | Cost | Live-tested |
-| --- | --- | --- | --- | --- | :---: |
-| 🔎 | [DataForSEO](docs/sources/dataforseo.md) | `run search-volume` | `DATAFORSEO_LOGIN`, `DATAFORSEO_PASSWORD` | US$0.06 per task | ✅ |
-| 🤖 | [Cloro](docs/sources/cloro.md) | `run ai-answers` | `CLORO_API_KEY` | Credits per task | ✅ |
-| 💬 | [Syften](docs/sources/syften.md) | `run mentions` | `SYFTEN_API_KEY` | Subscription | ✅ |
-| 🤖 | [Peec](docs/sources/peec.md) | `run peec` | `PEEC_API_KEY` | Subscription, reads are free | Offline only |
-| 📈 | [Search Console](docs/sources/search-console.md) | `run search-console` | ADC | Free API, quotas apply | ✅ |
-| 📊 | [GA4](docs/sources/ga4.md) | `run ga4` | ADC | Free API, quotas apply | ✅ |
-| 📣 | [Google Ads](docs/sources/google-ads.md) | `run google-ads` | `GOOGLE_ADS_*` variables | Free API, quotas apply | ✅ |
-
-Every source is tested offline with invented data. ✅ means it also ran against live
-accounts and BigQuery in November 2026, with all its report groups built. Check your
-first run against your own account.
+| | Source | Collect | Credentials | Cost |
+| --- | --- | --- | --- | --- |
+| 🔎 | [DataForSEO](docs/sources/dataforseo.md) | `run search-volume` | `DATAFORSEO_LOGIN`, `DATAFORSEO_PASSWORD` | US$0.06 per task |
+| 🤖 | [Cloro](docs/sources/cloro.md) | `run ai-answers` | `CLORO_API_KEY` | Credits per task |
+| 💬 | [Syften](docs/sources/syften.md) | `run mentions` | `SYFTEN_API_KEY` | Subscription |
+| 🤖 | [Peec](docs/sources/peec.md) | `run peec` | `PEEC_API_KEY` | Subscription, reads are free |
+| 📈 | [Search Console](docs/sources/search-console.md) | `run search-console` | ADC | Free API, quotas apply |
+| 📊 | [GA4](docs/sources/ga4.md) | `run ga4` | ADC | Free API, quotas apply |
+| 📣 | [Google Ads](docs/sources/google-ads.md) | `run google-ads` | `GOOGLE_ADS_*` variables | Free API, quotas apply |
 
 Search Console and GA4 read their APIs by default. If a property already exports to
 BigQuery, you can read that export instead, per property. See
-[API or BigQuery export](docs/bigquery-export.md). The export route is tested offline
-only.
+[API or BigQuery export](docs/bigquery-export.md).
 
 **Not included yet:** CRM sources, the Syften archive backfill, and reports that depend
 on Ads Transparency, search results, Trends or Reddit labels. The full list is in
@@ -224,7 +219,6 @@ flowchart LR
 - Distinct users and ratios cannot be added across report rows.
 - First runs are slow on large accounts. Search Console history takes a few minutes per
   week, and Syften reads every filter in your account.
-- Peec and the BigQuery export routes have not been run against live accounts yet.
 
 ## Documentation
 
