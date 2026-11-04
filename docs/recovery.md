@@ -39,6 +39,23 @@ After a process dies, the next run closes the abandoned record once it is one ho
 Until then, every collection and report build is refused with "another run is in
 flight". Wait, then run the same command. Saved pages are not requested again.
 
+Ctrl-C and `SIGTERM` stop a run cleanly: an open BigQuery transaction is rolled back
+and its session closed. A hard kill (`SIGKILL`, a power cut) cannot do that. BigQuery
+then keeps the transaction open until its session expires, up to 24 hours, and writes to
+the same tables fail with "Transaction is aborted due to concurrent update". To end it
+sooner, find the session and abort it:
+
+```sql
+SELECT session_id, creation_time
+FROM `region-us`.INFORMATION_SCHEMA.SESSIONS_BY_USER
+WHERE is_active
+ORDER BY creation_time;
+
+CALL BQ.ABORT_SESSION('<session_id>');
+```
+
+Use your dataset location's region. Only abort sessions from the dead run.
+
 ## Pending is not failed
 
 Requests not sent because the run's deadline passed, or because the vendor took

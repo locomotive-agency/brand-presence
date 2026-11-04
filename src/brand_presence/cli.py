@@ -134,9 +134,19 @@ def report_run(config: Config = Path("config.yaml"),
         typer.echo(f"Built {settings.table(table)}")
 
 
+def _interrupt(signum, frame):
+    raise KeyboardInterrupt
+
+
 def start():
+    import signal
+
+    signal.signal(signal.SIGTERM, _interrupt)
     try:
         app()
+    except KeyboardInterrupt:
+        typer.echo("Interrupted. Run the same command again.", err=True)
+        raise SystemExit(130) from None
     except UserError as error:
         typer.echo(str(error), err=True)
         raise SystemExit(1) from None

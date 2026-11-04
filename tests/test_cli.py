@@ -118,3 +118,36 @@ def test_ported_sources_from_cli(tmp_path, respx_mock, monkeypatch, source, env_
     result = invoke.invoke(cli.app, ['reports', 'run', '--source', source, '--config', str(path)])
     assert result.exit_code == 0, (result.output, result.exception)
     assert 'example-key' not in result.output
+
+
+def test_sigterm_unwinds_like_ctrl_c_so_open_transactions_roll_back(monkeypatch, capsys):
+    import os
+    import signal
+    from contextlib import contextmanager
+
+    from brand_presence import cli
+
+    ended = []
+
+    @contextmanager
+    def transaction():
+        try:
+            yield
+        except BaseException as error:
+            ended.append(type(error).__name__)
+            raise
+
+    def killed_mid_write():
+        with transaction():
+            os.kill(os.getpid(), signal.SIGTERM)
+
+    previous = signal.getsignal(signal.SIGTERM)
+    monkeypatch.setattr(cli, "app", killed_mid_write)
+    try:
+        with pytest.raises(SystemExit) as stopped:
+            cli.start()
+    finally:
+        signal.signal(signal.SIGTERM, previous)
+    assert ended == ["KeyboardInterrupt"]
+    assert stopped.value.code == 130
+    assert "Interrupted" in capsys.readouterr().err
