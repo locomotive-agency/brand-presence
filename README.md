@@ -22,12 +22,14 @@ Brand Presence is a command-line kit for analysts and marketing teams. It pulls 
 from seven sources, cleans it, and builds 32 versioned reports in BigQuery. You own the
 project, the data and the credentials.
 
-| | |
-| --- | --- |
-| 🗄️ **Your project** | Everything lands in datasets in your own Google Cloud project. |
-| 💸 **Pay once** | Raw responses are saved first, so an interrupted run resumes without paying twice. |
-| 📝 **Plain setup** | One YAML file. Credentials come only from environment variables. |
-| 🧪 **Try first** | A built-in example runs every report on invented data, offline. |
+<table>
+  <tr>
+    <td width="25%" valign="top"><strong>🗄️ Your project</strong><br>Everything lands in datasets in your own Google Cloud project.</td>
+    <td width="25%" valign="top"><strong>💸 Pay once</strong><br>Raw responses are saved first, so an interrupted run resumes without paying twice.</td>
+    <td width="25%" valign="top"><strong>📝 Plain setup</strong><br>One YAML file. Credentials come only from environment variables.</td>
+    <td width="25%" valign="top"><strong>🧪 Try first</strong><br>A built-in example runs every report on invented data, offline.</td>
+  </tr>
+</table>
 
 Point Looker Studio at the tables, or give Claude access through your own BigQuery
 connection. The kit does not include a dashboard or a scheduler.
@@ -59,14 +61,6 @@ The [example inputs and expected outputs](src/brand_presence/example/README.md) 
 fixed dates and known figures. Tests compare every report CSV exactly.
 
 ## Run it on your own project
-
-```mermaid
-flowchart LR
-    A["1 · Prepare<br/>Google Cloud"] --> B["2 · Write<br/>config.yaml"]
-    B --> C["3 · init<br/>create datasets"]
-    C --> D["4 · run<br/>collect a source"]
-    D --> E["5 · reports run<br/>build tables"]
-```
 
 ### 1. Prepare Google Cloud
 
@@ -157,6 +151,8 @@ Build a report group after collecting its source:
 uv run brand-presence reports run --source ai-answers --config config.yaml
 ```
 
+Most groups read one source. Three combine others:
+
 ```mermaid
 flowchart LR
     SV[search-volume] --> SD[search-demand]
@@ -165,8 +161,6 @@ flowchart LR
     ADS[google-ads] --> PAID
     AI[ai-answers] --> W[ai-weekly]
     PEEC[peec] --> W
-    MEN[mentions]
-    GA4[ga4]
 ```
 
 | `--source` | Builds |
