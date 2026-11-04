@@ -10,7 +10,7 @@ from brand_presence.settings import Settings
 from test_export_settings import configured
 
 
-def archive(rows=None):
+def archive(rows=None, member='geotargets-2026-01-01.csv'):
     stream = io.StringIO()
     writer = csv.writer(stream)
     writer.writerow(geo_targets.COLUMNS)
@@ -20,7 +20,7 @@ def archive(rows=None):
     ])
     data = io.BytesIO()
     with zipfile.ZipFile(data, 'w') as zipped:
-        zipped.writestr('geotargets-2026-01-01.csv', stream.getvalue())
+        zipped.writestr(member, stream.getvalue())
     return data.getvalue()
 
 
@@ -38,6 +38,32 @@ def test_setup_downloads_validates_and_dates_official_copy(tmp_path, respx_mock)
     assert held.country('NL')[0].active
     assert geo_targets.validate(settings) == '2026-01-01'
     assert not list(tmp_path.rglob('*.zip'))
+
+
+def test_setup_accepts_the_folder_google_publishes_the_file_in(tmp_path, respx_mock):
+    import httpx
+
+    settings = Settings.model_validate(configured())
+    settings.state_dir = tmp_path
+    member = 'third_party/devsite/developers/en/google-ads/api/data/geo/geotargets-2026-01-01.csv'
+    respx_mock.get(geo_targets.FILES + 'geotargets-2026-01-01.csv.zip').respond(
+        content=archive(member=member))
+    with httpx.Client() as http:
+        held = geo_targets.download(settings, '2026-01-01', http)
+    assert held.date == '2026-01-01'
+    assert held.header.rows == 2
+
+
+@pytest.mark.parametrize('member', ['geo/geotargets-2026-02-01.csv', 'geo/other.csv'])
+def test_setup_rejects_an_archive_of_another_file(tmp_path, respx_mock, member):
+    import httpx
+
+    settings = Settings.model_validate(configured())
+    settings.state_dir = tmp_path
+    respx_mock.get(geo_targets.FILES + 'geotargets-2026-01-01.csv.zip').respond(
+        content=archive(member=member))
+    with httpx.Client() as http, pytest.raises(UserError):
+        geo_targets.download(settings, '2026-01-01', http)
 
 
 def test_api_needs_no_copy_and_export_needs_validated_names(tmp_path):

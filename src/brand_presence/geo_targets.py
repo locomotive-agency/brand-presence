@@ -174,7 +174,8 @@ def download(settings, dated: str, http) -> GeoTargets:
                     raise ValueError('download too large')
         with zipfile.ZipFile(io.BytesIO(raw)) as archive:
             files = archive.infolist()
-            if (len(files) != 1 or files[0].filename != f'geotargets-{dated}.csv'
+            if (len(files) != 1 or files[0].is_dir()
+                    or files[0].filename.rsplit('/', 1)[-1] != f'geotargets-{dated}.csv'
                     or files[0].file_size > MAX_CSV):
                 raise ValueError('unexpected archive contents')
             text = archive.read(files[0]).decode('utf-8')
